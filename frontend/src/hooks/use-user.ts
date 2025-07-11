@@ -4,7 +4,7 @@ const useUser = () => {
     const { api } = useAxios();
 
     const refreshToken = async () => {
-        const res = await api.post("/auth/refresh-token");
+        const res = await api.post("/refresh-token");
         return res;
     }
 
