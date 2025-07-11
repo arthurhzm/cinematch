@@ -16,11 +16,13 @@ const InputPassword = forwardRef<HTMLInputElement, InputPasswordProps>(
         const [showPassword, setShowPassword] = useState<boolean>(false);
 
         return (
-            <div>
+            <div className="space-y-2">
+                <Label className='font-semibold text-foreground text-sm' htmlFor={props.id}>
+                    {label}
+                </Label>
                 <div className='flex'>
-                    <Label htmlFor={props.id}>{label}</Label>
                     <Input
-                        className='rounded-r-none'
+                        className='rounded-r-none bg-input border-border focus:border-primary focus:ring-primary/20 transition-all duration-200'
                         type={!showPassword ? 'password' : 'text'}
                         ref={ref}
                         value={value}
@@ -29,12 +31,13 @@ const InputPassword = forwardRef<HTMLInputElement, InputPasswordProps>(
                     <Button
                         type='button'
                         size={"icon"}
-                        className="rounded-l-none border-l-0 h-9.5"
+                        variant="outline"
+                        className="rounded-l-none border-l-0 h-9 border-border"
                         onClick={() => setShowPassword(!showPassword)}>
-                        {!showPassword ? <Eye className='text-white' /> : <EyeOff className='text-white' />}
+                        {!showPassword ? <Eye className='text-primary' /> : <EyeOff className='text-primary' />}
                     </Button>
                 </div>
-                {errors && <span className="text-red-500 text-xs mt-1">{errors.message}</span>}
+                {errors && <span className="text-destructive text-xs mt-1">{errors.message}</span>}
             </div>
         );
     }

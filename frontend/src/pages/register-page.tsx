@@ -1,12 +1,13 @@
 import InputPassword from "@/components/input-password";
 import InputText from "@/components/input-text";
+import PageContainer from "@/components/page-container";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/contexts/ToastContext";
 import { CreateUserDTO } from "@/DTO/CreateUserDTO";
 import useUser from "@/hooks/use-user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
 
 export default function RegisterPage() {
@@ -45,39 +46,53 @@ export default function RegisterPage() {
 
 
     return (
-        <div>
-            <h1>Criar conta</h1>
-            <form onSubmit={handleSubmit(onSubmit)}>
+        <PageContainer title="Criar conta" subtitle="Junte-se à nossa comunidade de cinéfilos">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 <InputText
                     label="Nome"
                     type="text"
+                    placeholder="Seu nome completo"
                     {...register("username")}
                     errors={formState.errors.username}
                 />
                 <InputText
                     label="Email"
                     type="email"
+                    placeholder="seu@email.com"
                     {...register("email")}
                     errors={formState.errors.email}
                 />
-                <div className="flex">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <InputPassword
                         label="Senha"
+                        placeholder="Sua senha"
                         {...register("password")}
                         errors={formState.errors.password}
                     />
                     <InputPassword
                         label="Confirmar Senha"
+                        placeholder="Confirme sua senha"
                         {...register("confirmPassword")}
                         errors={formState.errors.confirmPassword}
                     />
                 </div>
-                <div>
-                    <Button className="mt-4" type="submit">
-                        Criar conta
-                    </Button>
+                <Button 
+                    className="w-full h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold cinema-glow transition-all duration-300" 
+                    type="submit"
+                    disabled={formState.isSubmitting}
+                >
+                    {formState.isSubmitting ? "Criando conta..." : "Criar conta"}
+                </Button>
+                <div className="text-center text-sm text-muted-foreground">
+                    Já tem uma conta?{" "}
+                    <Link 
+                        to="/login" 
+                        className="text-primary hover:text-primary/80 font-medium transition-colors"
+                    >
+                        Fazer login
+                    </Link>
                 </div>
             </form>
-        </div>
+        </PageContainer>
     )
 }
