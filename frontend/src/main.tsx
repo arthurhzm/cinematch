@@ -15,9 +15,9 @@ createRoot(document.getElementById('root')!).render(
       <ToastProvider>
         <BrowserRouter>
           <Routes>
+            <Route path='/register' element={<RegisterPage />} />
             <Route element={<AppRoute isPrivate={false} />} >
               <Route path='/login' element={<LoginPage />} />
-              <Route path='/register' element={<RegisterPage />} />
             </Route>
             <Route element={<AppRoute isPrivate={true} />} >
               <Route path='/' element={<HomePage />} />

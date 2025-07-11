@@ -1,14 +1,19 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Eye } from "lucide-react";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import InputText from "@/components/input-text";
 import InputPassword from "@/components/input-password";
+import InputText from "@/components/input-text";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/contexts/ToastContext";
+import { CreateUserDTO } from "@/DTO/CreateUserDTO";
+import useUser from "@/hooks/use-user";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { z } from "zod";
 
 export default function RegisterPage() {
+
+    const { createUser } = useUser();
+    const { showSuccess, showError } = useToast();
+    const navigate = useNavigate();
 
     const schema = z.object({
         username: z.string().min(3, { message: "Informe um nome com pelo menos 3 caracteres" }),
@@ -26,8 +31,16 @@ export default function RegisterPage() {
         resolver: zodResolver(schema)
     });
 
-    const onSubmit = (data: RegisterFormData) => {
-        console.log(data);
+    const onSubmit = async (data: RegisterFormData) => {
+        const userData = new CreateUserDTO(data.username, data.password, data.email);
+        try {
+            await createUser(userData);
+            showSuccess("Usuário criado com sucesso!");
+            navigate("/login");
+        } catch (error) {
+            console.error("Erro ao criar usuário:", error);
+            showError("Erro ao criar usuário. Tente novamente mais tarde.");
+        }
     }
 
 
