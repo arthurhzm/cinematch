@@ -2,12 +2,18 @@ import InputPassword from "@/components/input-password";
 import InputText from "@/components/input-text";
 import PageContainer from "@/components/page-container";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/contexts/ToastContext";
+import useUser from "@/hooks/use-user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
 
 export default function LoginPage() {
+    const { authenticateUser } = useUser();
+    const navigate = useNavigate();
+    const { showError } = useToast();
+
     const schema = z.object({
         email: z.email({ message: "Email inválido" }),
         password: z.string().min(1, { message: "Senha é obrigatória" }),
@@ -20,8 +26,12 @@ export default function LoginPage() {
     });
 
     const onSubmit = async (data: LoginFormData) => {
-        console.log("Login data:", data);
-        // Implementar lógica de login aqui
+        try {
+            await authenticateUser(data.email, data.password);
+            navigate("/home");
+        } catch (error) {
+            showError("Erro ao autenticar usuário, tente novamente.");
+        }
     };
 
     return (
