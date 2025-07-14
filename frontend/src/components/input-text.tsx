@@ -20,7 +20,7 @@ const InputText = forwardRef<HTMLInputElement, InputTextProps>(
                 <Input
                     id={props.id}
                     ref={ref}
-                    type={type}
+                    type="text"
                     value={value}
                     className="bg-input border-border focus:border-primary focus:ring-primary/20 transition-all duration-200"
                     {...props}

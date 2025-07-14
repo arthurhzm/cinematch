@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import useUser from '@/hooks/use-user';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
 import { useNavigate } from 'react-router-dom';
+import Title from './ui/title';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -60,7 +61,7 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
       <main className="container mx-auto px-4 py-6">
         {title && (
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-foreground">{title}</h1>
+            <Title>{title}</Title>
           </div>
         )}
         {children}
