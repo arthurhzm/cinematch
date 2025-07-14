@@ -39,7 +39,6 @@ export default function RegisterPage() {
             showSuccess("Usuário criado com sucesso!");
             navigate("/login");
         } catch (error) {
-            console.error("Erro ao criar usuário:", error);
             showError("Erro ao criar usuário. Tente novamente mais tarde.");
         }
     }

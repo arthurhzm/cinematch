@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
 import { Film, Search, User, Home, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import useUser from '@/hooks/use-user';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -8,6 +10,9 @@ interface AppLayoutProps {
 }
 
 export default function AppLayout({ children, title }: AppLayoutProps) {
+
+  const { logoutUser } = useUser();
+
   return (
     <div className="min-h-screen cinema-gradient">
       {/* Header */}
@@ -25,8 +30,8 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
           <div className="hidden md:flex flex-1 max-w-md mx-8">
             <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <input 
-                type="text" 
+              <input
+                type="text"
                 placeholder="Buscar filmes..."
                 className="w-full pl-10 pr-4 py-2 bg-input border border-border rounded-md focus:border-primary focus:ring-primary/20 transition-all duration-200"
               />
@@ -34,9 +39,18 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
           </div>
 
           {/* User menu */}
-          <Button variant="ghost" size="icon" className="text-foreground hover:text-primary">
-            <User className="w-5 h-5" />
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="text-foreground hover:text-primary">
+                <User className="w-5 h-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={logoutUser}>
+                Logout
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </header>
 

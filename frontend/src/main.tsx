@@ -8,6 +8,7 @@ import AppRoute from './components/Route.tsx'
 import LoginPage from './pages/login-page.tsx'
 import RegisterPage from './pages/register-page.tsx'
 import HomePage from './pages/home-page.tsx'
+import AddPreferencesPage from './pages/add-preferences-page.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -21,6 +22,7 @@ createRoot(document.getElementById('root')!).render(
             </Route>
             <Route element={<AppRoute isPrivate={true} />} >
               <Route path='/' element={<HomePage />} />
+              <Route path='/add-preferences' element={<AddPreferencesPage />} />
             </Route>
           </Routes>
         </BrowserRouter>

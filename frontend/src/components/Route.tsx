@@ -21,7 +21,6 @@ export default function AppRoute({ isPrivate }: { isPrivate?: boolean }) {
                     setIsAuthenticated(true);
                 }
             } catch (e) {
-                console.error(e);
                 setToken('');
                 setIsAuthenticated(false);
             } finally {

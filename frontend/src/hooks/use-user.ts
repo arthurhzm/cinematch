@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const useUser = () => {
     const { api } = useAxios();
-    const { setToken } = useAuth();
+    const { setToken, setUserData } = useAuth();
 
 
     const createUser = async (userData: CreateUserDTO) => {
@@ -14,21 +14,29 @@ const useUser = () => {
 
     const authenticateUser = async (email: string, password: string) => {
         const res = await api.post("/login", { email, password });
-        console.log(res);
-        console.log(res.data);
         setToken(res.data.token);
+        setUserData(res.data.user);
         return res;
     }
 
     const refreshToken = async () => {
         const res = await api.post("/refresh-token");
+        setToken(res.data.token);
+        setUserData(res.data.user);
         return res;
+    }
+
+    const logoutUser = async () => {
+        await api.post("/logout");
+        setToken(null);
+        setUserData(null);
     }
 
     return {
         authenticateUser,
         createUser,
         refreshToken,
+        logoutUser
     }
 }
 
