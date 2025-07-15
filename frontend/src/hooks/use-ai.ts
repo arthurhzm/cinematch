@@ -1,14 +1,14 @@
+import { AI_MODELS } from "@/utils/ai-models";
 import type { AIRecommendations, UserPreferences } from "@/utils/types";
 import { GoogleGenAI } from "@google/genai";
 
 const useAI = () => {
     const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 
-    const generateMovieRecommendations = async (preferences: UserPreferences): Promise<AIRecommendations[]> => {
+    const generateMovieRecommendations = async (preferences: UserPreferences, special: boolean = false): Promise<AIRecommendations[]> => {
         const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash-lite-preview-06-17",
-            contents: recommendationPrompt(preferences, 10),
-           
+            model: AI_MODELS.GEMINI_2_5_FLASH_LITE,
+            contents: recommendationPrompt(preferences, 10, special),
         });
 
         if (!response.text) {
@@ -20,8 +20,7 @@ const useAI = () => {
 
         jsonText = jsonText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
         const recommendations: AIRecommendations[] = JSON.parse(jsonText);
-        
-        // Fetch posters from TMDB
+
         const tmdbApiKey = import.meta.env.VITE_TMDB_API_KEY;
         const recommendationsWithPosters = await Promise.all(
             recommendations.map(async (movie) => {
@@ -30,7 +29,7 @@ const useAI = () => {
                         `https://api.themoviedb.org/3/search/movie?api_key=${tmdbApiKey}&query=${encodeURIComponent(movie.title)}&year=${movie.year}`
                     );
                     const searchData = await searchResponse.json();
-                    
+
                     if (searchData.results && searchData.results.length > 0) {
                         const posterPath = searchData.results[0].poster_path;
                         return {
@@ -38,7 +37,7 @@ const useAI = () => {
                             poster_url: posterPath ? `https://image.tmdb.org/t/p/w500${posterPath}` : null
                         };
                     }
-                    
+
                     return { ...movie, poster_url: null };
                 } catch (error) {
                     console.error(`Error fetching poster for ${movie.title}:`, error);
@@ -46,11 +45,11 @@ const useAI = () => {
                 }
             })
         );
-        
+
         return recommendationsWithPosters;
     }
 
-    const recommendationPrompt = (preferences: UserPreferences, length: number) => {
+    const recommendationPrompt = (preferences: UserPreferences, length: number, special: boolean = false) => {
         return `
             Você é um cinéfilo especialista em recomendar filmes personalizados. 
       
@@ -89,7 +88,36 @@ const useAI = () => {
             8. Verifique cuidadosamente a formatação JSON, os valores do JSON devem ser em português do Brasil
             9. Nunca use caracteres especiais ou Unicode
             (Retorne apenas o JSON válido, sem markdown ou formatação adicional)
+            ${special ? recommendationPromptSpecial() : ''}
+
         `;
+    }
+
+    const recommendationPromptSpecial = () => {
+        const now = new Date();
+        const month = now.getMonth() + 1; // Meses são 0-indexados
+        const day = now.getDate();
+
+        let specialPrompt = `
+            [SISTEMA]
+                Neste contexto, estamos em uma função de recomendação especial, ou seja, devemos sugerir filmes que sejam relevantes para o período atual sem levar em conta as preferências do usuário.
+                Sua tarefa é sugerir filmes que sejam populares ou bem avaliados atualmente, levando em consideração o período do ano.
+            [/SISTEMA]
+        `;
+
+        if (month >= 11 && day >= 20) {
+            specialPrompt += `Como estamos perto do Natal, sugira filmes natalinos`;
+        } else if (month === 10) {
+            specialPrompt += `Como estamos perto do Halloween, sugira filmes de Halloween`;
+        } else if (month === 2) {
+            specialPrompt += `Como estamos perto do Dia dos Namorados, sugira filmes românticos para o Dia dos Namorados`;
+        } else if (month === 6) {
+            specialPrompt += `Como estamos perto de São João, sugira filmes de São João`;
+        } else {
+            specialPrompt += `Como estamos em um período normal, sugira filmes que sejam populares ou bem avaliados atualmente`;
+        }
+
+        return specialPrompt;
     }
 
     return {
