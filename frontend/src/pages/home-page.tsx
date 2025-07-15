@@ -1,11 +1,11 @@
 import AppLayout from "@/components/app-layout";
-import Title from "@/components/ui/title";
+import MoviePoster from "@/components/ui/movie-poster";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/contexts/ToastContext";
 import useAI from "@/hooks/use-ai";
 import usePreferences from "@/hooks/use-preferences";
 import { ROUTES } from "@/utils/routes";
-import type { AIRecommendations, UserPreferences } from "@/utils/types";
+import type { AIRecommendations } from "@/utils/types";
 import { HttpStatusCode, isAxiosError } from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -49,15 +49,7 @@ export default function HomePage() {
                     <div className="mt-6">
                         <p className="text-muted-foreground">Filmes recomendados com base nos seus gostos</p>
                         <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-                            {recommendations.map((movie) => (
-                                <div key={movie.title} className="flex-none">
-                                    <img
-                                        src={movie.poster_url || "https://via.placeholder.com/500x750/1a1a1a/ffffff?text=Poster"}
-                                        alt={`Filme ${movie.title}`}
-                                        className="w-48 h-72 object-cover rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer"
-                                    />
-                                </div>
-                            ))}
+                            {recommendations.map((movie) => (<MoviePoster movie={movie} key={movie.title} />))}
                         </div>
                     </div>
                 )}
