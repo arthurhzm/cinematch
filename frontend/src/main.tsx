@@ -11,22 +11,20 @@ import HomePage from './pages/home-page.tsx'
 import AddPreferencesPage from './pages/add-preferences-page.tsx'
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <AuthProvider>
-      <ToastProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path='/register' element={<RegisterPage />} />
-            <Route element={<AppRoute isPrivate={false} />} >
-              <Route path='/login' element={<LoginPage />} />
-            </Route>
-            <Route element={<AppRoute isPrivate={true} />} >
-              <Route path='/' element={<HomePage />} />
-              <Route path='/add-preferences' element={<AddPreferencesPage />} />
-            </Route>
-          </Routes>
-        </BrowserRouter>
-      </ToastProvider>
-    </AuthProvider>
-  </StrictMode>,
+  <AuthProvider>
+    <ToastProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path='/register' element={<RegisterPage />} />
+          <Route element={<AppRoute isPrivate={false} />} >
+            <Route path='/login' element={<LoginPage />} />
+          </Route>
+          <Route element={<AppRoute isPrivate={true} />} >
+            <Route path='/' element={<HomePage />} />
+            <Route path='/add-preferences' element={<AddPreferencesPage />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </ToastProvider>
+  </AuthProvider>
 )

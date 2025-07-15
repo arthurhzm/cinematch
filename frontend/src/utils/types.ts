@@ -27,3 +27,13 @@ export type UserPreferences = {
     maxDuration: number;
     acceptAdultContent: boolean;
 }
+
+export type AIRecommendations = {
+    title: string;
+    year: number;
+    genres: string[];
+    overview: string;
+    why_recommend: string;
+    poster_url: string | null;
+    streaming_services: string[];
+}

@@ -23,7 +23,7 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
       <header className="sticky top-0 z-50 cinema-card border-b border-primary/20 backdrop-blur-lg">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2" onClick={() => navigate(ROUTES.home)}>
             <div className="p-2 rounded-full bg-primary/20">
               <Film className="w-6 h-6 text-primary" />
             </div>
@@ -59,7 +59,7 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
       </header>
 
       {/* Main content */}
-      <main className="container mx-auto px-4 py-6">
+      <main className="container mx-auto px-4">
         {title && (
           <div className="mb-6">
             <Title>{title}</Title>

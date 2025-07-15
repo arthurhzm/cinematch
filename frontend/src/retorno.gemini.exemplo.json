@@ -1,0 +1,92 @@
+[
+  {
+    "title": "Os Bons Companheiros",
+    "year": 1990,
+    "genres": ["Crime", "Drama"],
+    "overview": "A historia real de Henry Hill, um gangster que cresce na mafia de Nova York, explorando a ascensao e queda de sua vida criminosa. Dirigido por Martin Scorsese.",
+    "why_recommend": "Essencial para fas de Scorsese e crime. Mostra a vida no submundo da mafia com realismo e estilo inconfundiveis.",
+    "poster_url": "https://image.tmdb.org/t/p/original/mgt6tqRkCg9pB0K7L88t6XyKqT5.jpg",
+    "streaming_services": ["HBO Max", "Prime Video", "Apple TV", "Google Play Filmes"]
+  },
+  {
+    "title": "Os Infiltrados",
+    "year": 2006,
+    "genres": ["Crime", "Thriller", "Drama"],
+    "overview": "Um policial se infiltra na mafia irlandesa em Boston, enquanto um mafioso se infiltra na policia. Ambos tentam descobrir a identidade um do outro.",
+    "why_recommend": "Mais uma obra-prima de Scorsese, com um elenco estelar e um roteiro tenso, cheio de reviravoltas e confrontos morais intensos.",
+    "poster_url": "https://image.tmdb.org/t/p/original/j9B5q30626kX7Xg0qW498v5b9qH.jpg",
+    "streaming_services": ["HBO Max", "Prime Video", "Apple TV", "Google Play Filmes"]
+  },
+  {
+    "title": "Pulp Fiction: Tempo de Violencia",
+    "year": 1994,
+    "genres": ["Crime", "Drama", "Comedia"],
+    "overview": "Varias historias interligadas sobre gangsteres, boxeadores e ladroes de lanchonete em Los Angeles, apresentadas de forma nao linear.",
+    "why_recommend": "Um marco do cinema moderno, com dialogos afiados, personagens iconicos e uma estrutura narrativa inovadora. Combina crime, drama e comedia.",
+    "poster_url": "https://image.tmdb.org/t/p/original/9rSSQf1xT8o7l2kRjVjSjj2B95r.jpg",
+    "streaming_services": ["HBO Max", "Telecine Play"]
+  },
+  {
+    "title": "Matrix",
+    "year": 1999,
+    "genres": ["Ficcao Cientifica", "Acao"],
+    "overview": "Um programador de computador descobre que a realidade e uma simulacao controlada por maquinas, e ele pode ser o 'Escolhido' para libertar a humanidade.",
+    "why_recommend": "Revolucionario em acao e conceitos. Explora filosofia, tecnologia e a natureza da realidade, um divisor de aguas na ficcao cientifica.",
+    "poster_url": "https://image.tmdb.org/t/p/original/fJpAXfC2N9g4b1NlQe9qg02p76V.jpg",
+    "streaming_services": ["HBO Max", "Prime Video", "Telecine Play"]
+  },
+  {
+    "title": "A Origem",
+    "year": 2010,
+    "genres": ["Ficcao Cientifica", "Acao", "Thriller"],
+    "overview": "Dom Cobb e um ladrao que rouba informacoes valiosas do subconsciente de suas vitimas durante o estado de sonho. Ele recebe uma chance de redencao atraves de uma ultima tarefa: a 'inceptacao'.",
+    "why_recommend": "Um thriller de ficcao cientifica com acao espetacular e um enredo complexo que te prende do inicio ao fim. Desafia a percepcao da realidade.",
+    "poster_url": "https://image.tmdb.org/t/p/original/yM4tGzVv6Kj970eH4iXk5Pq4c3t.jpg",
+    "streaming_services": ["HBO Max", "Prime Video", "Apple TV", "Google Play Filmes"]
+  },
+  {
+    "title": "Seven: Os Sete Crimes Capitais",
+    "year": 1995,
+    "genres": ["Crime", "Misterio", "Thriller"],
+    "overview": "Dois detetives, um veterano prestes a se aposentar e um novato, investigam uma serie de assassinatos baseados nos sete pecados capitais.",
+    "why_recommend": "Um thriller sombrio e atmosferico que redefine o genero. Intenso, inteligente e com um final inesquecivel. Perfeito para fas de misterio e crime.",
+    "poster_url": "https://image.tmdb.org/t/p/original/4yvJvU5cO0dK44p80n8L1bTjQo2.jpg",
+    "streaming_services": ["HBO Max", "Prime Video", "Google Play Filmes", "Apple TV"]
+  },
+  {
+    "title": "O Silencio dos Inocentes",
+    "year": 1991,
+    "genres": ["Thriller", "Terror", "Crime"],
+    "overview": "Uma jovem agente do FBI busca a ajuda de um brilhante, mas perigoso, psiquiatra canibal para capturar um assassino em serie conhecido como Buffalo Bill.",
+    "why_recommend": "Um classico do suspense e terror psicologico, com atuacoes iconicas e uma trama envolvente que te mantem tenso do inicio ao fim.",
+    "poster_url": "https://image.tmdb.org/t/p/original/rG8b9l0b27u7WkE0sB3Nf6w198G.jpg",
+    "streaming_services": ["HBO Max", "Prime Video", "Telecine Play"]
+  },
+  {
+    "title": "Forrest Gump: O Contador de Historias",
+    "year": 1994,
+    "genres": ["Drama", "Romance", "Historia", "Comedia"],
+    "overview": "A vida de um homem simples do Alabama que, sem querer, testemunha e influencia muitos dos eventos historicos importantes dos EUA no seculo XX.",
+    "why_recommend": "Uma jornada emocionante e inspiradora atraves da historia americana. Uma mistura perfeita de drama, comedia, romance e historia.",
+    "poster_url": "https://image.tmdb.org/t/p/original/h5wYd78fBv42oH8x61bWp0zYy5k.jpg",
+    "streaming_services": ["Netflix", "Star+", "Telecine Play"]
+  },
+  {
+    "title": "Parasita",
+    "year": 2019,
+    "genres": ["Thriller", "Comedia", "Drama"],
+    "overview": "Uma familia pobre planeja se infiltrar na vida de uma familia rica, um por um, mas suas vidas se entrelacam de formas inesperadas e perigosas.",
+    "why_recommend": "Uma obra-prima moderna que mistura generos de forma unica. Intenso, satirico e com reviravoltas surpreendentes que prendem a atencao.",
+    "poster_url": "https://image.tmdb.org/t/p/original/jXgYgTffHh3s7e7M3qQy75fA2cT.jpg",
+    "streaming_services": ["Telecine Play", "HBO Max", "Apple TV"]
+  },
+  {
+    "title": "Brilho Eterno de uma Mente sem Lembrancas",
+    "year": 2004,
+    "genres": ["Romance", "Ficcao Cientifica", "Drama"],
+    "overview": "Um casal se submete a um procedimento para apagar as memorias um do outro apos um relacionamento doloroso. No entanto, o processo revela a importancia das lembrancas.",
+    "why_recommend": "Uma abordagem original e emocionante sobre romance, memoria e perda. Combina ficcao cientifica com uma historia humana profunda.",
+    "poster_url": "https://image.tmdb.org/t/p/original/5eKBYK0bV8vW9R9hV2y3rJz1k3H.jpg",
+    "streaming_services": ["Prime Video", "Star+", "Telecine Play"]
+  }
+]
