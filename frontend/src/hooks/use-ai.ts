@@ -1,11 +1,77 @@
 import { AI_MODELS } from "@/utils/ai-models";
 import type { AIRecommendations, UserPreferences } from "@/utils/types";
 import { GoogleGenAI } from "@google/genai";
+interface CacheEntry {
+    data: AIRecommendations[];
+    timestamp: number;
+    expiresAt: number;
+}
+
+interface RecommendationCache {
+    [key: string]: CacheEntry;
+}
+
 
 const useAI = () => {
     const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
+    const CACHE_DURATION = 60 * 60 * 1000; // 1 hora
+    const CACHE_KEY = 'cinematch_recommendations_cache';
+
+    const getCache = (): RecommendationCache => {
+        try {
+            const cached = localStorage.getItem(CACHE_KEY);
+            return cached ? JSON.parse(cached) : {};
+        } catch (error) {
+            console.error('Erro ao ler cache:', error);
+            return {};
+        }
+    };
+
+    const setCache = (cache: RecommendationCache) => {
+        try {
+            localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+        } catch (error) {
+            console.error('Erro ao salvar cache:', error);
+        }
+    };
+
+    const generateCacheKey = (preferences: UserPreferences, special: boolean): string => {
+        const key = {
+            genres: preferences.favoriteGenres?.sort(),
+            directors: preferences.favoriteDirectors?.sort(),
+            actors: preferences.favoriteActors?.sort(),
+            minYear: preferences.minReleaseYear,
+            maxDuration: preferences.maxDuration,
+            adultContent: preferences.acceptAdultContent,
+            special,
+            date: special ? new Date().toDateString() : null // Para recomendações especiais, considerar a data
+        };
+        return btoa(JSON.stringify(key));
+    };
+
+    const cleanExpiredCache = (cache: RecommendationCache): RecommendationCache => {
+        const now = Date.now();
+        const cleanedCache: RecommendationCache = {};
+
+        Object.keys(cache).forEach(key => {
+            if (cache[key].expiresAt > now) {
+                cleanedCache[key] = cache[key];
+            }
+        });
+
+        return cleanedCache;
+    };
 
     const generateMovieRecommendations = async (preferences: UserPreferences, special: boolean = false): Promise<AIRecommendations[]> => {
+        const cacheKey = generateCacheKey(preferences, special);
+        const cache = getCache();
+        const cleanedCache = cleanExpiredCache(cache);
+
+        // Verifica se existe cache válido
+        if (cleanedCache[cacheKey]) {
+            console.log('Usando recomendações do cache');
+            return cleanedCache[cacheKey].data;
+        }
         const response = await ai.models.generateContent({
             model: AI_MODELS.GEMINI_2_5_FLASH_LITE,
             contents: recommendationPrompt(preferences, 10, special),
@@ -45,6 +111,16 @@ const useAI = () => {
                 }
             })
         );
+
+        // Salva no cache
+        const now = Date.now();
+        cleanedCache[cacheKey] = {
+            data: recommendationsWithPosters,
+            timestamp: now,
+            expiresAt: now + CACHE_DURATION
+        };
+
+        setCache(cleanedCache);
 
         return recommendationsWithPosters;
     }

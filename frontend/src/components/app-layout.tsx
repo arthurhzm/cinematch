@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Film, Search, User, Home, Heart } from 'lucide-react';
+import { Film, Search, User, Home, Heart, DoorOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import useUser from '@/hooks/use-user';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
@@ -51,7 +51,7 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={logoutUser}>
-                Logout
+                <DoorOpen /> Sair
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
