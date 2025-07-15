@@ -17,7 +17,7 @@ export type Actors = {
     name: string;
     createdAt: string;
     updatedAt: string;
-}   
+}
 
 export type UserPreferences = {
     favoriteGenres: string[];
@@ -36,4 +36,10 @@ export type AIRecommendations = {
     why_recommend: string;
     poster_url: string | null;
     streaming_services: string[];
+}
+
+export type UserMovieFeedback = {
+    id: number;
+    rating: number;
+    review: string;
 }

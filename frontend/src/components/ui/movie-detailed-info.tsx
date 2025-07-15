@@ -1,10 +1,11 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/contexts/ToastContext";
 import { CreateMovieFeedbackDTO } from "@/DTO/CreateMovieFeedbackDTO";
+import { UpdateMovieFeedbackDTO } from "@/DTO/UpdateMovieFeedbackDTO";
 import useFeedback from "@/hooks/use-feedback";
-import type { AIRecommendations } from "@/utils/types";
+import type { AIRecommendations, UserMovieFeedback } from "@/utils/types";
 import { Check, Star, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type MovieDetailedInfoProps = {
     movie: AIRecommendations;
@@ -14,28 +15,55 @@ type MovieDetailedInfoProps = {
 
 export default function MovieDetailedInfo({ movie, open, onClose }: MovieDetailedInfoProps) {
 
-    const { submitFeedback } = useFeedback();
+    const { getFeedbackByMovie, submitFeedback, updateFeedback } = useFeedback();
     const { showSuccess, showError } = useToast();
     const { userData } = useAuth();
 
     const [showFeedbackSection, setShowFeedbackSection] = useState(false);
+    const [feedback, setFeedback] = useState<UserMovieFeedback | null>(null);
     const [rating, setRating] = useState(0);
     const [review, setReview] = useState("");
     const [loading, setLoading] = useState(false);
 
+    useEffect(() => {
+        if (!movie || !userData) return;
+        const fetchFeedback = async () => {
+            const response = await getFeedbackByMovie(userData.id, movie.title);
+            if (response.data) {
+                setRating(response.data.rating);
+                setReview(response.data.review);
+                setFeedback(response.data);
+                setShowFeedbackSection(true);
+            }
+        };
+        fetchFeedback();
+    }, [movie])
+
     const handleReviewSubmit = async () => {
         if (!userData) return;
         setLoading(true);
-        const feedback = new CreateMovieFeedbackDTO(movie.title, rating, review);
-        try {
-            await submitFeedback(userData.id, feedback);
-            showSuccess("Avaliação enviada com sucesso!");
-            setShowFeedbackSection(false);
-        } catch (error) {
-            showError("Falha ao enviar avaliação.");
-        } finally {
-            setLoading(false);
+        if (!!feedback) {
+            const updatedFeedback = new UpdateMovieFeedbackDTO(rating, review);
+            try {
+                await updateFeedback(feedback.id, updatedFeedback);
+                showSuccess("Avaliação atualizada com sucesso!");
+            } catch (error) {
+                showError("Falha ao atualizar avaliação.");
+            } finally {
+                setLoading(false);
+            }
+        } else {
+            const newFeedback = new CreateMovieFeedbackDTO(movie.title, rating, review);
+            try {
+                await submitFeedback(userData.id, newFeedback);
+                showSuccess("Avaliação enviada com sucesso!");
+            } catch (error) {
+                showError("Falha ao enviar avaliação.");
+            } finally {
+                setLoading(false);
+            }
         }
+
     }
     return (
         <>
