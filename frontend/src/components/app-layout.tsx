@@ -5,6 +5,7 @@ import useUser from '@/hooks/use-user';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
 import { useNavigate } from 'react-router-dom';
 import Title from './ui/title';
+import { ROUTES } from '@/utils/routes';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -70,7 +71,7 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
       {/* Bottom navigation - mobile only */}
       <nav className="fixed bottom-0 left-0 right-0 md:hidden cinema-card border-t border-primary/20 backdrop-blur-lg">
         <div className="flex items-center justify-around py-2">
-          <Button variant="ghost" size="icon" className="flex flex-col gap-1 h-auto py-2" onClick={() => navigate('/')}>
+          <Button variant="ghost" size="icon" className="flex flex-col gap-1 h-auto py-2" onClick={() => navigate(ROUTES.home)}>
             <Home className="w-5 h-5" />
             <span className="text-xs">Início</span>
           </Button>
@@ -78,9 +79,9 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
             <Search className="w-5 h-5" />
             <span className="text-xs">Buscar</span>
           </Button>
-          <Button variant="ghost" size="icon" className="flex flex-col gap-1 h-auto py-2">
+          <Button variant="ghost" size="icon" className="flex flex-col gap-1 h-auto py-2" onClick={() => navigate(ROUTES.addPreferences)}>
             <Heart className="w-5 h-5" />
-            <span className="text-xs">Favoritos</span>
+            <span className="text-xs">Preferências</span>
           </Button>
           <Button variant="ghost" size="icon" className="flex flex-col gap-1 h-auto py-2">
             <User className="w-5 h-5" />

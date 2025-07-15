@@ -18,3 +18,12 @@ export type Actors = {
     createdAt: string;
     updatedAt: string;
 }   
+
+export type UserPreferences = {
+    favoriteGenres: string[];
+    favoriteDirectors: string[];
+    favoriteActors: string[];
+    minReleaseYear: number;
+    maxDuration: number;
+    acceptAdultContent: boolean;
+}

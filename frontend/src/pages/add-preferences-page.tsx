@@ -11,7 +11,7 @@ import { SavePreferencesDTO } from "@/DTO/SavePreferencesDTO";
 import useMoviesAPI from "@/hooks/use-movies-api";
 import usePreferences from "@/hooks/use-preferences";
 import { ROUTES } from "@/utils/routes";
-import { type Actors, type Directors, type Genres } from "@/utils/types";
+import { type Actors, type Directors, type Genres, type UserPreferences } from "@/utils/types";
 import { Check, CloudUpload } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -19,7 +19,7 @@ import { useNavigate } from "react-router-dom";
 export default function AddPreferencesPage() {
 
     const { getGenres, getDirectors, getActors } = useMoviesAPI();
-    const { saveUserPreferences } = usePreferences();
+    const { getUserPreferences, saveUserPreferences } = usePreferences();
     const { userData } = useAuth();
     const { showSuccess, showError } = useToast();
     const navigate = useNavigate();
@@ -27,19 +27,23 @@ export default function AddPreferencesPage() {
     const [genres, setGenres] = useState<Genres[]>([]);
     const [directors, setDirectors] = useState<Directors[]>([]);
     const [actors, setActors] = useState<Actors[]>([]);
+    const [preferences, setPreferences] = useState<UserPreferences | null>(null);
 
     const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
     const [selectedDirectors, setSelectedDirectors] = useState<Directors[]>([]);
     const [selectedActors, setSelectedActors] = useState<Actors[]>([]);
     const [minYear, setMinYear] = useState<number>(2000);
-    const [minDuration, setMinDuration] = useState<number>(90);
+    const [maxDuration, setMaxDuration] = useState<number>(90);
     const [acceptAdultContent, setAcceptAdultContent] = useState<boolean>(false);
 
     useEffect(() => {
         const fetchData = async () => {
+            if (!userData) return;
+            const userPreferences = await getUserPreferences(userData.id);
             const genresData = await getGenres();
             const directorsData = await getDirectors();
             const actorsData = await getActors();
+            setPreferences(userPreferences.data);
             setGenres(genresData);
             setDirectors(directorsData);
             setActors(actorsData);
@@ -47,6 +51,16 @@ export default function AddPreferencesPage() {
 
         fetchData();
     }, []);
+
+    useEffect(() => {
+        if (!preferences || !directors || !actors) return;
+        setSelectedGenres(preferences.favoriteGenres || []);
+        setSelectedDirectors(directors.filter(d => preferences.favoriteDirectors?.includes(d.name)) || []);
+        setSelectedActors(actors.filter(a => preferences.favoriteActors?.includes(a.name)) || []);
+        setMinYear(preferences.minReleaseYear || 2000);
+        setMaxDuration(preferences.maxDuration || 90);
+        setAcceptAdultContent(preferences.acceptAdultContent || false);
+    }, [preferences, directors, actors]);
 
     const handleSavePreferences = async () => {
         if (!userData) return;
@@ -61,7 +75,7 @@ export default function AddPreferencesPage() {
             selectedDirectors.map(d => d.name),
             selectedActors.map(a => a.name),
             minYear,
-            minDuration,
+            maxDuration,
             acceptAdultContent
         );
 
@@ -179,21 +193,21 @@ export default function AddPreferencesPage() {
 
             <hr className="mt-5 mb-3" />
 
-            <Title>Duração mínima</Title>
+            <Title>Duração máxima</Title>
             <div className="relative">
                 <Slider
-                    value={[minDuration]}
-                    onValueChange={(value) => setMinDuration(value[0])}
+                    value={[maxDuration]}
+                    onValueChange={(value) => setMaxDuration(value[0])}
                     min={0}
                     max={300}
                 />
                 <div
                     className="absolute -bottom-9 transform -translate-x-1/2 bg-black text-white px-2 py-1 rounded text-sm"
                     style={{
-                        left: `${Math.min(Math.max(((minDuration - 0) / (300 - 0)) * 100, 5), 95)}%`
+                        left: `${Math.min(Math.max(((maxDuration - 0) / (300 - 0)) * 100, 5), 95)}%`
                     }}
                 >
-                    {minDuration} min
+                    {maxDuration} min
                 </div>
             </div>
 

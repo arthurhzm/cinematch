@@ -9,7 +9,7 @@ const usePreferences = () => {
     }
 
     const saveUserPreferences = (userId: number, preferences: SavePreferencesDTO) => {
-        return api.post(`/user/${userId}/preferences`, preferences);
+        return api.put(`/user/${userId}/preferences`, preferences);
     }
 
     return {
