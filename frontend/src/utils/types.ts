@@ -40,6 +40,13 @@ export type AIRecommendations = {
 
 export type UserMovieFeedback = {
     id: number;
+    movieTitle: string;
     rating: number;
     review: string;
+}
+
+export type UserRecommendationsFeedback = {
+    movieTitle: string;
+    feedback: string;
+    detailedFeedback: string | null;
 }

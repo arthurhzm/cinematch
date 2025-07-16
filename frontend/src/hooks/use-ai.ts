@@ -1,23 +1,23 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { AI_MODELS } from "@/utils/ai-models";
-import type { AIRecommendations, UserPreferences } from "@/utils/types";
+import type { AIRecommendations, UserMovieFeedback, UserPreferences, UserRecommendationsFeedback } from "@/utils/types";
 import { GoogleGenAI } from "@google/genai";
 import useFeedback from "./use-feedback";
+import useRecommendation from "./use-recommendation";
 interface CacheEntry {
     data: AIRecommendations[];
     timestamp: number;
     expiresAt: number;
 }
-
 interface RecommendationCache {
     [key: string]: CacheEntry;
 }
-
 
 const useAI = () => {
     const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
     const { userData } = useAuth();
     const { getUserFeedback } = useFeedback();
+    const { getUserRecommendationsFeedback } = useRecommendation();
     const CACHE_DURATION = 60 * 60 * 1000; // 1 hora
     const CACHE_KEY = 'cinematch_recommendations_cache';
 
@@ -67,13 +67,9 @@ const useAI = () => {
     };
 
     const generateMovieRecommendations = async (preferences: UserPreferences, special: boolean = false): Promise<AIRecommendations[]> => {
-        if (!userData) return [];
         const cacheKey = generateCacheKey(preferences, special);
         const cache = getCache();
         const cleanedCache = cleanExpiredCache(cache);
-        const watchedMovies = await getUserFeedback(userData?.id);
-        console.log(watchedMovies);
-        
 
         // Verifica se existe cache válido
         if (cleanedCache[cacheKey]) {
@@ -82,7 +78,7 @@ const useAI = () => {
         }
         const response = await ai.models.generateContent({
             model: AI_MODELS.GEMINI_2_5_FLASH_LITE,
-            contents: recommendationPrompt(preferences, 10, special),
+            contents: await recommendationPrompt(preferences, 10, special),
         });
 
         if (!response.text) {
@@ -133,8 +129,13 @@ const useAI = () => {
         return recommendationsWithPosters;
     }
 
-    const recommendationPrompt = (preferences: UserPreferences, length: number, special: boolean = false) => {
-        return `
+    const recommendationPrompt = async (preferences: UserPreferences, length: number, special: boolean = false) => {
+        if (!userData) return ``;
+
+        const watchedMovies = (await getUserFeedback(userData?.id)).data;
+        const recommendationsFeedback = (await getUserRecommendationsFeedback(userData?.id)).data;
+
+        let message = `
             Você é um cinéfilo especialista em recomendar filmes personalizados. 
       
             Contexto do usuário:
@@ -144,7 +145,27 @@ const useAI = () => {
             - Período preferido: Filmes após ${preferences.minReleaseYear}
             - Duração máxima: ${preferences.maxDuration} minutos
             - Aceita conteúdo adulto: ${preferences.acceptAdultContent}
+        `
 
+        if (watchedMovies.length > 0) {
+            message += `
+            - Filmes assistidos: ${watchedMovies.map((movie: UserMovieFeedback) => movie.movieTitle).join(", ")}
+            - Avaliações sobre filmes assistidos: ${watchedMovies.map((movie: UserMovieFeedback) => {
+                return movie.review ? `${movie.movieTitle} - ${movie.rating} estrelas - "${movie.review}"` : `${movie.movieTitle} - ${movie.rating} estrelas`;
+            }).join(", ")}
+            `
+        }
+
+        if (recommendationsFeedback.length > 0) {
+            message += `
+            - Recomendações anteriores: ${recommendationsFeedback.map((rec: UserRecommendationsFeedback) => rec.movieTitle).join(", ")}
+            - Avaliações sobre recomendações: ${recommendationsFeedback.map((rec: UserRecommendationsFeedback) => {
+                return `${rec.movieTitle} - ${rec.feedback} ${rec.detailedFeedback ? `Feedback detalhado: "${rec.detailedFeedback}"` : ''}`;
+            }).join(", ")}
+            `
+        }
+
+        message += `
             Sua tarefa:
             1. Sugira ${length} filmes que combinem com o perfil
             2. Para cada filme, explique por que foi escolhido
@@ -171,10 +192,12 @@ const useAI = () => {
             7. Não inclua comentários ou texto adicional
             8. Verifique cuidadosamente a formatação JSON, os valores do JSON devem ser em português do Brasil
             9. Nunca use caracteres especiais ou Unicode
+            10. Utilize todo o contexto do usuário de forma inteligente para gerar as melhores recomendações possíveis
             (Retorne apenas o JSON válido, sem markdown ou formatação adicional)
             ${special ? recommendationPromptSpecial() : ''}
+        `
 
-        `;
+        return message.trim();
     }
 
     const recommendationPromptSpecial = () => {
