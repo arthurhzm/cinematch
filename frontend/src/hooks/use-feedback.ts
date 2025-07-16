@@ -5,7 +5,7 @@ import type { UpdateMovieFeedbackDTO } from "@/DTO/UpdateMovieFeedbackDTO";
 const useFeedback = () => {
     const { api } = useAxios();
 
-    const getFeedbackByMovie = async (userId: number, movieTitle?: string) => {
+    const getUserFeedback = async (userId: number, movieTitle?: string) => {
         const params = movieTitle ? { movieTitle } : {};
         const response = await api.get(`user/${userId}/feedback`, {
             params
@@ -23,7 +23,7 @@ const useFeedback = () => {
         return response;
     };
 
-    return { getFeedbackByMovie, submitFeedback, updateFeedback };
+    return { getUserFeedback, submitFeedback, updateFeedback };
 };
 
 export default useFeedback;

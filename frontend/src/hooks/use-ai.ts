@@ -1,6 +1,8 @@
+import { useAuth } from "@/contexts/AuthContext";
 import { AI_MODELS } from "@/utils/ai-models";
 import type { AIRecommendations, UserPreferences } from "@/utils/types";
 import { GoogleGenAI } from "@google/genai";
+import useFeedback from "./use-feedback";
 interface CacheEntry {
     data: AIRecommendations[];
     timestamp: number;
@@ -14,6 +16,8 @@ interface RecommendationCache {
 
 const useAI = () => {
     const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
+    const { userData } = useAuth();
+    const { getUserFeedback } = useFeedback();
     const CACHE_DURATION = 60 * 60 * 1000; // 1 hora
     const CACHE_KEY = 'cinematch_recommendations_cache';
 
@@ -63,9 +67,13 @@ const useAI = () => {
     };
 
     const generateMovieRecommendations = async (preferences: UserPreferences, special: boolean = false): Promise<AIRecommendations[]> => {
+        if (!userData) return [];
         const cacheKey = generateCacheKey(preferences, special);
         const cache = getCache();
         const cleanedCache = cleanExpiredCache(cache);
+        const watchedMovies = await getUserFeedback(userData?.id);
+        console.log(watchedMovies);
+        
 
         // Verifica se existe cache válido
         if (cleanedCache[cacheKey]) {

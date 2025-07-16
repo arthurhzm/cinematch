@@ -18,7 +18,7 @@ type MovieDetailedInfoProps = {
 
 export default function MovieDetailedInfo({ movie, open, onClose }: MovieDetailedInfoProps) {
 
-    const { getFeedbackByMovie, submitFeedback, updateFeedback } = useFeedback();
+    const { getUserFeedback, submitFeedback, updateFeedback } = useFeedback();
     const { putRecommendationFeedback } = useRecommendation();
     const { showSuccess, showError } = useToast();
     const { userData } = useAuth();
@@ -35,11 +35,11 @@ export default function MovieDetailedInfo({ movie, open, onClose }: MovieDetaile
     useEffect(() => {
         if (!movie || !userData) return;
         const fetchFeedback = async () => {
-            const response = await getFeedbackByMovie(userData.id, movie.title);
+            const response = await getUserFeedback(userData.id, movie.title);
             if (response.data) {
-                setRating(response.data.rating);
-                setReview(response.data.review);
-                setFeedback(response.data);
+                setRating(response.data[0].rating);
+                setReview(response.data[0].review);
+                setFeedback(response.data[0]);
                 setShowFeedbackSection(true);
             }
         };
