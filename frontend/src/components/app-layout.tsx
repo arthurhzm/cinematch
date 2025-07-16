@@ -6,6 +6,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useNavigate } from 'react-router-dom';
 import Title from './ui/title';
 import { ROUTES } from '@/utils/routes';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -15,6 +16,7 @@ interface AppLayoutProps {
 export default function AppLayout({ children, title }: AppLayoutProps) {
 
   const { logoutUser } = useUser();
+  const { userData } = useAuth();
   const navigate = useNavigate();
 
   return (
@@ -83,7 +85,7 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
             <Heart className="w-5 h-5" />
             <span className="text-xs">Preferências</span>
           </Button>
-          <Button variant="ghost" size="icon" className="flex flex-col gap-1 h-auto py-2">
+          <Button variant="ghost" size="icon" className="flex flex-col gap-1 h-auto py-2" onClick={() => navigate(`/profile/${userData?.username}`)}>
             <User className="w-5 h-5" />
             <span className="text-xs">Perfil</span>
           </Button>
