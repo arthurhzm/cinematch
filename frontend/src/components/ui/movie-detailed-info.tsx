@@ -4,8 +4,11 @@ import { CreateMovieFeedbackDTO } from "@/DTO/CreateMovieFeedbackDTO";
 import { UpdateMovieFeedbackDTO } from "@/DTO/UpdateMovieFeedbackDTO";
 import useFeedback from "@/hooks/use-feedback";
 import type { AIRecommendations, UserMovieFeedback } from "@/utils/types";
-import { Check, Star, X } from "lucide-react";
+import { Check, Star, ThumbsDown, ThumbsUp, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Button } from "./button";
+import { CreateMovieRecommendationFeedbackDTO } from "@/DTO/CreateMovieRecommendationFeedbackDTO";
+import useRecommendation from "@/hooks/use-recommendation";
 
 type MovieDetailedInfoProps = {
     movie: AIRecommendations;
@@ -16,14 +19,18 @@ type MovieDetailedInfoProps = {
 export default function MovieDetailedInfo({ movie, open, onClose }: MovieDetailedInfoProps) {
 
     const { getFeedbackByMovie, submitFeedback, updateFeedback } = useFeedback();
+    const { putRecommendationFeedback } = useRecommendation();
     const { showSuccess, showError } = useToast();
     const { userData } = useAuth();
+    const [loading, setLoading] = useState(false);
 
     const [showFeedbackSection, setShowFeedbackSection] = useState(false);
     const [feedback, setFeedback] = useState<UserMovieFeedback | null>(null);
     const [rating, setRating] = useState(0);
     const [review, setReview] = useState("");
-    const [loading, setLoading] = useState(false);
+
+    const [showRecommendationFeedback, setShowRecommendationFeedback] = useState(false);
+
 
     useEffect(() => {
         if (!movie || !userData) return;
@@ -65,6 +72,28 @@ export default function MovieDetailedInfo({ movie, open, onClose }: MovieDetaile
         }
 
     }
+
+    const handleRecommendationFeedback = async (feedback: "like" | "dislike" | "superlike") => {
+        if (!userData || !movie) return;
+        setLoading(true);
+        const recommendationFeedback = new CreateMovieRecommendationFeedbackDTO(
+            userData.id,
+            movie.title,
+            feedback
+        );
+        try {
+            await putRecommendationFeedback(recommendationFeedback);
+            showSuccess("Avaliação enviada com sucesso! Suas recomendações serão melhoradas com base no seu feedback.");
+            setShowRecommendationFeedback(false);
+            setShowFeedbackSection(false);
+        } catch (error) {
+            showError("Falha ao enviar feedback.");
+        } finally {
+            setLoading(false);
+        }
+
+    }
+
     return (
         <>
             {open && (
@@ -124,7 +153,7 @@ export default function MovieDetailedInfo({ movie, open, onClose }: MovieDetaile
                                 </div>
                             )}
 
-                            {!showFeedbackSection ? (
+                            {!showFeedbackSection && !showRecommendationFeedback && (
                                 <>
                                     <div className="w-full flex gap-3 justify-center">
                                         <button
@@ -133,12 +162,17 @@ export default function MovieDetailedInfo({ movie, open, onClose }: MovieDetaile
                                         >
                                             <Check /> Sim
                                         </button>
-                                        <button className="w-full flex justify-center items-center gap-2 max-w-32 py-3 px-6 bg-red-600/20 hover:bg-red-600/30 border border-red-600/40 text-red-400 rounded-lg transition-colors duration-200 font-medium">
+                                        <button
+                                            className="w-full flex justify-center items-center gap-2 max-w-32 py-3 px-6 bg-red-600/20 hover:bg-red-600/30 border border-red-600/40 text-red-400 rounded-lg transition-colors duration-200 font-medium"
+                                            onClick={() => setShowRecommendationFeedback(true)}
+                                        >
                                             <X /> Não
                                         </button>
                                     </div>
                                 </>
-                            ) : (
+                            )}
+
+                            {showFeedbackSection && (
                                 <div className="flex flex-col items-center gap-4">
                                     {/* Star Rating */}
                                     <div className="flex gap-1">
@@ -188,6 +222,39 @@ export default function MovieDetailedInfo({ movie, open, onClose }: MovieDetaile
                                         {loading ? "Enviando..." : "Enviar Avaliação"}
                                     </button>
                                 </div>
+                            )}
+
+                            {showRecommendationFeedback && (
+                                <div className="w-full">
+                                    <h3 className="text-lg font-semibold text-foreground mb-2">Avalie esta recomendação:</h3>
+                                    <div className="w-full flex gap-2">
+                                        <div className="w-1/3 text-center">
+                                            <Button
+                                                onClick={() => handleRecommendationFeedback("like")}
+                                                disabled={loading}
+                                                className="flex items-center justify-center w-full py-3 px-4 bg-green-600/20 hover:bg-green-600/30 border border-green-600/40 text-green-400 rounded-lg transition-colors duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+                                                <ThumbsUp size={20} />
+                                            </Button>
+                                        </div>
+                                        <div className="w-1/3 text-center">
+                                            <Button
+                                                onClick={() => handleRecommendationFeedback("superlike")}
+                                                disabled={loading}
+                                                className="flex items-center justify-center w-full py-3 px-4 bg-purple-600/20 hover:bg-purple-600/30 border border-purple-600/40 text-purple-400 rounded-lg transition-colors duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+                                                <Star size={20} />
+                                            </Button>
+                                        </div>
+                                        <div className="w-1/3 text-center">
+                                            <Button
+                                                onClick={() => handleRecommendationFeedback("dislike")}
+                                                disabled={loading}
+                                                className="flex items-center justify-center w-full py-3 px-4 bg-red-600/20 hover:bg-red-600/30 border border-red-600/40 text-red-400 rounded-lg transition-colors duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+                                                <ThumbsDown size={20} />
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </div>
+
                             )}
 
                             {/* Overview */}
