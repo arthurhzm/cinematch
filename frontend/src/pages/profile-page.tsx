@@ -65,7 +65,6 @@ export default function ProfilePage() {
                 const validMovies = movies.filter(movie => movie !== null);
                 setRecentMovies(validMovies);
 
-                // Calculate stats
                 const totalRating = feedback.data.reduce((sum: number, item: UserMovieFeedback) => sum + item.rating, 0);
                 const avgRating = feedback.data.length > 0 ? totalRating / feedback.data.length : 0;
 

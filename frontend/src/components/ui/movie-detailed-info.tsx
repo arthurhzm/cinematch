@@ -32,6 +32,17 @@ export default function MovieDetailedInfo({ movie, open, onClose, userId }: Movi
 
     const [showRecommendationFeedback, setShowRecommendationFeedback] = useState(false);
 
+    useEffect(() => {
+        if (open) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [open]);
 
     useEffect(() => {
         if (!movie || !userData) return;
@@ -102,7 +113,7 @@ export default function MovieDetailedInfo({ movie, open, onClose, userId }: Movi
     return (
         <>
             {open && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-hidden">
                     {/* Backdrop */}
                     <div
                         className="absolute inset-0 bg-black/80 backdrop-blur-sm"
@@ -111,7 +122,7 @@ export default function MovieDetailedInfo({ movie, open, onClose, userId }: Movi
 
                     {/* Dialog */}
                     <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto cinema-card">
-                        {/* Header */}
+                        {/* ...existing code... */}
                         <div className="relative">
                             {movie.poster_url && (
                                 <div className="h-32 sm:h-48 overflow-hidden rounded-t-lg">

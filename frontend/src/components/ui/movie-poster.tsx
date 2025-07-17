@@ -2,6 +2,7 @@ import type { AIRecommendations } from "@/utils/types";
 import { useState } from "react";
 import MovieDetailedInfo from "./movie-detailed-info";
 import { Film } from "lucide-react";
+import { createPortal } from "react-dom";
 
 export default function MoviePoster({ movie, userId }: { movie: AIRecommendations, userId?: number }) {
 
@@ -39,13 +40,14 @@ export default function MoviePoster({ movie, userId }: { movie: AIRecommendation
                     </div>
                 )}
             </div>
-            {open && (
+            {open && createPortal(
                 <MovieDetailedInfo
                     userId={userId}
                     movie={movie}
                     open={open}
                     onClose={() => setOpen(false)}
-                />
+                />,
+                document.body
             )}
         </>
     );
