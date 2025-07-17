@@ -33,7 +33,7 @@ export type AIRecommendations = {
     year: number;
     genres: string[];
     overview: string;
-    why_recommend: string;
+    why_recommend?: string;
     poster_url: string | null;
     streaming_services: string[];
 }

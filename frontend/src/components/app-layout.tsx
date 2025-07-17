@@ -61,7 +61,7 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
       </header>
 
       {/* Main content */}
-      <main className="container mx-auto px-4 py-1">
+      <main className="container mx-auto px-4 py-2">
         {title && (
           <div className="mb-6">
             <Title>{title}</Title>

@@ -88,30 +88,7 @@ const useAI = () => {
         }
 
         let jsonText = response.text;
-        console.log(jsonText);
-
-        jsonText = jsonText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
-        const recommendations: AIRecommendations[] = JSON.parse(jsonText);
-
-        const recommendationsWithPosters = await Promise.all(
-            recommendations.map(async (movie) => {
-                try {
-                    const searchResponse = await getMovieByTitle(movie.title);
-                    if (searchResponse.results && searchResponse.results.length > 0) {
-                        const posterPath = searchResponse.results[0].poster_path;
-                        return {
-                            ...movie,
-                            poster_url: posterPath ? `https://image.tmdb.org/t/p/w500${posterPath}` : null
-                        };
-                    }
-
-                    return { ...movie, poster_url: null };
-                } catch (error) {
-                    console.error(`Error fetching poster for ${movie.title}:`, error);
-                    return { ...movie, poster_url: null };
-                }
-            })
-        );
+        const recommendationsWithPosters = await generateRecommendationsResponse(jsonText);
 
         // Salva no cache
         const now = Date.now();
@@ -122,7 +99,6 @@ const useAI = () => {
         };
 
         setCache(cleanedCache);
-
         return recommendationsWithPosters;
     }
 
@@ -224,8 +200,60 @@ const useAI = () => {
         return specialPrompt;
     }
 
+    const searchMovie = async (query: string) => {
+        const prompt = `
+            Estamos em um sistema de recomendação de filmes e você é um cinéfilo especialista em recomendar filmes personalizados. Sua tarefa é encontrar filmes que correspondam à seguinte descrição:
+            ${query}
+            Esta foi a pesquisa feita pelo usuário, então você deve retornar uma lista de filmes que correspondam ou se aproximem a essa pesquisa.
+            Responda apenas com um JSON válido contendo uma lista de filmes, cada filme deve ter os seguintes campos:
+            - title: Título do filme
+            - year: Ano de lançamento
+            - genres: Lista de gêneros do filme
+            - overview: Sinopse do filme
+            - streaming_services: Lista de serviços de streaming onde está disponível no Brasil (caso seja do cinema, retorne ["Cinema"])
+        `;
+
+        const response = await ai.models.generateContent({
+            model: AI_MODELS.GEMINI_2_5_FLASH_LITE,
+            contents: prompt
+        });
+
+        if (!response.text) {
+            throw new Error("Failed to generate recommendations");
+        }
+
+        let jsonText = response.text;
+        return await generateRecommendationsResponse(jsonText);
+    }
+
+    const generateRecommendationsResponse = async (json: string) => {
+        let jsonText = json.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+        const recommendations: AIRecommendations[] = JSON.parse(jsonText);
+
+        return await Promise.all(
+            recommendations.map(async (movie) => {
+                try {
+                    const searchResponse = await getMovieByTitle(movie.title);
+                    if (searchResponse.results && searchResponse.results.length > 0) {
+                        const posterPath = searchResponse.results[0].poster_path;
+                        return {
+                            ...movie,
+                            poster_url: posterPath ? `https://image.tmdb.org/t/p/w500${posterPath}` : null
+                        };
+                    }
+
+                    return { ...movie, poster_url: null };
+                } catch (error) {
+                    console.error(`Error fetching poster for ${movie.title}:`, error);
+                    return { ...movie, poster_url: null };
+                }
+            })
+        );
+    }
+
     return {
-        generateMovieRecommendations
+        generateMovieRecommendations,
+        searchMovie
     }
 }
 
