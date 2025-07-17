@@ -4,6 +4,7 @@ import type { AIRecommendations, UserMovieFeedback, UserPreferences, UserRecomme
 import { GoogleGenAI } from "@google/genai";
 import useFeedback from "./use-feedback";
 import useRecommendation from "./use-recommendation";
+import useTMDB from "./use-tmdb";
 interface CacheEntry {
     data: AIRecommendations[];
     timestamp: number;
@@ -18,6 +19,7 @@ const useAI = () => {
     const { userData } = useAuth();
     const { getUserFeedback } = useFeedback();
     const { getUserRecommendationsFeedback } = useRecommendation();
+    const { getMovieByTitle } = useTMDB();
     const CACHE_DURATION = 60 * 60 * 1000; // 1 hora
     const CACHE_KEY = 'cinematch_recommendations_cache';
 
@@ -91,17 +93,12 @@ const useAI = () => {
         jsonText = jsonText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
         const recommendations: AIRecommendations[] = JSON.parse(jsonText);
 
-        const tmdbApiKey = import.meta.env.VITE_TMDB_API_KEY;
         const recommendationsWithPosters = await Promise.all(
             recommendations.map(async (movie) => {
                 try {
-                    const searchResponse = await fetch(
-                        `https://api.themoviedb.org/3/search/movie?api_key=${tmdbApiKey}&query=${encodeURIComponent(movie.title)}&year=${movie.year}`
-                    );
-                    const searchData = await searchResponse.json();
-
-                    if (searchData.results && searchData.results.length > 0) {
-                        const posterPath = searchData.results[0].poster_path;
+                    const searchResponse = await getMovieByTitle(movie.title);
+                    if (searchResponse.results && searchResponse.results.length > 0) {
+                        const posterPath = searchResponse.results[0].poster_path;
                         return {
                             ...movie,
                             poster_url: posterPath ? `https://image.tmdb.org/t/p/w500${posterPath}` : null

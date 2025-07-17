@@ -3,7 +3,7 @@ import { useState } from "react";
 import MovieDetailedInfo from "./movie-detailed-info";
 import { Film } from "lucide-react";
 
-export default function MoviePoster({ movie }: { movie: AIRecommendations }) {
+export default function MoviePoster({ movie, userId }: { movie: AIRecommendations, userId?: number }) {
 
     const [open, setOpen] = useState(false);
     const [imageError, setImageError] = useState(false);
@@ -41,6 +41,7 @@ export default function MoviePoster({ movie }: { movie: AIRecommendations }) {
             </div>
             {open && (
                 <MovieDetailedInfo
+                    userId={userId}
                     movie={movie}
                     open={open}
                     onClose={() => setOpen(false)}

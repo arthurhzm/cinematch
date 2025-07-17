@@ -14,9 +14,10 @@ type MovieDetailedInfoProps = {
     movie: AIRecommendations;
     open: boolean;
     onClose: () => void;
+    userId?: number;
 };
 
-export default function MovieDetailedInfo({ movie, open, onClose }: MovieDetailedInfoProps) {
+export default function MovieDetailedInfo({ movie, open, onClose, userId }: MovieDetailedInfoProps) {
 
     const { getUserFeedback, submitFeedback, updateFeedback } = useFeedback();
     const { putRecommendationFeedback } = useRecommendation();
@@ -34,8 +35,12 @@ export default function MovieDetailedInfo({ movie, open, onClose }: MovieDetaile
 
     useEffect(() => {
         if (!movie || !userData) return;
+        console.log(userData.id, userId);
+
         const fetchFeedback = async () => {
-            const response = await getUserFeedback(userData.id, movie.title);
+            const user = userId || userData.id;
+            if (!user) return;
+            const response = await getUserFeedback(user, movie.title);
             if (response.data) {
                 setRating(response.data[0].rating);
                 setReview(response.data[0].review);
@@ -187,6 +192,8 @@ export default function MovieDetailedInfo({ movie, open, onClose }: MovieDetaile
                                                         setRating(star);
                                                     }
                                                 }}
+                                                disabled={(!!userId && (userId !== userData?.id))}
+
                                             >
                                                 <Star
                                                     size={48}
@@ -211,16 +218,18 @@ export default function MovieDetailedInfo({ movie, open, onClose }: MovieDetaile
                                         className="w-full h-24 p-3 bg-secondary border border-border rounded-lg text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-primary"
                                         value={review}
                                         onChange={(e) => setReview(e.currentTarget.value)}
+                                        disabled={(!!userId && (userId !== userData?.id))}
                                     />
 
                                     {/* Submit Button */}
-                                    <button
-                                        className="w-full px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
-                                        onClick={handleReviewSubmit}
-                                        disabled={loading}
-                                    >
-                                        {loading ? "Enviando..." : "Enviar Avaliação"}
-                                    </button>
+                                    {((!!userId && (userId == userData?.id)) || !userId) && (
+                                        <button
+                                            className="w-full px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+                                            onClick={handleReviewSubmit}
+                                            disabled={loading}
+                                        >
+                                            {loading ? "Enviando..." : "Enviar Avaliação"}
+                                        </button>)}
                                 </div>
                             )}
 
