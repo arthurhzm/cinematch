@@ -6,6 +6,10 @@ const useUser = () => {
     const { api } = useAxios();
     const { setToken, setUserData } = useAuth();
 
+    const getUserById = async (userId: string) => {
+        const res = await api.get(`/users/${userId}`);
+        return res;
+    }
 
     const createUser = async (userData: CreateUserDTO) => {
         const res = await api.post("/register", userData);
@@ -33,6 +37,7 @@ const useUser = () => {
     }
 
     return {
+        getUserById,
         authenticateUser,
         createUser,
         refreshToken,
