@@ -38,6 +38,12 @@ export type AIRecommendations = {
     streaming_services: string[];
 }
 
+export type UserProfilePreview = {
+    userId: number;
+    username: string;
+    profilePicture: string | null;
+}
+
 export type UserMovieFeedback = {
     id: number;
     movieTitle: string;

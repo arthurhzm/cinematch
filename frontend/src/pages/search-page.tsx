@@ -1,23 +1,29 @@
 import AppLayout from "@/components/app-layout";
 import InputSearch from "@/components/input-search";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import MovieDetailedInfo from "@/components/ui/movie-detailed-info";
 import { useToast } from "@/contexts/ToastContext";
 import useAI from "@/hooks/use-ai";
-import type { AIRecommendations } from "@/utils/types";
-import { Clapperboard, User } from "lucide-react";
+import useUser from "@/hooks/use-user";
+import type { AIRecommendations, UserProfilePreview } from "@/utils/types";
+import type { AxiosResponse } from "axios";
+import { Clapperboard, User, UserIcon } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 
 export default function SearchPage() {
 
     const { showError } = useToast();
     const { searchMovie } = useAI();
+    const { getUsersByUsername } = useUser();
+    const navigate = useNavigate();
 
     const [searchQuery, setSearchQuery] = useState("");
     const [searchType, setSearchType] = useState<"movies" | "people">("movies");
-    const [searchResults, setSearchResults] = useState<AIRecommendations[] | []>([]);
+    const [searchResults, setSearchResults] = useState<AIRecommendations[] | UserProfilePreview[]>([]);
     const [selectedMovie, setSelectedMovie] = useState<AIRecommendations | null>(null);
 
     const handleSearchTypeChange = (type: "movies" | "people") => {
@@ -36,13 +42,11 @@ export default function SearchPage() {
         }
 
         try {
-            if (searchType === "movies") {
-                const results = await searchMovie(searchQuery);
-                setSearchResults(results);
-            } else {
-                // Implement search for people
-                console.log("Searching for people is not implemented yet.");
-            }
+            const results = searchType === "movies"
+                ? await searchMovie(searchQuery)
+                : await getUsersByUsername(searchQuery);
+
+            setSearchResults(searchType === "movies" ? results : (results as AxiosResponse).data || results);
         } catch (error: any) {
             showError(`Erro ao buscar: ${error.message}`);
         }
@@ -73,9 +77,9 @@ export default function SearchPage() {
                 <div className="mt-4">
                     <h2 className="text-lg font-semibold mb-2">Resultados da Pesquisa</h2>
                     <ul className="space-y-2">
-                        {searchResults.map((result, index) => (
-                            <li key={index} className="mb-4" onClick={() => setSelectedMovie(result)}>
-                                {searchType === "movies" ? (
+                        {searchType === "movies" ? (
+                            (searchResults as AIRecommendations[]).map((result, index) => (
+                                <li key={index} className="mb-4" onClick={() => setSelectedMovie(result)}>
                                     <div className="cinema-card p-4 hover:border-primary/40 transition-all cursor-pointer">
                                         <div className="flex gap-4">
                                             <div className="flex-shrink-0">
@@ -103,13 +107,35 @@ export default function SearchPage() {
                                             </div>
                                         </div>
                                     </div>
-                                ) : (
-                                    <div className="cinema-card p-4 hover:border-primary/40 transition-all cursor-pointer">
-                                        {/* People search implementation */}
+                                </li>
+                            ))
+                        ) : (
+                            <div className="cinema-card p-4 hover:border-primary/40 transition-all cursor-pointer">
+                                {(searchResults as UserProfilePreview[]).map((user, index) => (
+                                    <div
+                                        key={index}
+                                        className="flex items-center gap-4"
+                                        onClick={() => navigate(`/profile/${user.username}`, { state: { userId: user.userId } })}
+                                    >
+                                        <Avatar className="w-12 h-12">
+                                            {user.profilePicture ? (
+                                                <AvatarImage
+                                                    src={user.profilePicture}
+                                                    alt={`Avatar de ${user.username}`}
+                                                />
+                                            ) : (
+                                                <AvatarFallback>
+                                                    <UserIcon />
+                                                </AvatarFallback>
+                                            )}
+                                        </Avatar>
+                                        <div>
+                                            <h3 className="font-bold text-lg text-foreground">{user.username}</h3>
+                                        </div>
                                     </div>
-                                )}
-                            </li>
-                        ))}
+                                ))}
+                            </div>
+                        )}
                     </ul>
                 </div>
             )}
