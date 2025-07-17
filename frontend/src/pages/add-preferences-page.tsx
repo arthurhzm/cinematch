@@ -1,5 +1,5 @@
 import AppLayout from "@/components/app-layout";
-import SearchableInput from "@/components/searchable-input";
+import Typeahead from "@/components/typeahead";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -118,7 +118,7 @@ export default function AddPreferencesPage() {
                 <>
                     <div>
                         <Title>Diretores</Title>
-                        <SearchableInput
+                        <Typeahead
                             label="Digite o nome do diretor"
                             search={directors}
                             selectedItems={selectedDirectors}
@@ -147,7 +147,7 @@ export default function AddPreferencesPage() {
                 <>
                     <div>
                         <Title>Atores</Title>
-                        <SearchableInput
+                        <Typeahead
                             label="Digite o nome do ator"
                             search={actors}
                             selectedItems={selectedActors}

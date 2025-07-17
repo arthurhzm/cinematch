@@ -2,14 +2,14 @@ import { forwardRef, useEffect, useState } from 'react';
 import { Input } from './ui/input';
 import { Search } from 'lucide-react';
 
-interface SearchableInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface TypeaheadProps extends React.InputHTMLAttributes<HTMLInputElement> {
     label: string;
     search: any[];
     selectedItems?: any[];
     onSelectionChange?: (selected: any[]) => void;
 }
 
-const SearchableInput = forwardRef<HTMLInputElement, SearchableInputProps>(
+const Typeahead = forwardRef<HTMLInputElement, TypeaheadProps>(
     ({ label, search, selectedItems = [], onSelectionChange, ...props }, ref) => {
         const [inputValue, setInputValue] = useState('');
         const [filteredResults, setFilteredResults] = useState<any[]>([]);
@@ -69,6 +69,6 @@ const SearchableInput = forwardRef<HTMLInputElement, SearchableInputProps>(
     }
 );
 
-SearchableInput.displayName = 'SearchableInput';
+Typeahead.displayName = 'Typeahead';
 
-export default SearchableInput;
+export default Typeahead;

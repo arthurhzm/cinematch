@@ -10,6 +10,7 @@ import LoginPage from './pages/login-page.tsx'
 import ProfilePage from './pages/profile-page.tsx'
 import RegisterPage from './pages/register-page.tsx'
 import { ROUTES } from './utils/routes.ts'
+import SearchPage from './pages/search-page.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <AuthProvider>
@@ -24,6 +25,7 @@ createRoot(document.getElementById('root')!).render(
             <Route path={ROUTES.home} element={<HomePage />} />
             <Route path={ROUTES.addPreferences} element={<AddPreferencesPage />} />
             <Route path="/profile/:username" element={<ProfilePage />} />
+            <Route path={ROUTES.search} element={<SearchPage />} />
           </Route>
         </Routes>
       </BrowserRouter>
