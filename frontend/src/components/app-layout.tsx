@@ -1,12 +1,12 @@
-import type { ReactNode } from 'react';
-import { Film, Search, User, Home, Heart, DoorOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import useUser from '@/hooks/use-user';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
-import { useNavigate } from 'react-router-dom';
-import Title from './ui/title';
-import { ROUTES } from '@/utils/routes';
 import { useAuth } from '@/contexts/AuthContext';
+import useUser from '@/hooks/use-user';
+import { ROUTES } from '@/utils/routes';
+import { DoorOpen, Film, Heart, Home, MessageSquare, Search, User } from 'lucide-react';
+import type { ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
+import Title from './ui/title';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -45,33 +45,39 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
           </div>
 
           {/* User menu */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="text-foreground hover:text-primary">
-                <User className="w-5 h-5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={logoutUser}>
-                <DoorOpen /> Sair
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex items-center">
+            <Button variant="ghost" size="icon" className="text-foreground hover:text-primary" onClick={() => navigate(ROUTES.chat)}>
+              <MessageSquare className="w-5 h-5" />
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="text-foreground hover:text-primary">
+                  <User className="w-5 h-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={logoutUser}>
+                  <DoorOpen /> Sair
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
-      </header>
+      </header >
 
       {/* Main content */}
-      <main className="container mx-auto px-4 py-2">
+      <main className="container mx-auto px-4 py-2 pb-24 md:pb-2">
         {title && (
           <div className="mb-6">
             <Title>{title}</Title>
           </div>
-        )}
+        )
+        }
         {children}
-      </main>
+      </main >
 
       {/* Bottom navigation - mobile only */}
-      <nav className="fixed bottom-0 left-0 right-0 md:hidden cinema-card border-t border-primary/20 backdrop-blur-lg">
+      < nav className="fixed bottom-0 left-0 right-0 md:hidden cinema-card border-t border-primary/20 backdrop-blur-lg" >
         <div className="flex items-center justify-around py-2">
           <Button variant="ghost" size="icon" className="flex flex-col gap-1 h-auto py-2" onClick={() => navigate(ROUTES.home)}>
             <Home className="w-5 h-5" />
@@ -85,15 +91,15 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
             <Heart className="w-5 h-5" />
             <span className="text-xs">Preferências</span>
           </Button>
-          <Button variant="ghost" size="icon" className="flex flex-col gap-1 h-auto py-2" onClick={() => navigate(`/profile/${userData?.username}`, { state: { userId: userData?.id } })}>
+            <Button variant="ghost" size="icon" className="flex flex-col gap-1 h-auto py-2" onClick={() => navigate(ROUTES.profile(userData?.username || ''), { state: { userId: userData?.id } })}>
             <User className="w-5 h-5" />
             <span className="text-xs">{userData?.username}</span>
           </Button>
         </div>
-      </nav>
+      </nav >
 
       {/* Spacer for mobile navigation */}
-      <div className="h-20 md:hidden"></div>
-    </div>
+      < div className="h-20 md:hidden" ></div >
+    </div >
   );
 }

@@ -4,4 +4,6 @@ export const ROUTES = {
     register: '/register',
     addPreferences: '/add-preferences',
     search: '/search',
+    chat: '/chat',
+    profile: (username: string) => `/profile/${username}`,
 }

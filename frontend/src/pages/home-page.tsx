@@ -23,10 +23,10 @@ export default function HomePage() {
 
     useEffect(() => {
         if (!userData) return;
-        getUserPreferences(userData.id).then(async (res) => {
+        getUserPreferences(userData.id).then(async (_) => {
             const [recommendations, special] = await Promise.all([
-                generateMovieRecommendations(res.data),
-                generateMovieRecommendations(res.data, true)
+                generateMovieRecommendations(false),
+                generateMovieRecommendations(true)
             ]);
             console.log(recommendations);
             setRecommendations(recommendations);

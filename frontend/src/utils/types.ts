@@ -73,3 +73,8 @@ export type TMDBMovie = {
     vote_average: number;
     vote_count: number;
 }
+
+export type Message = {
+    text: string;
+    sender: "user" | "ai";
+}

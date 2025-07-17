@@ -2,18 +2,19 @@ import { forwardRef } from 'react';
 import { Input } from './ui/input';
 import type { FieldError } from 'react-hook-form';
 import { Label } from './ui/label';
+import { cn } from '@/lib/utils';
 
 interface InputTextProps extends React.InputHTMLAttributes<HTMLInputElement> {
     label: string;
-    type: React.HTMLInputTypeAttribute;
     errors?: FieldError;
+    className?: string;
 }
 
 const InputText = forwardRef<HTMLInputElement, InputTextProps>(
-    ({ label, type, errors, value, ...props }, ref) => {
+    ({ label, errors, value, className, ...props }, ref) => {
 
         return (
-            <div className="space-y-2">
+            <div className="space-y-2 w-full">
                 <Label className='font-semibold text-foreground text-sm' htmlFor={props.id}>
                     {label}
                 </Label>
@@ -22,7 +23,7 @@ const InputText = forwardRef<HTMLInputElement, InputTextProps>(
                     ref={ref}
                     type="text"
                     value={value}
-                    className="bg-input border-border focus:border-primary focus:ring-primary/20 transition-all duration-200"
+                    className={cn(className, `bg-input border-border focus:border-primary focus:ring-primary/20 transition-all duration-200`)}
                     {...props}
                 />
                 {errors && (

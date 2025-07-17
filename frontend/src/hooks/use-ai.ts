@@ -1,8 +1,9 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { AI_MODELS } from "@/utils/ai-models";
-import type { AIRecommendations, UserMovieFeedback, UserPreferences, UserRecommendationsFeedback } from "@/utils/types";
+import type { AIRecommendations, Message, UserMovieFeedback, UserPreferences, UserRecommendationsFeedback } from "@/utils/types";
 import { GoogleGenAI } from "@google/genai";
 import useFeedback from "./use-feedback";
+import usePreferences from "./use-preferences";
 import useRecommendation from "./use-recommendation";
 import useTMDB from "./use-tmdb";
 interface CacheEntry {
@@ -20,6 +21,8 @@ const useAI = () => {
     const { getUserFeedback } = useFeedback();
     const { getUserRecommendationsFeedback } = useRecommendation();
     const { getMovieByTitle } = useTMDB();
+    const { getUserPreferences } = usePreferences();
+
     const CACHE_DURATION = 60 * 60 * 1000; // 1 hora
     const CACHE_KEY = 'cinematch_recommendations_cache';
 
@@ -41,7 +44,9 @@ const useAI = () => {
         }
     };
 
-    const generateCacheKey = (preferences: UserPreferences, special: boolean): string => {
+    const generateCacheKey = async (special: boolean): Promise<string> => {
+        if (!userData) return '';
+        const preferences = (await getUserPreferences(userData?.id)).data as UserPreferences;
         const key = {
             genres: preferences.favoriteGenres?.sort(),
             directors: preferences.favoriteDirectors?.sort(),
@@ -68,8 +73,8 @@ const useAI = () => {
         return cleanedCache;
     };
 
-    const generateMovieRecommendations = async (preferences: UserPreferences, special: boolean = false): Promise<AIRecommendations[]> => {
-        const cacheKey = generateCacheKey(preferences, special);
+    const generateMovieRecommendations = async (special: boolean = false): Promise<AIRecommendations[]> => {
+        const cacheKey = await generateCacheKey(special);
         const cache = getCache();
         const cleanedCache = cleanExpiredCache(cache);
 
@@ -80,7 +85,7 @@ const useAI = () => {
         }
         const response = await ai.models.generateContent({
             model: AI_MODELS.GEMINI_2_5_FLASH_LITE,
-            contents: await recommendationPrompt(preferences, 10, special),
+            contents: await recommendationPrompt(10, special),
         });
 
         if (!response.text) {
@@ -102,11 +107,12 @@ const useAI = () => {
         return recommendationsWithPosters;
     }
 
-    const recommendationPrompt = async (preferences: UserPreferences, length: number, special: boolean = false) => {
+    const generateBasePrompt = async () => {
         if (!userData) return ``;
 
-        const watchedMovies = (await getUserFeedback(userData?.id)).data;
-        const recommendationsFeedback = (await getUserRecommendationsFeedback(userData?.id)).data;
+        const preferences = (await getUserPreferences(userData?.id)).data as UserPreferences;
+        const watchedMovies = (await getUserFeedback(userData?.id)).data as UserMovieFeedback[];
+        const recommendationsFeedback = (await getUserRecommendationsFeedback(userData?.id)).data as UserRecommendationsFeedback[];
 
         let message = `
             Você é um cinéfilo especialista em recomendar filmes personalizados. 
@@ -138,7 +144,13 @@ const useAI = () => {
             `
         }
 
-        message += `
+        return message.trim();
+    }
+
+    const recommendationPrompt = async (length: number, special: boolean = false) => {
+        return `
+            ${await generateBasePrompt()}
+
             Sua tarefa:
             1. Sugira ${length} filmes que combinem com o perfil
             2. Para cada filme, explique por que foi escolhido
@@ -168,9 +180,7 @@ const useAI = () => {
             10. Utilize todo o contexto do usuário de forma inteligente para gerar as melhores recomendações possíveis
             (Retorne apenas o JSON válido, sem markdown ou formatação adicional)
             ${special ? recommendationPromptSpecial() : ''}
-        `
-
-        return message.trim();
+        `.trim();
     }
 
     const recommendationPromptSpecial = () => {
@@ -226,6 +236,44 @@ const useAI = () => {
         return await generateRecommendationsResponse(jsonText);
     }
 
+    const sendIndividualMessage = async (messages: Message[]) => {
+        console.log(messages);
+        
+        if (!userData) return "";
+        const prompt = `
+            [SISTEMA]
+                Estamos em um sistema de recomendação de filmes com base em gostos do usuário e avaliações de filmes já assistidos.
+                Você está em um chat com o usuário ${userData?.username}.
+
+                Neste contexto, você é um cinéfilo especialista. 
+                Não responda qualquer pergunta que não seja sobre filmes.
+                Use um vocabulário natural e leve este chat como uma conversa amigável.
+                Neste contexto estamos em uma conversa entre amigos, então use um tom amigável e informal e responda apenas o que for dito/perguntado, não atropele o usuário com informações que ele não pediu.
+
+                ${await generateBasePrompt()}
+
+                As mensagens trocadas até agora foram: ${JSON.stringify(messages, )}
+                Se adapte ao vocabulário do usuário 
+                Caso o usuário peça por filmes que estão fora de seus gostos, seja flexível e se ajuste para fazer as recomendações com base nisso e, se possível, correlacionar os gostos do usuário com a requisição
+                Se o usuário ficar falando toda hora sobre coisas que não são filmes, ignore e não responda, pode mandar ele tomar no cu.
+            [/SISTEMA]
+        `
+
+        console.log(prompt);
+        
+
+        const response = await ai.models.generateContent({
+            model: AI_MODELS.GEMINI_2_5_FLASH_LITE,
+            contents: prompt,
+        });
+
+        if (!response.text) {
+            throw new Error("Failed to generate recommendations");
+        }
+
+        return response.text;
+    }
+
     const generateRecommendationsResponse = async (json: string) => {
         let jsonText = json.replace(/^```json\s*/, '').replace(/\s*```$/, '');
         const recommendations: AIRecommendations[] = JSON.parse(jsonText);
@@ -253,7 +301,8 @@ const useAI = () => {
 
     return {
         generateMovieRecommendations,
-        searchMovie
+        searchMovie,
+        sendIndividualMessage
     }
 }
 

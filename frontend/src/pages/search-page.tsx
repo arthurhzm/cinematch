@@ -13,6 +13,7 @@ import type { AxiosResponse } from "axios";
 import { Clapperboard, User, UserIcon, Search, Film } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ROUTES } from "@/utils/routes";
 
 export default function SearchPage() {
     const { showError } = useToast();
@@ -51,8 +52,6 @@ export default function SearchPage() {
                 : await getUsersByUsername(searchQuery);
 
             setSearchResults(searchType === "movies" ? results : (results as AxiosResponse).data || results);
-        } catch (error: any) {
-            showError(`Erro ao buscar: ${error.message}`);
         } finally {
             setIsLoading(false);
         }
@@ -200,7 +199,7 @@ export default function SearchPage() {
                                     <div
                                         key={index}
                                         className="cinema-card p-4 hover:border-primary/40 transition-all cursor-pointer"
-                                        onClick={() => navigate(`/profile/${user.username}`, { state: { userId: user.userId } })}
+                                        onClick={() => navigate(ROUTES.profile(user.username), { state: { userId: user.userId } })}
                                     >
                                         <div className="flex items-center gap-4">
                                             <Avatar className="w-12 h-12">
