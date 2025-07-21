@@ -1,13 +1,11 @@
-import { FollowUnfollowUserDTO } from "@/DTO/FollowUnfollowUserDTO";
 import { useAuth } from "@/contexts/AuthContext";
-import useUser from "@/hooks/use-user";
+import { getInitials } from "@/lib/utils";
 import { ROUTES } from "@/utils/routes";
 import type { UserProfilePreview } from "@/utils/types";
-import { Check, UserIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import FollowUnfollowButton from "../follow-unfollow-button";
 import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
-import { Button } from "./button";
 
 type UserPreviewProps = {
     user: UserProfilePreview;
@@ -15,18 +13,7 @@ type UserPreviewProps = {
 
 export default function UserPreview({ user }: UserPreviewProps) {
     const navigate = useNavigate();
-    const { getUserFollowers, followUser, unfollowUser } = useUser();
     const { userData } = useAuth();
-    const [followers, setFollowers] = useState<UserProfilePreview[] | []>([]);
-
-    useEffect(() => {
-        const fetchFollowers = async () => {
-            if (!user) return;
-            const followersResponse = await getUserFollowers(user.userId);
-            setFollowers(followersResponse.data);
-        };
-        fetchFollowers();
-    }, [user]);
 
     if (!userData) {
         return (
@@ -50,8 +37,8 @@ export default function UserPreview({ user }: UserPreviewProps) {
                                 alt={`Avatar de ${user.username}`}
                             />
                         ) : (
-                            <AvatarFallback>
-                                <UserIcon />
+                            <AvatarFallback className="bg-primary/20 text-primary text-xl font-semibold">
+                                {user.username ? getInitials(user.username) : <User />}
                             </AvatarFallback>
                         )}
                     </Avatar>
@@ -59,22 +46,7 @@ export default function UserPreview({ user }: UserPreviewProps) {
                         <h3 className="font-bold text-lg text-foreground">{user.username}</h3>
                     </div>
                 </div>
-                {user.userId !== userData?.id && (
-                    <Button
-                        variant={followers.some(follower => follower.userId === userData.id) ? "outline" : "default"}
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            if (followers.some(follower => follower.userId === userData.id)) {
-                                unfollowUser(new FollowUnfollowUserDTO(user.userId, userData.id));
-                                setFollowers(followers.filter(follower => follower.userId !== userData.id));
-                            } else {
-                                followUser(new FollowUnfollowUserDTO(user.userId, userData.id));
-                                setFollowers([...followers, { userId: userData.id, username: userData.username, profilePicture: userData.profilePicture ?? null }]);
-                            }
-                        }}>
-                        {followers.some(follower => follower.userId === userData.id) ? <><Check /> Seguindo</> : "Seguir"}
-                    </Button>
-                )}
+                <FollowUnfollowButton user={user} />
             </div>
         </div>
     );

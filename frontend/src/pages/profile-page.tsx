@@ -1,4 +1,5 @@
 import AppLayout from "@/components/app-layout";
+import FollowUnfollowButton from "@/components/follow-unfollow-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +9,7 @@ import { useToast } from "@/contexts/ToastContext";
 import useFeedback from "@/hooks/use-feedback";
 import useTMDB from "@/hooks/use-tmdb";
 import useUser from "@/hooks/use-user";
+import { getInitials } from "@/lib/utils";
 import { ROUTES } from "@/utils/routes";
 import type { UserMovieFeedback, UserProfile, UserProfilePreview } from "@/utils/types";
 import { Calendar, Clock, Film, Star, User } from "lucide-react";
@@ -110,10 +112,6 @@ export default function ProfilePage() {
         });
     };
 
-    const getInitials = (name: string) => {
-        return name.split(' ').map(n => n[0]).join('').toUpperCase();
-    };
-
     return (
         <AppLayout>
             <div className="space-y-6">
@@ -132,7 +130,10 @@ export default function ProfilePage() {
                             {/* User Info */}
                             <div className="flex-1 space-y-3">
                                 <div>
-                                    <h1 className="text-3xl font-bold text-foreground">{username}</h1>
+                                    <div className="flex flex-row items-center md:justify-between gap-3">
+                                        <h1 className="text-3xl font-bold text-foreground">{username}</h1>
+                                        {!isOwnProfile && userInfo && (<FollowUnfollowButton user={{ userId: userId, username: username || "", profilePicture: userInfo.profilePicture }} />)}
+                                    </div>
                                     <div className="flex items-center gap-3 mt-2">
                                         {isOwnProfile && (
                                             <Badge variant="outline">
@@ -141,7 +142,7 @@ export default function ProfilePage() {
                                             </Badge>
                                         )}
                                         <div
-                                            className="text-sm text-muted-foreground"
+                                            className="text-sm text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
                                             onClick={() => {
                                                 if (!username) return;
                                                 navigate(ROUTES.following(username), { state: { users: following } })
@@ -150,7 +151,7 @@ export default function ProfilePage() {
                                             <span className="font-semibold">{following.length}</span> seguindo
                                         </div>
                                         <div
-                                            className="text-sm text-muted-foreground"
+                                            className="text-sm text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
                                             onClick={() => {
                                                 if (!username) return;
                                                 navigate(ROUTES.followers(username), { state: { users: followers } })
