@@ -19,7 +19,7 @@ export default function RegisterPage() {
     const schema = z.object({
         username: z.string().min(3, { message: "Informe um nome com pelo menos 3 caracteres" }),
         email: z.email({ message: "Email inválido" }),
-        password: z.string().min(6, { message: "Senha é obrigatória" }),
+        password: z.string().min(6, { message: "A senha deve ter pelo menos 6 caracteres" }),
         confirmPassword: z.string().min(6, { message: "Confirmação de senha é obrigatória" }),
     }).refine(data => data.password === data.confirmPassword, {
         message: "As senhas não coincidem",
