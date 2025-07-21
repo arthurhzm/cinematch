@@ -29,6 +29,11 @@ export default function RecommendationsPage() {
 
     useEffect(() => {
         loadRecommendations();
+        
+        // Cleanup para garantir que o scroll seja restaurado se o componente for desmontado
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
     }, []);
 
     const loadRecommendations = async () => {
@@ -82,6 +87,8 @@ export default function RecommendationsPage() {
     const handleStart = (clientX: number, clientY: number) => {
         setIsDragging(true);
         startPosRef.current = { x: clientX, y: clientY };
+        // Previne scroll da página durante o drag
+        document.body.style.overflow = 'hidden';
     };
 
     const handleMove = (clientX: number, clientY: number) => {
@@ -99,6 +106,9 @@ export default function RecommendationsPage() {
 
         const threshold = 100;
         const { x, y } = dragOffset;
+
+        // Restaura o scroll da página
+        document.body.style.overflow = 'unset';
 
         if (Math.abs(x) > threshold) {
             if (x > 0) {
@@ -126,16 +136,21 @@ export default function RecommendationsPage() {
     };
 
     const handleTouchStart = (e: React.TouchEvent) => {
+        e.preventDefault(); // Previne comportamentos padrão do touch
         const touch = e.touches[0];
         handleStart(touch.clientX, touch.clientY);
     };
 
     const handleTouchMove = (e: React.TouchEvent) => {
+        if (isDragging) {
+            e.preventDefault(); // Previne scroll durante o drag
+        }
         const touch = e.touches[0];
         handleMove(touch.clientX, touch.clientY);
     };
 
-    const handleTouchEnd = () => {
+    const handleTouchEnd = (e: React.TouchEvent) => {
+        e.preventDefault(); // Previne comportamentos padrão
         handleEnd();
     };
 
@@ -163,14 +178,19 @@ export default function RecommendationsPage() {
                     <div className="w-24 h-24 bg-primary/20 rounded-full flex items-center justify-center">
                         <Heart className="w-12 h-12 text-primary" />
                     </div>
-                    <div>
+                    <div className="space-y-4">
                         <h2 className="text-2xl font-bold text-foreground mb-2">
                             Todas as recomendações avaliadas!
                         </h2>
-                        <Button onClick={loadRecommendations} className="w-full flex items-center gap-2">
-                            <RotateCcw className="w-4 h-4" />
-                            Novas recomendações
-                        </Button>
+                        <p className="text-muted-foreground">
+                            Suas avaliações foram salvas no seu perfil para futuras recomendações.
+                        </p>
+                        <div className="flex justify-center">
+                            <Button onClick={loadRecommendations} className="flex items-center gap-2">
+                                <RotateCcw className="w-4 h-4" />
+                                Novas recomendações
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </AppLayout>
