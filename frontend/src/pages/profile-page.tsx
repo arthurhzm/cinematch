@@ -8,10 +8,11 @@ import { useToast } from "@/contexts/ToastContext";
 import useFeedback from "@/hooks/use-feedback";
 import useTMDB from "@/hooks/use-tmdb";
 import useUser from "@/hooks/use-user";
+import { ROUTES } from "@/utils/routes";
 import type { UserMovieFeedback, UserProfile, UserProfilePreview } from "@/utils/types";
 import { Calendar, Clock, Film, Star, User } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 export default function ProfilePage() {
     const { username } = useParams();
@@ -22,6 +23,7 @@ export default function ProfilePage() {
     const { userData } = useAuth();
     const location = useLocation();
     const { userId } = location.state || {};
+    const navigate = useNavigate();
 
     const [recentMovies, setRecentMovies] = useState<any[]>([]);
     const [userInfo, setUserInfo] = useState<UserProfile | null>(null);
@@ -138,10 +140,22 @@ export default function ProfilePage() {
                                                 Seu perfil
                                             </Badge>
                                         )}
-                                        <div className="text-sm text-muted-foreground">
+                                        <div
+                                            className="text-sm text-muted-foreground"
+                                            onClick={() => {
+                                                if (!username) return;
+                                                navigate(ROUTES.following(username), { state: { users: following } })
+                                            }}
+                                        >
                                             <span className="font-semibold">{following.length}</span> seguindo
                                         </div>
-                                        <div className="text-sm text-muted-foreground">
+                                        <div
+                                            className="text-sm text-muted-foreground"
+                                            onClick={() => {
+                                                if (!username) return;
+                                                navigate(ROUTES.followers(username), { state: { users: followers } })
+                                            }}
+                                        >
                                             <span className="font-semibold">{followers.length}</span> seguidores
                                         </div>
                                     </div>

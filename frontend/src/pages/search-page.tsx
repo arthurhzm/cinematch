@@ -1,25 +1,22 @@
 import AppLayout from "@/components/app-layout";
 import InputSearch from "@/components/input-search";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import MovieDetailedInfo from "@/components/ui/movie-detailed-info";
+import { Skeleton } from "@/components/ui/skeleton";
+import UserPreview from "@/components/ui/user-profile-preview";
 import { useToast } from "@/contexts/ToastContext";
 import useAI from "@/hooks/use-ai";
 import useUser from "@/hooks/use-user";
 import type { AIRecommendations, UserProfilePreview } from "@/utils/types";
 import type { AxiosResponse } from "axios";
-import { Clapperboard, User, UserIcon, Search, Film } from "lucide-react";
+import { Clapperboard, Film, Search, User, UserIcon } from "lucide-react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { ROUTES } from "@/utils/routes";
 
 export default function SearchPage() {
     const { showError } = useToast();
     const { searchMovie } = useAI();
     const { getUsersByUsername } = useUser();
-    const navigate = useNavigate();
 
     const [searchQuery, setSearchQuery] = useState("");
     const [searchType, setSearchType] = useState<"movies" | "people">("movies");
@@ -196,29 +193,10 @@ export default function SearchPage() {
                         ) : (
                             <div className="space-y-2">
                                 {(searchResults as UserProfilePreview[]).map((user, index) => (
-                                    <div
+                                    <UserPreview
                                         key={index}
-                                        className="cinema-card p-4 hover:border-primary/40 transition-all cursor-pointer"
-                                        onClick={() => navigate(ROUTES.profile(user.username), { state: { userId: user.userId } })}
-                                    >
-                                        <div className="flex items-center gap-4">
-                                            <Avatar className="w-12 h-12">
-                                                {user.profilePicture ? (
-                                                    <AvatarImage
-                                                        src={user.profilePicture}
-                                                        alt={`Avatar de ${user.username}`}
-                                                    />
-                                                ) : (
-                                                    <AvatarFallback>
-                                                        <UserIcon />
-                                                    </AvatarFallback>
-                                                )}
-                                            </Avatar>
-                                            <div>
-                                                <h3 className="font-bold text-lg text-foreground">{user.username}</h3>
-                                            </div>
-                                        </div>
-                                    </div>
+                                        user={user}
+                                    />
                                 ))}
                             </div>
                         )}

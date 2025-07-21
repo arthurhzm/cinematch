@@ -5,5 +5,7 @@ export const ROUTES = {
     addPreferences: '/add-preferences',
     search: '/search',
     chat: '/chat',
-    profile: (username: string) => `/profile/${username}`,
+    profile: (username: string) => `/${username}`,
+    followers: (username: string) => `/${username}/followers`,
+    following: (username: string) => `/${username}/following`,
 }
