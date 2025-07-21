@@ -44,6 +44,14 @@ export type UserProfilePreview = {
     profilePicture: string | null;
 }
 
+export type UserProfile = {
+    birthdate: string | null;
+    gender: string | null;
+    profilePicture: string | null;
+    lastLogin: string | null;
+    createdAt: string | null;
+}
+
 export type UserMovieFeedback = {
     id: number;
     movieTitle: string;

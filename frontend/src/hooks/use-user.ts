@@ -16,6 +16,11 @@ const useUser = () => {
         return res;
     }
 
+    const getUserFollowers = async (userId: string) => {
+        const res = await api.get(`/user/${userId}/followers`);
+        return res;
+    }
+
     const createUser = async (userData: CreateUserDTO) => {
         const res = await api.post("/register", userData);
         return res;
@@ -44,6 +49,7 @@ const useUser = () => {
     return {
         getUsersByUsername,
         getUserById,
+        getUserFollowers,
         authenticateUser,
         createUser,
         refreshToken,

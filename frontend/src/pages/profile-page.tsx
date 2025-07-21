@@ -8,7 +8,7 @@ import { useToast } from "@/contexts/ToastContext";
 import useFeedback from "@/hooks/use-feedback";
 import useTMDB from "@/hooks/use-tmdb";
 import useUser from "@/hooks/use-user";
-import type { UserMovieFeedback } from "@/utils/types";
+import type { UserMovieFeedback, UserProfile, UserProfilePreview } from "@/utils/types";
 import { Calendar, Clock, Film, Star, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
@@ -17,19 +17,20 @@ export default function ProfilePage() {
     const { username } = useParams();
     const { getUserFeedback } = useFeedback();
     const { getMovieByTitle, getGenresById } = useTMDB();
-    const { getUserById } = useUser();
+    const { getUserById, getUserFollowers } = useUser();
     const { showError } = useToast();
     const { userData } = useAuth();
     const location = useLocation();
     const { userId } = location.state || {};
 
     const [recentMovies, setRecentMovies] = useState<any[]>([]);
-    const [userInfo, setUserInfo] = useState<any>(null);
+    const [userInfo, setUserInfo] = useState<UserProfile | null>(null);
     const [stats, setStats] = useState({
         totalMovies: 0,
         averageRating: 0,
         favoriteGenres: [] as string[]
     });
+    const [followers, setFollowers] = useState<UserProfilePreview[] | []>([]);
 
     const isOwnProfile = userData?.username === username;
 
@@ -38,11 +39,13 @@ export default function ProfilePage() {
 
         const fetchData = async () => {
             try {
-                // Fetch user info
+                const followersResponse = await getUserFollowers(userId);
+                console.log("Followers Response:", followersResponse.data);
+
+                setFollowers(followersResponse.data);
                 const userResponse = await getUserById(userId);
                 setUserInfo(userResponse.data);
 
-                // Fetch user feedback
                 const feedback = await getUserFeedback(userId);
                 const moviePromises = feedback.data.map(async (item: UserMovieFeedback) => {
                     const movieData = await getMovieByTitle(item.movieTitle);
@@ -116,7 +119,7 @@ export default function ProfilePage() {
                         <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
                             {/* Avatar */}
                             <Avatar className="w-24 h-24 border-2 border-primary/30">
-                                <AvatarImage src={userInfo?.profilePicture} />
+                                <AvatarImage src={userInfo?.profilePicture || ""} />
                                 <AvatarFallback className="bg-primary/20 text-primary text-xl font-semibold">
                                     {username ? getInitials(username) : <User />}
                                 </AvatarFallback>
@@ -126,20 +129,25 @@ export default function ProfilePage() {
                             <div className="flex-1 space-y-3">
                                 <div>
                                     <h1 className="text-3xl font-bold text-foreground">{username}</h1>
-                                    {isOwnProfile && (
-                                        <Badge variant="outline" className="mt-2">
-                                            <User className="w-3 h-3 mr-1" />
-                                            Seu perfil
-                                        </Badge>
-                                    )}
+                                    <div className="flex items-center gap-3 mt-2">
+                                        {isOwnProfile && (
+                                            <Badge variant="outline">
+                                                <User className="w-3 h-3 mr-1" />
+                                                Seu perfil
+                                            </Badge>
+                                        )}
+                                        <div className="text-sm text-muted-foreground">
+                                            <span className="font-semibold">{followers.length}</span> seguidores
+                                        </div>
+                                    </div>
                                 </div>
 
                                 {/* User Details */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-muted-foreground">
-                                    {userInfo?.birthDate && (
+                                    {userInfo?.birthdate && (
                                         <div className="flex items-center gap-2">
                                             <Calendar className="w-4 h-4" />
-                                            <span>Nascimento: {formatDate(userInfo.birthDate)}</span>
+                                            <span>Nascimento: {formatDate(userInfo.birthdate)}</span>
                                         </div>
                                     )}
                                     {userInfo?.gender && (
