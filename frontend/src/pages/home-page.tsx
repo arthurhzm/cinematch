@@ -37,7 +37,7 @@ export default function HomePage() {
                 showError("Erro ao buscar preferências do usuário");
                 return;
             }
-            if (error.status === HttpStatusCode.NotFound) {
+            if (error.status === HttpStatusCode.NoContent) {
                 navigate(ROUTES.addPreferences);
                 return;
             }

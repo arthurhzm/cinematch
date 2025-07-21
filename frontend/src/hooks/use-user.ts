@@ -1,6 +1,7 @@
 import type { CreateUserDTO } from "@/DTO/CreateUserDTO";
 import useAxios from "./use-axios";
 import { useAuth } from "@/contexts/AuthContext";
+import type { FollowUnfollowUserDTO } from "@/DTO/FollowUnfollowUserDTO";
 
 const useUser = () => {
     const { api } = useAxios();
@@ -16,13 +17,23 @@ const useUser = () => {
         return res;
     }
 
-    const getUserFollowers = async (userId: string) => {
+    const getUserFollowers = async (userId: number) => {
         const res = await api.get(`/user/${userId}/followers`);
         return res;
     }
 
-    const getUserFollowing = async (userId: string) => {
+    const getUserFollowing = async (userId: number) => {
         const res = await api.get(`/user/${userId}/following`);
+        return res;
+    }
+
+    const followUser = async (data: FollowUnfollowUserDTO) => {
+        const res = await api.post(`/follow`, data);
+        return res;
+    }
+
+    const unfollowUser = async (data: FollowUnfollowUserDTO) => {
+        const res = await api.post(`/unfollow`, data);
         return res;
     }
 
@@ -56,6 +67,8 @@ const useUser = () => {
         getUserById,
         getUserFollowers,
         getUserFollowing,
+        followUser,
+        unfollowUser,
         authenticateUser,
         createUser,
         refreshToken,
