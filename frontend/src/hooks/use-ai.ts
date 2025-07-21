@@ -73,16 +73,18 @@ const useAI = () => {
         return cleanedCache;
     };
 
-    const generateMovieRecommendations = async (special: boolean = false): Promise<AIRecommendations[]> => {
+    const generateMovieRecommendations = async (special: boolean = false, useCache: boolean = true): Promise<AIRecommendations[]> => {
         const cacheKey = await generateCacheKey(special);
         const cache = getCache();
         const cleanedCache = cleanExpiredCache(cache);
 
-        // Verifica se existe cache válido
-        if (cleanedCache[cacheKey]) {
-            console.log('Usando recomendações do cache');
-            return cleanedCache[cacheKey].data;
+        if (useCache) {
+            if (cleanedCache[cacheKey]) {
+                console.log('Usando recomendações do cache');
+                return cleanedCache[cacheKey].data;
+            }
         }
+
         const response = await ai.models.generateContent({
             model: AI_MODELS.GEMINI_2_5_FLASH_LITE,
             contents: await recommendationPrompt(10, special),
@@ -95,15 +97,17 @@ const useAI = () => {
         let jsonText = response.text;
         const recommendationsWithPosters = await generateRecommendationsResponse(jsonText);
 
-        // Salva no cache
-        const now = Date.now();
-        cleanedCache[cacheKey] = {
-            data: recommendationsWithPosters,
-            timestamp: now,
-            expiresAt: now + CACHE_DURATION
-        };
+        if (useCache) {
+            const now = Date.now();
+            cleanedCache[cacheKey] = {
+                data: recommendationsWithPosters,
+                timestamp: now,
+                expiresAt: now + CACHE_DURATION
+            };
 
-        setCache(cleanedCache);
+            setCache(cleanedCache);
+        }
+
         return recommendationsWithPosters;
     }
 
@@ -238,7 +242,7 @@ const useAI = () => {
 
     const sendIndividualMessage = async (messages: Message[]) => {
         console.log(messages);
-        
+
         if (!userData) return "";
         const prompt = `
             [SISTEMA]
@@ -252,7 +256,7 @@ const useAI = () => {
 
                 ${await generateBasePrompt()}
 
-                As mensagens trocadas até agora foram: ${JSON.stringify(messages, )}
+                As mensagens trocadas até agora foram: ${JSON.stringify(messages,)}
                 Se adapte ao vocabulário do usuário 
                 Caso o usuário peça por filmes que estão fora de seus gostos, seja flexível e se ajuste para fazer as recomendações com base nisso e, se possível, correlacionar os gostos do usuário com a requisição
                 Se o usuário ficar falando toda hora sobre coisas que não são filmes, ignore e não responda, pode mandar ele tomar no cu.
@@ -260,7 +264,7 @@ const useAI = () => {
         `
 
         console.log(prompt);
-        
+
 
         const response = await ai.models.generateContent({
             model: AI_MODELS.GEMINI_2_5_FLASH_LITE,

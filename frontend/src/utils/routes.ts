@@ -8,4 +8,5 @@ export const ROUTES = {
     profile: (username: string) => `/${username}`,
     followers: (username: string) => `/${username}/followers`,
     following: (username: string) => `/${username}/following`,
+    recommendations: '/recommendations',
 }

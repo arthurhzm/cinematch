@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import useUser from '@/hooks/use-user';
 import { ROUTES } from '@/utils/routes';
-import { DoorOpen, Film, Heart, Home, MessageSquare, Search, User } from 'lucide-react';
+import { DoorOpen, Film, Heart, Home, Lightbulb, MessageSquare, Search, User } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
@@ -56,6 +56,9 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => navigate(ROUTES.addPreferences)}>
+                  <Heart />Minhas Preferências
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={logoutUser}>
                   <DoorOpen /> Sair
                 </DropdownMenuItem>
@@ -87,11 +90,11 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
             <Search className="w-5 h-5" />
             <span className="text-xs">Buscar</span>
           </Button>
-          <Button variant="ghost" size="icon" className="flex flex-col gap-1 h-auto py-2" onClick={() => navigate(ROUTES.addPreferences)}>
-            <Heart className="w-5 h-5" />
-            <span className="text-xs">Preferências</span>
+          <Button variant="ghost" size="icon" className="flex flex-col gap-1 h-auto py-2" onClick={() => navigate(ROUTES.recommendations)}>
+            <Lightbulb className="w-5 h-5" />
+            <span className="text-xs">Recomendações</span>
           </Button>
-            <Button variant="ghost" size="icon" className="flex flex-col gap-1 h-auto py-2" onClick={() => navigate(ROUTES.profile(userData?.username || ''), { state: { userId: userData?.id } })}>
+          <Button variant="ghost" size="icon" className="flex flex-col gap-1 h-auto py-2" onClick={() => navigate(ROUTES.profile(userData?.username || ''), { state: { userId: userData?.id } })}>
             <User className="w-5 h-5" />
             <span className="text-xs">{userData?.username}</span>
           </Button>
