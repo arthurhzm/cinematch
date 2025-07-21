@@ -102,9 +102,9 @@ export default function RecommendationsPage() {
 
         if (Math.abs(x) > threshold) {
             if (x > 0) {
-                handleFeedback("dislike");
-            } else {
                 handleFeedback("like");
+            } else {
+                handleFeedback("dislike");
             }
         } else if (y < -threshold) {
             handleFeedback("superlike");

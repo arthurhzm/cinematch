@@ -7,18 +7,20 @@ import MoviePoster from "@/components/ui/movie-poster";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/contexts/ToastContext";
 import useFeedback from "@/hooks/use-feedback";
+import useRecommendation from "@/hooks/use-recommendation";
 import useTMDB from "@/hooks/use-tmdb";
 import useUser from "@/hooks/use-user";
 import { getInitials } from "@/lib/utils";
 import { ROUTES } from "@/utils/routes";
-import type { UserMovieFeedback, UserProfile, UserProfilePreview } from "@/utils/types";
-import { Calendar, Clock, Film, Star, User } from "lucide-react";
+import type { UserMovieFeedback, UserProfile, UserProfilePreview, UserRecommendationsFeedback } from "@/utils/types";
+import { Calendar, Clock, Film, Star, ThumbsDown, ThumbsUp, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 export default function ProfilePage() {
     const { username } = useParams();
     const { getUserFeedback } = useFeedback();
+    const { getUserRecommendationsFeedback } = useRecommendation();
     const { getMovieByTitle, getGenresById } = useTMDB();
     const { getUserById, getUserFollowers, getUserFollowing } = useUser();
     const { showError } = useToast();
@@ -28,6 +30,7 @@ export default function ProfilePage() {
     const navigate = useNavigate();
 
     const [recentMovies, setRecentMovies] = useState<any[]>([]);
+    const [recentRecommendations, setRecentRecommendations] = useState<any[]>([]);
     const [userInfo, setUserInfo] = useState<UserProfile | null>(null);
     const [stats, setStats] = useState({
         totalMovies: 0,
@@ -70,9 +73,30 @@ export default function ProfilePage() {
                     };
                 });
 
+                const recommendationsFeedback = await getUserRecommendationsFeedback(userId);
+                const recommendationPromises = recommendationsFeedback.data.map(async (rec: UserRecommendationsFeedback) => {
+                    console.log(rec);
+
+                    const movieData = await getMovieByTitle(rec.movieTitle);
+                    const movie = movieData.results[0];
+                    if (!movie) return null;
+
+                    const genres = await getGenresById(movie.genre_ids);
+                    return {
+                        title: rec.movieTitle,
+                        year: movie.release_date ? new Date(movie.release_date).getFullYear() : 0,
+                        genres: genres.map((g: any) => g.name),
+                        overview: movie.overview,
+                        poster_url: movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : null,
+                        streaming_services: [],
+                        feedback: rec.feedback
+                    };
+                });
+
                 const movies = await Promise.all(moviePromises);
-                const validMovies = movies.filter(movie => movie !== null);
+                const validMovies = movies.filter(movie => movie !== null).slice(0, 10);
                 setRecentMovies(validMovies);
+                setRecentRecommendations(await Promise.all(recommendationPromises).then(res => res.filter(movie => movie !== null).slice(0, 10)));
 
                 const totalRating = feedback.data.reduce((sum: number, item: UserMovieFeedback) => sum + item.rating, 0);
                 const avgRating = feedback.data.length > 0 ? totalRating / feedback.data.length : 0;
@@ -280,6 +304,61 @@ export default function ProfilePage() {
                                 {isOwnProfile
                                     ? "Comece avaliando alguns filmes para ver suas estatísticas aqui!"
                                     : `${username} ainda não avaliou nenhum filme.`
+                                }
+                            </p>
+                        </CardContent>
+                    </Card>
+                )}
+
+                {/* Recent Recommendations */}
+                {recentRecommendations.length > 0 && (
+                    <Card className="cinema-card border-primary/20">
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <Film className="w-5 h-5 text-primary" />
+                                Recomendações Recentes
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+                                {recentRecommendations.slice(0, 10).map((movie, index) => (
+                                    <div key={`${movie.title}-${index}`} className="flex-none relative">
+                                        <MoviePoster movie={movie} userId={userId} />
+                                        <div className="absolute top-2 right-2">
+                                            {movie.feedback === 'like' && (
+                                                <div className="bg-green-500 p-1.5 rounded-full shadow-lg">
+                                                    <ThumbsUp className="w-3 h-3 text-white" />
+                                                </div>
+                                            )}
+                                            {movie.feedback === 'dislike' && (
+                                                <div className="bg-red-500 p-1.5 rounded-full shadow-lg">
+                                                    <ThumbsDown className="w-3 h-3 text-white" />
+                                                </div>
+                                            )}
+                                            {movie.feedback === 'superlike' && (
+                                                <div className="bg-purple-500 p-1.5 rounded-full shadow-lg">
+                                                    <Star className="w-3 h-3 text-white" />
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
+
+                {recentRecommendations.length === 0 && (
+                    <Card className="cinema-card border-primary/20">
+                        <CardContent className="p-8 text-center">
+                            <Film className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                            <h3 className="text-lg font-semibold text-muted-foreground mb-2">
+                                Nenhuma recomendação recebida ainda
+                            </h3>
+                            <p className="text-sm text-muted-foreground">
+                                {isOwnProfile
+                                    ? "Comece a receber recomendações de filmes para ver suas estatísticas aqui!"
+                                    : `${username} ainda não recebeu nenhuma recomendação.`
                                 }
                             </p>
                         </CardContent>

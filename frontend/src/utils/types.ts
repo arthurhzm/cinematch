@@ -61,7 +61,7 @@ export type UserMovieFeedback = {
 
 export type UserRecommendationsFeedback = {
     movieTitle: string;
-    feedback: string;
+    feedback: 'like' | 'dislike' | 'superlike';
     detailedFeedback: string | null;
 }
 
