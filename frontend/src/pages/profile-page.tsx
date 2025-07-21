@@ -17,7 +17,7 @@ export default function ProfilePage() {
     const { username } = useParams();
     const { getUserFeedback } = useFeedback();
     const { getMovieByTitle, getGenresById } = useTMDB();
-    const { getUserById, getUserFollowers } = useUser();
+    const { getUserById, getUserFollowers, getUserFollowing } = useUser();
     const { showError } = useToast();
     const { userData } = useAuth();
     const location = useLocation();
@@ -31,6 +31,7 @@ export default function ProfilePage() {
         favoriteGenres: [] as string[]
     });
     const [followers, setFollowers] = useState<UserProfilePreview[] | []>([]);
+    const [following, setFollowing] = useState<UserProfilePreview[] | []>([]);
 
     const isOwnProfile = userData?.username === username;
 
@@ -40,9 +41,10 @@ export default function ProfilePage() {
         const fetchData = async () => {
             try {
                 const followersResponse = await getUserFollowers(userId);
-                console.log("Followers Response:", followersResponse.data);
-
                 setFollowers(followersResponse.data);
+                const followingResponse = await getUserFollowing(userId);
+                setFollowing(followingResponse.data);
+
                 const userResponse = await getUserById(userId);
                 setUserInfo(userResponse.data);
 
@@ -136,6 +138,9 @@ export default function ProfilePage() {
                                                 Seu perfil
                                             </Badge>
                                         )}
+                                        <div className="text-sm text-muted-foreground">
+                                            <span className="font-semibold">{following.length}</span> seguindo
+                                        </div>
                                         <div className="text-sm text-muted-foreground">
                                             <span className="font-semibold">{followers.length}</span> seguidores
                                         </div>
