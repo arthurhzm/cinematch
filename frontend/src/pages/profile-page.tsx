@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import MoviePoster from "@/components/ui/movie-poster";
+import UpdateProfilePicture from "@/components/ui/update-profile-picture";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/contexts/ToastContext";
 import useFeedback from "@/hooks/use-feedback";
@@ -13,7 +14,7 @@ import useUser from "@/hooks/use-user";
 import { getInitials } from "@/lib/utils";
 import { ROUTES } from "@/utils/routes";
 import type { UserMovieFeedback, UserProfile, UserProfilePreview, UserRecommendationsFeedback } from "@/utils/types";
-import { Calendar, Clock, Film, Star, ThumbsDown, ThumbsUp, User } from "lucide-react";
+import { Calendar, Clock, Film, Star, ThumbsDown, ThumbsUp, User, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
@@ -39,6 +40,7 @@ export default function ProfilePage() {
     });
     const [followers, setFollowers] = useState<UserProfilePreview[] | []>([]);
     const [following, setFollowing] = useState<UserProfilePreview[] | []>([]);
+    const [dialogUpdatePicture, setDialogUpdatePicture] = useState<boolean>(false);
 
     const isOwnProfile = userData?.username === username;
 
@@ -144,7 +146,7 @@ export default function ProfilePage() {
                     <CardContent className="p-6">
                         <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
                             {/* Avatar */}
-                            <Avatar className="w-24 h-24 border-2 border-primary/30">
+                            <Avatar className="w-24 h-24 border-2 border-primary/30" onClick={() => setDialogUpdatePicture(true)}>
                                 <AvatarImage src={userInfo?.profilePicture || ""} />
                                 <AvatarFallback className="bg-primary/20 text-primary text-xl font-semibold">
                                     {username ? getInitials(username) : <User />}
@@ -365,6 +367,40 @@ export default function ProfilePage() {
                     </Card>
                 )}
             </div>
+            {dialogUpdatePicture && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-hidden">
+                    {/* Backdrop */}
+                    <div
+                        className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+                        onClick={() => setDialogUpdatePicture(false)}
+                    />
+
+                    {/* Dialog */}
+                    <div className="relative w-full max-w-md max-h-[90vh] overflow-y-auto cinema-card">
+                        <div className="p-6">
+                            <div className="flex items-center justify-between mb-6">
+                                <h2 className="text-lg font-semibold">Atualizar Foto de Perfil</h2>
+                                <button
+                                    onClick={() => setDialogUpdatePicture(false)}
+                                    className="p-2 hover:bg-muted rounded-full transition-colors"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+                            <UpdateProfilePicture
+                                onImageChange={(base64) => {
+                                    if (userInfo) {
+                                        setUserInfo({ ...userInfo, profilePicture: base64 });
+                                    }
+                                    setDialogUpdatePicture(false);
+                                }}
+                                previewImage={userInfo?.profilePicture}
+                                autoUpdate={true}
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
         </AppLayout>
     );
 }

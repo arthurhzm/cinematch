@@ -1,20 +1,19 @@
 import AppLayout from "@/components/app-layout";
 import InputPassword from "@/components/input-password";
 import InputText from "@/components/input-text";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import UpdateProfilePicture from "@/components/ui/update-profile-picture";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/contexts/ToastContext";
 import useUser from "@/hooks/use-user";
-import { getInitials } from "@/lib/utils";
 import { ROUTES } from "@/utils/routes";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Camera, CloudUpload, User } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { CloudUpload } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import z from "zod";
@@ -24,9 +23,8 @@ export default function SettingsPage() {
     const { showSuccess, showError } = useToast();
     const { updateUser } = useUser();
     const navigate = useNavigate();
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    const [profileImagePreview, setProfileImagePreview] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [profileImagePreview, setProfileImagePreview] = useState<string | null>(null);
 
     const schema = z.object({
         username: z.string().min(3, { message: "Nome deve ter pelo menos 3 caracteres" }),
@@ -78,42 +76,8 @@ export default function SettingsPage() {
         }
     }, [userData, setValue]);
 
-    const convertToBase64 = (file: File): Promise<string> => {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result as string);
-            reader.onerror = error => reject(error);
-        });
-    };
-
-    const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (!file) return;
-
-        // Validar tipo de arquivo
-        if (!file.type.startsWith('image/')) {
-            showError("Por favor, selecione apenas arquivos de imagem");
-            return;
-        }
-
-        // Validar tamanho (máximo 5MB)
-        if (file.size > 5 * 1024 * 1024) {
-            showError("A imagem deve ter no máximo 5MB");
-            return;
-        }
-
-        try {
-            const base64 = await convertToBase64(file);
-            setProfileImagePreview(base64);
-            setValue("profilePicture", base64);
-        } catch (error) {
-            showError("Erro ao processar a imagem");
-        }
-    };
-
     const onSubmit = async (data: SettingsFormData) => {
-        if(!userData) return;
+        if (!userData) return;
         setIsSubmitting(true);
         try {
             await updateUser(userData.id, data);
@@ -146,39 +110,13 @@ export default function SettingsPage() {
                     </CardHeader>
                     <CardContent className="space-y-6">
                         {/* Upload de Foto */}
-                        <div className="flex flex-col items-center space-y-4">
-                            <div className="relative">
-                                <Avatar className="w-24 h-24 border-4 border-primary/30">
-                                    <AvatarImage src={profileImagePreview || userData?.profilePicture || ""} />
-                                    <AvatarFallback className="bg-primary/20 text-primary text-xl font-semibold">
-                                        {userData ? getInitials(userData.username) : <User />}
-                                    </AvatarFallback>
-                                </Avatar>
-                                <Button
-                                    type="button"
-                                    size="icon"
-                                    className="absolute -bottom-2 -right-2 rounded-full w-8 h-8"
-                                    onClick={() => fileInputRef.current?.click()}
-                                >
-                                    <Camera className="w-4 h-4" />
-                                </Button>
-                                <input
-                                    ref={fileInputRef}
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleImageUpload}
-                                    className="hidden"
-                                />
-                            </div>
-                            <div className="text-center">
-                                <p className="text-sm text-muted-foreground">
-                                    Clique no ícone da câmera para alterar sua foto
-                                </p>
-                                <p className="text-xs text-muted-foreground">
-                                    Máximo 5MB • JPG, PNG, GIF
-                                </p>
-                            </div>
-                        </div>
+                        <UpdateProfilePicture
+                            onImageChange={(base64Image) => {
+                                setValue("profilePicture", base64Image);
+                                setProfileImagePreview(base64Image);
+                            }}
+                            previewImage={profileImagePreview}
+                        />
 
                         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                             {/* Informações Básicas */}
