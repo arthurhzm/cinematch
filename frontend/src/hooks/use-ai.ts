@@ -141,6 +141,7 @@ const useAI = () => {
 
         if (recommendationsFeedback.length > 0) {
             message += `
+            Este usuário já recebeu recomendações suas de filmes, aqui estão os detalhes:
             - Recomendações anteriores: ${recommendationsFeedback.map((rec: UserRecommendationsFeedback) => rec.movieTitle).join(", ")}
             - Avaliações sobre recomendações: ${recommendationsFeedback.map((rec: UserRecommendationsFeedback) => {
                 return `${rec.movieTitle} - ${rec.feedback} ${rec.detailedFeedback ? `Feedback detalhado: "${rec.detailedFeedback}"` : ''}`;
