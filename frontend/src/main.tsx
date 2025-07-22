@@ -14,6 +14,7 @@ import SearchPage from './pages/search-page.tsx'
 import ChatPage from './pages/chat-page.tsx'
 import FollowersPage from './pages/followers-page.tsx'
 import RecommendationsPage from './pages/recommendations-page.tsx'
+import SettingsPage from './pages/settings-page.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <AuthProvider>
@@ -32,7 +33,8 @@ createRoot(document.getElementById('root')!).render(
             <Route path={ROUTES.following(':username')} element={<FollowersPage />} />
             <Route path={ROUTES.search} element={<SearchPage />} />
             <Route path={ROUTES.chat} element={<ChatPage />} />
-            <Route path={ROUTES.recommendations} element={<RecommendationsPage />} />'
+            <Route path={ROUTES.recommendations} element={<RecommendationsPage />} />
+            <Route path={ROUTES.settings} element={<SettingsPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

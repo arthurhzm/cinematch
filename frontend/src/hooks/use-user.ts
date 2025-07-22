@@ -2,6 +2,7 @@ import type { CreateUserDTO } from "@/DTO/CreateUserDTO";
 import useAxios from "./use-axios";
 import { useAuth } from "@/contexts/AuthContext";
 import type { FollowUnfollowUserDTO } from "@/DTO/FollowUnfollowUserDTO";
+import type { UpdateUserDTO } from "@/DTO/UpdateUserDTO";
 
 const useUser = () => {
     const { api } = useAxios();
@@ -24,6 +25,11 @@ const useUser = () => {
 
     const getUserFollowing = async (userId: number) => {
         const res = await api.get(`/user/${userId}/following`);
+        return res;
+    }
+
+    const updateUser = async (userId: number, userData: UpdateUserDTO) => {
+        const res = await api.patch(`/users/${userId}`, userData);
         return res;
     }
 
@@ -78,7 +84,8 @@ const useUser = () => {
         authenticateUser,
         createUser,
         refreshToken,
-        logoutUser
+        logoutUser,
+        updateUser
     }
 }
 

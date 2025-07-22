@@ -2,11 +2,13 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import useUser from '@/hooks/use-user';
 import { ROUTES } from '@/utils/routes';
-import { DoorOpen, Film, Heart, Home, Lightbulb, MessageSquare, Search, User } from 'lucide-react';
+import { DoorOpen, Film, Heart, Home, Lightbulb, MessageSquare, Search, Settings, User } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
 import Title from './ui/title';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { getInitials } from '@/lib/utils';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -46,18 +48,26 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
 
           {/* User menu */}
           <div className="flex items-center">
-            <Button variant="ghost" size="icon" className="text-foreground hover:text-primary" onClick={() => navigate(ROUTES.chat)}>
-              <MessageSquare className="w-5 h-5" />
+            <Button variant="ghost" className="text-foreground hover:text-primary p-3" onClick={() => navigate(ROUTES.chat)}>
+              <MessageSquare className="w-8 h-8" />
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="text-foreground hover:text-primary">
-                  <User className="w-5 h-5" />
+                  <Avatar className="w-8 h-8 border-2 border-primary/30">
+                    <AvatarImage src={userData?.profilePicture || ""} />
+                    <AvatarFallback className="bg-primary/20 text-primary text-xl font-semibold">
+                      {userData ? getInitials(userData.username) : <User />}
+                    </AvatarFallback>
+                  </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => navigate(ROUTES.addPreferences)}>
                   <Heart />Minhas Preferências
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate(ROUTES.settings)}>
+                  <Settings /> Configurações
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={logoutUser}>
                   <DoorOpen /> Sair
@@ -69,7 +79,7 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
       </header >
 
       {/* Main content */}
-      <main className="container mx-auto px-4 py-2 pb-24 md:pb-2">
+      <main className="container mx-auto px-4 py-2 pb-6 md:pb-2">
         {title && (
           <div className="mb-6">
             <Title>{title}</Title>
@@ -96,7 +106,7 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
           </Button>
           <Button variant="ghost" size="icon" className="flex flex-col gap-1 h-auto py-2" onClick={() => navigate(ROUTES.profile(userData?.username || ''), { state: { userId: userData?.id } })}>
             <User className="w-5 h-5" />
-            <span className="text-xs">{userData?.username}</span>
+            <span className="text-xs">Perfil</span>
           </Button>
         </div>
       </nav >

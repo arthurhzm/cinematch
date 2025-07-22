@@ -147,8 +147,8 @@ export default function HomePage() {
                                     <div className="absolute top-2 right-2">
                                         <Avatar className="w-8 h-8 border-2 border-primary/30">
                                             <AvatarImage src={movie.profilePicture || ""} />
-                                            <AvatarFallback className="bg-primary/10 text-primary text-xl font-semibold">
-                                                {movie.username ? getInitials(movie.username) : <User />}
+                                            <AvatarFallback className="bg-primary/30 text-primary text-sm font-bold border-2 border-primary/50 shadow-md">
+                                                {movie.username ? getInitials(movie.username) : <User className="w-4 h-4" />}
                                             </AvatarFallback>
                                         </Avatar>
                                     </div>
