@@ -367,7 +367,7 @@ export default function ProfilePage() {
                     </Card>
                 )}
             </div>
-            {dialogUpdatePicture && (
+            {dialogUpdatePicture && isOwnProfile && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-hidden">
                     {/* Backdrop */}
                     <div
