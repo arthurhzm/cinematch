@@ -86,3 +86,18 @@ export type Message = {
     text: string;
     sender: "user" | "ai";
 }
+
+export type FriendsMovieFeedback = {
+    userId: number;
+    profilePicture: string | null;
+    username: string;
+    movieTitle: string;
+    rating: number;
+    review: string;
+    title: string;
+    year: number;
+    genres: string[];
+    overview: string;
+    poster_url: string | null;
+    streaming_services: string[];
+}

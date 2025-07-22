@@ -27,6 +27,11 @@ const useUser = () => {
         return res;
     }
 
+    const getFriendsMoviesFeedback = async (userId: number) => {
+        const res = await api.get(`/user/${userId}/friends-feedback`);
+        return res;
+    }
+
     const followUser = async (data: FollowUnfollowUserDTO) => {
         const res = await api.post(`/follow`, data);
         return res;
@@ -67,6 +72,7 @@ const useUser = () => {
         getUserById,
         getUserFollowers,
         getUserFollowing,
+        getFriendsMoviesFeedback,
         followUser,
         unfollowUser,
         authenticateUser,

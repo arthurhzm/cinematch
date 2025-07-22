@@ -1,13 +1,18 @@
 import AppLayout from "@/components/app-layout";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import MoviePoster from "@/components/ui/movie-poster";
 import Title from "@/components/ui/title";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/contexts/ToastContext";
 import useAI from "@/hooks/use-ai";
 import usePreferences from "@/hooks/use-preferences";
+import useTMDB from "@/hooks/use-tmdb";
+import useUser from "@/hooks/use-user";
+import { getInitials } from "@/lib/utils";
 import { ROUTES } from "@/utils/routes";
-import type { AIRecommendations } from "@/utils/types";
+import type { AIRecommendations, FriendsMovieFeedback } from "@/utils/types";
 import { HttpStatusCode, isAxiosError } from "axios";
+import { Star, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -16,9 +21,12 @@ export default function HomePage() {
     const { getUserPreferences } = usePreferences();
     const { showError } = useToast();
     const { generateMovieRecommendations } = useAI();
+    const { getFriendsMoviesFeedback } = useUser();
+    const { getGenresById, getMovieByTitle } = useTMDB();
     const navigate = useNavigate();
     const [recommendations, setRecommendations] = useState<AIRecommendations[]>([]);
     const [specialRecommendations, setSpecialRecommendations] = useState<AIRecommendations[]>([]);
+    const [friendsFeedback, setFriendsFeedback] = useState<FriendsMovieFeedback[] | []>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -32,6 +40,32 @@ export default function HomePage() {
             setRecommendations(recommendations);
             setSpecialRecommendations(special);
             setLoading(false);
+            getFriendsMoviesFeedback(userData.id).then(async (feedback) => {
+                const moviePromises = feedback.data.map(async (item: FriendsMovieFeedback) => {
+                    const movieData = await getMovieByTitle(item.movieTitle);
+                    const movie = movieData.results[0];
+                    if (!movie) return null;
+
+                    const genres = await getGenresById(movie.genre_ids);
+                    return {
+                        title: item.movieTitle,
+                        profilePicture: item.profilePicture,
+                        userId: item.userId,
+                        username: item.username,
+                        rating: item.rating,
+                        review: item.review,
+                        year: movie.release_date ? new Date(movie.release_date).getFullYear() : 0,
+                        genres: genres.map((g: any) => g.name),
+                        overview: movie.overview,
+                        poster_url: movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : null,
+                        streaming_services: [],
+                    };
+                });
+
+                console.log(await Promise.all(moviePromises));
+
+                setFriendsFeedback(await Promise.all(moviePromises));
+            });
         }).catch((error) => {
             if (!isAxiosError(error)) {
                 showError("Erro ao buscar preferências do usuário");
@@ -41,7 +75,6 @@ export default function HomePage() {
                 navigate(ROUTES.addPreferences);
                 return;
             }
-
         });
     }, [userData]);
 
@@ -99,6 +132,34 @@ export default function HomePage() {
                         <p className="text-muted-foreground">Recomendações especiais para hoje</p>
                         <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
                             {specialRecommendations.map((movie) => (<MoviePoster movie={movie} key={movie.title} />))}
+                        </div>
+                    </div>
+                )}
+            </section>
+            <section>
+                {friendsFeedback.length > 0 && (
+                    <div className="mt-6">
+                        <p className="text-muted-foreground">Seus amigos estão assistindo</p>
+                        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+                            {friendsFeedback.slice(0, 10).map((movie, index) => (
+                                <div key={`${movie.title}-${index}`} className="flex-none relative">
+                                    <MoviePoster movie={movie} userId={movie.userId} />
+                                    <div className="absolute top-2 right-2">
+                                        <Avatar className="w-8 h-8 border-2 border-primary/30">
+                                            <AvatarImage src={movie.profilePicture || ""} />
+                                            <AvatarFallback className="bg-primary/10 text-primary text-xl font-semibold">
+                                                {movie.username ? getInitials(movie.username) : <User />}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                    </div>
+                                    <div className="mt-2 text-center">
+                                        <div className="flex items-center justify-center gap-1">
+                                            <Star className="w-3 h-3 text-yellow-400 fill-current" />
+                                            <span className="text-xs text-muted-foreground">{movie.rating}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 )}
