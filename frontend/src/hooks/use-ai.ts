@@ -194,23 +194,102 @@ const useAI = () => {
         const day = now.getDate();
 
         let specialPrompt = `
-            [SISTEMA]
-                Neste contexto, estamos em uma função de recomendação especial, ou seja, devemos sugerir filmes que sejam relevantes para o período atual sem levar em conta as preferências do usuário.
-                Sua tarefa é sugerir filmes que sejam populares ou bem avaliados atualmente, levando em consideração o período do ano.
-            [/SISTEMA]
+            [SISTEMA ESPECIAL]
+                Esta é uma recomendação especial que IGNORA completamente as preferências do usuário.
+                Você deve recomendar filmes baseados APENAS em:
+                1. Datas comemorativas próximas ou atuais
+                2. Eventos mundiais importantes acontecendo agora
+                3. Tendências cinematográficas do momento
+                
+                IMPORTANTE: Não leve em consideração os gostos, gêneros preferidos, ou histórico do usuário.
+                Foque apenas na relevância temporal e cultural do momento atual.
+            [/SISTEMA ESPECIAL]
         `;
 
-        if (month >= 11 && day >= 20) {
-            specialPrompt += `Como estamos perto do Natal, sugira filmes natalinos`;
-        } else if (month === 10) {
-            specialPrompt += `Como estamos perto do Halloween, sugira filmes de Halloween`;
-        } else if (month === 2) {
-            specialPrompt += `Como estamos perto do Dia dos Namorados, sugira filmes românticos para o Dia dos Namorados`;
-        } else if (month === 6) {
-            specialPrompt += `Como estamos perto de São João, sugira filmes de São João`;
-        } else {
-            specialPrompt += `Como estamos em um período normal, sugira filmes que sejam populares ou bem avaliados atualmente`;
+        // Datas comemorativas específicas
+        if ((month === 12 && day >= 15) || (month === 1 && day <= 7)) {
+            specialPrompt += `
+                Período: Natal e Ano Novo
+                Recomende filmes natalinos clássicos e contemporâneos, filmes sobre reflexão de fim de ano, 
+                e obras que celebrem família, esperança e renovação. Inclua tanto clássicos quanto lançamentos recentes.`;
         }
+        else if (month === 10 && day >= 15) {
+            specialPrompt += `
+                Período: Halloween
+                Recomende filmes de terror, suspense, thriller psicológico e horror. 
+                Inclua desde clássicos do terror até lançamentos recentes que estejam em alta.
+                Varie entre diferentes subgêneros: horror sobrenatural, slasher, terror psicológico, etc.`;
+        }
+        else if (month === 2 && day >= 10 && day <= 16) {
+            specialPrompt += `
+                Período: Dia dos Namorados
+                Recomende filmes românticos de diferentes épocas e estilos: 
+                romance clássico, comédia romântica, drama romântico, romance LGBTQ+.
+                Inclua tanto sucessos atemporais quanto lançamentos recentes.`;
+        }
+        else if (month === 6 && day >= 20 && day <= 30) {
+            specialPrompt += `
+                Período: Festa Junina
+                Recomende filmes brasileiros que retratem cultura regional, 
+                filmes sobre vida no interior, tradições familiares, 
+                ou que tenham conexão com a cultura popular brasileira.`;
+        }
+        else if (month === 9 && day >= 1 && day <= 7) {
+            specialPrompt += `
+                Período: Independência do Brasil
+                Recomende filmes sobre história brasileira, biografias de figuras históricas,
+                filmes que retratem lutas por independência ao redor do mundo,
+                ou cinema nacional premiado.`;
+        }
+        else if (month === 3 && day >= 5 && day <= 10) {
+            specialPrompt += `
+                Período: Dia Internacional da Mulher
+                Recomende filmes dirigidos por mulheres, filmes com protagonistas femininas fortes,
+                biografias de mulheres inspiradoras, e obras que abordem questões de gênero e empoderamento.`;
+        }
+        else if (month === 4 && day >= 18 && day <= 25) {
+            specialPrompt += `
+                Período: Dia do Índio
+                Recomende filmes que retratam culturas indígenas brasileiras e mundiais,
+                filmes sobre preservação ambiental, conexão com a natureza,
+                e obras que valorizem povos originários.`;
+        }
+        // Eventos baseados em tendências gerais por estação/época
+        else if (month >= 6 && month <= 8) {
+            specialPrompt += `
+                Período: Inverno (Hemisfério Sul)
+                Como estamos no inverno, recomende filmes que sejam ideais para assistir em casa:
+                dramas envolventes, thrillers psicológicos, filmes de época, 
+                e obras contemplativas. Inclua sucessos de streaming e lançamentos recentes.`;
+        }
+        else if (month >= 12 || month <= 2) {
+            specialPrompt += `
+                Período: Verão (Hemisfério Sul)
+                Como estamos no verão, recomende filmes leves e divertidos:
+                comédias, aventuras, filmes de ação, documentários inspiradores,
+                e obras perfeitas para maratonas em família ou com amigos.`;
+        }
+        else {
+            specialPrompt += `
+                Período: Sem data comemorativa específica
+                Recomende filmes baseados em:
+                - Tendências atuais do cinema mundial
+                - Filmes que estão ganhando prêmios importantes recentemente
+                - Lançamentos que estão causando impacto cultural
+                - Obras que estão sendo muito discutidas nas redes sociais
+                - Filmes de diretores em evidência no momento
+                Priorize diversidade de gêneros, países e épocas para criar uma seleção eclética e atual.`;
+        }
+
+        specialPrompt += `
+            
+            DIRETRIZES ADICIONAIS:
+            - Ignore completamente o perfil de gostos do usuário
+            - Priorize relevância cultural e temporal
+            - Inclua filmes de diferentes países e décadas quando apropriado
+            - Considere tanto sucessos comerciais quanto filmes de autor
+            - Varie os gêneros para criar uma seleção rica e diversificada
+        `;
 
         return specialPrompt;
     }
