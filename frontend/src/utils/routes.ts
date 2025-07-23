@@ -10,4 +10,5 @@ export const ROUTES = {
     following: (username: string) => `/${username}/following`,
     recommendations: '/recommendations',
     settings: '/settings',
+    forgotPassword: '/forgot-password',
 }

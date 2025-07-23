@@ -15,6 +15,7 @@ import ChatPage from './pages/chat-page.tsx'
 import FollowersPage from './pages/followers-page.tsx'
 import RecommendationsPage from './pages/recommendations-page.tsx'
 import SettingsPage from './pages/settings-page.tsx'
+import ForgotPasswordPage from './pages/forgot-password-page.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <AuthProvider>
@@ -24,6 +25,8 @@ createRoot(document.getElementById('root')!).render(
           <Route path={ROUTES.register} element={<RegisterPage />} />
           <Route element={<AppRoute isPrivate={false} />} >
             <Route path={ROUTES.login} element={<LoginPage />} />
+            <Route path={ROUTES.forgotPassword} element={<ForgotPasswordPage />} />
+
           </Route>
           <Route element={<AppRoute isPrivate={true} />} >
             <Route path={ROUTES.home} element={<HomePage />} />

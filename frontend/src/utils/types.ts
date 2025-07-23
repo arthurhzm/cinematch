@@ -41,6 +41,7 @@ export type AIRecommendations = {
 export type UserProfilePreview = {
     userId: number;
     username: string;
+    email: string;
     profilePicture: string | null;
 }
 

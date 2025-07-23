@@ -4,6 +4,7 @@ import PageContainer from "@/components/page-container";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/contexts/ToastContext";
 import useUser from "@/hooks/use-user";
+import { ROUTES } from "@/utils/routes";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
@@ -52,7 +53,7 @@ export default function LoginPage() {
                 />
                 <div className="flex items-center justify-between text-sm">
                     <Link
-                        to="/forgot-password"
+                        to={ROUTES.forgotPassword}
                         className="text-primary hover:text-primary/80 transition-colors"
                     >
                         Esqueceu a senha?

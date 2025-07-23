@@ -1,8 +1,8 @@
-import type { CreateUserDTO } from "@/DTO/CreateUserDTO";
-import useAxios from "./use-axios";
 import { useAuth } from "@/contexts/AuthContext";
+import type { CreateUserDTO } from "@/DTO/CreateUserDTO";
 import type { FollowUnfollowUserDTO } from "@/DTO/FollowUnfollowUserDTO";
 import type { UpdateUserDTO } from "@/DTO/UpdateUserDTO";
+import useAxios from "./use-axios";
 
 const useUser = () => {
     const { api } = useAxios();
@@ -10,6 +10,11 @@ const useUser = () => {
 
     const getUserById = async (userId: string) => {
         const res = await api.get(`/users/${userId}`);
+        return res;
+    }
+
+    const getUserByEmail = async (email: string) => {
+        const res = await api.get(`/users/email`, { params: { email } });
         return res;
     }
 
@@ -73,9 +78,15 @@ const useUser = () => {
         setUserData(null);
     }
 
+    const generateRecoveryCode = async (email: string) => {
+        const res = await api.post("/forgot-password", { email });
+        return res;
+    }
+
     return {
         getUsersByUsername,
         getUserById,
+        getUserByEmail,
         getUserFollowers,
         getUserFollowing,
         getFriendsMoviesFeedback,
@@ -85,7 +96,8 @@ const useUser = () => {
         createUser,
         refreshToken,
         logoutUser,
-        updateUser
+        updateUser,
+        generateRecoveryCode,
     }
 }
 
