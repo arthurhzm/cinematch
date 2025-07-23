@@ -183,6 +183,8 @@ const useAI = () => {
             8. Verifique cuidadosamente a formatação JSON, os valores do JSON devem ser em português do Brasil
             9. Nunca use caracteres especiais ou Unicode
             10. Utilize todo o contexto do usuário de forma inteligente para gerar as melhores recomendações possíveis
+            11. Evite repetir filmes já assistidos ou recomendados anteriormente
+
             (Retorne apenas o JSON válido, sem markdown ou formatação adicional)
             ${special ? recommendationPromptSpecial() : ''}
         `.trim();

@@ -183,7 +183,7 @@ export default function RecommendationsPage() {
                             Todas as recomendações avaliadas!
                         </h2>
                         <p className="text-muted-foreground">
-                            Suas avaliações foram salvas no seu perfil para futuras recomendações.
+                            Suas avaliações foram salvas no seu perfil e serão utilizadas para futuras recomendações.
                         </p>
                         <div className="flex justify-center">
                             <Button onClick={loadRecommendations} className="flex items-center gap-2">

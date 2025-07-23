@@ -83,6 +83,16 @@ const useUser = () => {
         return res;
     }
 
+    const verifyRecoveryCode = async (email: string, code: string) => {
+        const res = await api.post("/forgot-password/verify", { email, code });
+        return res;
+    }
+
+    const updatePassword = async (email: string, password: string) => {
+        const res = await api.put("/update-password", { email, newPassword: password });
+        return res;
+    }
+
     return {
         getUsersByUsername,
         getUserById,
@@ -98,6 +108,8 @@ const useUser = () => {
         logoutUser,
         updateUser,
         generateRecoveryCode,
+        verifyRecoveryCode,
+        updatePassword,
     }
 }
 
