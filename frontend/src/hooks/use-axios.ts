@@ -12,7 +12,8 @@ const useAxios = () => {
         timeout: 5000,
         withCredentials: true,
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            "ngrok-skip-browser-warning": "69420"
         }
     });
 
