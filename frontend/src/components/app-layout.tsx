@@ -9,6 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import Title from './ui/title';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { getInitials } from '@/lib/utils';
+import PWAInstallPrompt from './ui/pwa-installer-prompt';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -77,6 +78,8 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
           </div>
         </div>
       </header >
+      
+      <PWAInstallPrompt />
 
       {/* Main content */}
       <main className="container mx-auto px-4 py-2 pb-6 md:pb-2">

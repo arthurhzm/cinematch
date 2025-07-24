@@ -31,7 +31,12 @@ export default function HomePage() {
 
     useEffect(() => {
         if (!userData) return;
-        getUserPreferences(userData.id).then(async (_) => {
+        getUserPreferences(userData.id).then(async (res) => {
+            if (!res) {
+                navigate(ROUTES.addPreferences);
+                return;
+            }
+
             const [recommendations, special] = await Promise.all([
                 generateMovieRecommendations(false),
                 generateMovieRecommendations(true, false)
@@ -69,6 +74,8 @@ export default function HomePage() {
         }).catch((error) => {
             if (!isAxiosError(error)) {
                 showError("Erro ao buscar preferências do usuário");
+                console.error(error);
+
                 return;
             }
             if (error.status === HttpStatusCode.NoContent) {

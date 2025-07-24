@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host 0.0.0.0",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -35,6 +35,8 @@
     "react-toastify": "^11.0.5",
     "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.1.11",
+    "vite-plugin-pwa": "^1.0.1",
+    "workbox-window": "^7.3.0",
     "zod": "^4.0.5"
   },
   "devDependencies": {
