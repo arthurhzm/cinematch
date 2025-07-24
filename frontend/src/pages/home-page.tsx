@@ -3,27 +3,22 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import MoviePoster from "@/components/ui/movie-poster";
 import Title from "@/components/ui/title";
 import { useAuth } from "@/contexts/AuthContext";
-import { useToast } from "@/contexts/ToastContext";
 import useAI from "@/hooks/use-ai";
 import usePreferences from "@/hooks/use-preferences";
 import useTMDB from "@/hooks/use-tmdb";
 import useUser from "@/hooks/use-user";
 import { getInitials } from "@/lib/utils";
-import { ROUTES } from "@/utils/routes";
 import type { AIRecommendations, FriendsMovieFeedback } from "@/utils/types";
-import { HttpStatusCode, isAxiosError } from "axios";
+import { isAxiosError } from "axios";
 import { Star, User } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 export default function HomePage() {
     const { userData } = useAuth();
     const { getUserPreferences } = usePreferences();
-    const { showError } = useToast();
     const { generateMovieRecommendations } = useAI();
     const { getFriendsMoviesFeedback } = useUser();
     const { getGenresById, getMovieByTitle } = useTMDB();
-    const navigate = useNavigate();
     const [recommendations, setRecommendations] = useState<AIRecommendations[]>([]);
     const [specialRecommendations, setSpecialRecommendations] = useState<AIRecommendations[]>([]);
     const [friendsFeedback, setFriendsFeedback] = useState<FriendsMovieFeedback[] | []>([]);
@@ -31,12 +26,7 @@ export default function HomePage() {
 
     useEffect(() => {
         if (!userData) return;
-        getUserPreferences(userData.id).then(async (res) => {
-            if (!res) {
-                navigate(ROUTES.addPreferences);
-                return;
-            }
-
+        getUserPreferences(userData.id).then(async (_) => {
             const [recommendations, special] = await Promise.all([
                 generateMovieRecommendations(false),
                 generateMovieRecommendations(true, false)
@@ -73,13 +63,7 @@ export default function HomePage() {
             });
         }).catch((error) => {
             if (!isAxiosError(error)) {
-                showError("Erro ao buscar preferências do usuário");
                 console.error(error);
-
-                return;
-            }
-            if (error.status === HttpStatusCode.NoContent) {
-                navigate(ROUTES.addPreferences);
                 return;
             }
         });

@@ -43,7 +43,7 @@ export default function RecommendationsPage() {
             setRecommendations(data);
             setCurrentIndex(0);
         } catch (error) {
-            showError("Erro ao carregar recomendações");
+            
         } finally {
             setIsLoading(false);
         }

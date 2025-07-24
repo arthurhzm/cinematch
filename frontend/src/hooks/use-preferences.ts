@@ -1,15 +1,24 @@
 import type { SavePreferencesDTO } from "@/DTO/SavePreferencesDTO";
 import useAxios from "./use-axios";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "@/utils/routes";
 
 const usePreferences = () => {
     const { api } = useAxios();
+    const navigate = useNavigate();
 
-    const getUserPreferences = (userId: number) => {
-        return api.get(`/user/${userId}/preferences`);
+    const getUserPreferences = async (userId: number) => {
+        const res = await api.get(`/user/${userId}/preferences`);
+        
+        if (!res) {
+            navigate(ROUTES.addPreferences);
+        }
+
+        return res;
     }
 
-    const saveUserPreferences = (userId: number, preferences: SavePreferencesDTO) => {
-        return api.put(`/user/${userId}/preferences`, preferences);
+    const saveUserPreferences = async (userId: number, preferences: SavePreferencesDTO) => {
+        return await api.put(`/user/${userId}/preferences`, preferences);
     }
 
     return {
