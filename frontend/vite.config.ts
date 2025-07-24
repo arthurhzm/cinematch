@@ -50,7 +50,7 @@ export default defineConfig({
             }
           },
           {
-            urlPattern: /^http:\/\/192\.168\.0\.165:8080\/.*/i,
+            urlPattern: /^https:\/\/192\.168\.0\.165:8081\/.*/i,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'api-cache',

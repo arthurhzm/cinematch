@@ -16,14 +16,30 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-    const [token, setToken] = useState<string | null>(null);
+    const [token, setTokenState] = useState<string | null>(() => {
+        return localStorage.getItem("auth_token");
+    });
     const [userData, setUserData] = useState<UserDTO | null>(null);
+
+    const setToken = (token: string | null) => {
+        if (token) {
+            localStorage.setItem("auth_token", token);
+        } else {
+            localStorage.removeItem("auth_token");
+        }
+        setTokenState(token);
+    };
+
+    const removeToken = () => {
+        localStorage.removeItem("auth_token");
+        setTokenState(null);
+    };
 
     return (
         <AuthContext.Provider value={{
             token,
             setToken,
-            removeToken: () => setToken(null),
+            removeToken,
             userData,
             setUserData
         }}>
