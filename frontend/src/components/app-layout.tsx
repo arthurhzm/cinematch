@@ -121,7 +121,7 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
           </Button>
           <Button variant="ghost" size="icon" className="flex flex-col gap-1 h-auto py-2" onClick={() => navigate(ROUTES.profile(userData?.username || ''), { state: { userId: userData?.id } })}>
             <User className="w-5 h-5" />
-            <span className="text-xs">{userData?.username || "Perfil"}</span>
+            <span className="text-xs">{userData?.username.split(" ")[0] || "Perfil"}</span>
           </Button>
         </div>
       </nav >

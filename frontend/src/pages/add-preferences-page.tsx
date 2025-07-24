@@ -2,6 +2,7 @@ import AppLayout from "@/components/app-layout";
 import Typeahead from "@/components/typeahead";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import Title from "@/components/ui/title";
@@ -33,7 +34,7 @@ export default function AddPreferencesPage() {
     const [selectedDirectors, setSelectedDirectors] = useState<Directors[]>([]);
     const [selectedActors, setSelectedActors] = useState<Actors[]>([]);
     const [minYear, setMinYear] = useState<number>(2000);
-    const [maxDuration, setMaxDuration] = useState<number>(90);
+    const [maxDuration, setMaxDuration] = useState<number>(120);
     const [acceptAdultContent, setAcceptAdultContent] = useState<boolean>(false);
 
     useEffect(() => {
@@ -91,85 +92,110 @@ export default function AddPreferencesPage() {
 
     return (
         <AppLayout>
-            {!!genres.length && (
-                <div>
-                    <Title>Gêneros</Title>
-                    {genres.map((genre) => (
-                        <Badge
-                            className="m-1 p-2"
-                            key={genre.id}
-                            variant={selectedGenres.includes(genre.name) ? "default" : "secondary"}
 
-                            onClick={() => {
-                                if (selectedGenres.includes(genre.name)) {
-                                    setSelectedGenres(selectedGenres.filter(g => g !== genre.name));
-                                } else {
-                                    setSelectedGenres([...selectedGenres, genre.name]);
-                                }
-                            }}>
-                            {selectedGenres.includes(genre.name) && <Check />}{genre.name}
-                        </Badge>
-                    ))}
-                </div>
-            )}
+            <Card className="cinema-card">
+                <CardContent className="p-2">
+                    <div className="flex items-start space-x-3">
+                        <div>
+                            <h3 className="text-lg font-semibold text-white mb-2">
+                                🎬 Personalize sua experiência cinematográfica
+                            </h3>
+                            <p className="text-sm text-muted-foreground leading-relaxed">
+                                Configure suas preferências de filmes para receber recomendações únicas e descobrir filmes
+                                que combinam perfeitamente com seu gosto pessoal. Quanto mais detalhes você
+                                compartilhar, melhores serão nossas sugestões!
+                            </p>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
             <hr className="mt-3 mb-3" />
 
-            {!!directors.length && (
-                <>
+            {
+                !!genres.length && (
                     <div>
-                        <Title>Diretores</Title>
-                        <Typeahead
-                            label="Digite o nome do diretor"
-                            search={directors}
-                            selectedItems={selectedDirectors}
-                            onSelectionChange={setSelectedDirectors}
-                        />
-                    </div>
-                    <div>
-                        {selectedDirectors.map((director) => (
+                        <Title>Gêneros</Title>
+                        {genres.map((genre) => (
                             <Badge
                                 className="m-1 p-2"
-                                key={director.id}
+                                key={genre.id}
+                                variant={selectedGenres.includes(genre.name) ? "default" : "secondary"}
+
                                 onClick={() => {
-                                    console.log(selectedDirectors);
-                                    setSelectedDirectors(selectedDirectors.filter(d => d !== director))
-                                }}
-                            >
-                                <Check />{director.name}
+                                    if (selectedGenres.includes(genre.name)) {
+                                        setSelectedGenres(selectedGenres.filter(g => g !== genre.name));
+                                    } else {
+                                        setSelectedGenres([...selectedGenres, genre.name]);
+                                    }
+                                }}>
+                                {selectedGenres.includes(genre.name) && <Check />}{genre.name}
                             </Badge>
                         ))}
                     </div>
-                </>
-            )}
+                )
+            }
+            <hr className="mt-3 mb-3" />
+
+            {
+                !!directors.length && (
+                    <>
+                        <div>
+                            <Title>Diretores</Title>
+                            <Typeahead
+                                label="Digite o nome do diretor"
+                                search={directors}
+                                selectedItems={selectedDirectors}
+                                onSelectionChange={setSelectedDirectors}
+                            />
+                        </div>
+                        <div>
+                            {selectedDirectors.map((director) => (
+                                <Badge
+                                    className="m-1 p-2"
+                                    key={director.id}
+                                    onClick={() => {
+                                        console.log(selectedDirectors);
+                                        setSelectedDirectors(selectedDirectors.filter(d => d !== director))
+                                    }}
+                                >
+                                    <Check />{director.name}
+                                </Badge>
+                            ))}
+                        </div>
+                    </>
+                )
+            }
             <hr className="mt-5 mb-3" />
 
-            {!!actors.length && (
-                <>
-                    <div>
-                        <Title>Atores</Title>
-                        <Typeahead
-                            label="Digite o nome do ator"
-                            search={actors}
-                            selectedItems={selectedActors}
-                            onSelectionChange={setSelectedActors}
-                        />
-                    </div>
-                    <div>
-                        {selectedActors.map((actor) => (
-                            <Badge
-                                className="m-1 p-2"
-                                key={actor.id}
-                                onClick={() => {
-                                    console.log(selectedActors);
-                                    setSelectedActors(selectedActors.filter(d => d !== actor))
-                                }}
-                            >
-                                <Check />{actor.name}
-                            </Badge>
-                        ))}
-                    </div>
-                </>
-            )}
+            {
+                !!actors.length && (
+                    <>
+                        <div>
+                            <Title>Atores</Title>
+                            <Typeahead
+                                label="Digite o nome do ator"
+                                search={actors}
+                                selectedItems={selectedActors}
+                                onSelectionChange={setSelectedActors}
+                            />
+                        </div>
+                        <div>
+                            {selectedActors.map((actor) => (
+                                <Badge
+                                    className="m-1 p-2"
+                                    key={actor.id}
+                                    onClick={() => {
+                                        console.log(selectedActors);
+                                        setSelectedActors(selectedActors.filter(d => d !== actor))
+                                    }}
+                                >
+                                    <Check />{actor.name}
+                                </Badge>
+                            ))}
+                        </div>
+                    </>
+                )
+            }
 
             <hr className="mt-5 mb-3" />
 
@@ -231,6 +257,6 @@ export default function AddPreferencesPage() {
             >
                 <CloudUpload /> Salvar Preferências
             </Button>
-        </AppLayout>
+        </AppLayout >
     )
 }

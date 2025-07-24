@@ -8,12 +8,13 @@ import UpdateProfilePicture from "@/components/ui/update-profile-picture";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/contexts/ToastContext";
 import useFeedback from "@/hooks/use-feedback";
+import usePreferences from "@/hooks/use-preferences";
 import useRecommendation from "@/hooks/use-recommendation";
 import useTMDB from "@/hooks/use-tmdb";
 import useUser from "@/hooks/use-user";
 import { getInitials } from "@/lib/utils";
 import { ROUTES } from "@/utils/routes";
-import type { UserMovieFeedback, UserProfile, UserProfilePreview, UserRecommendationsFeedback } from "@/utils/types";
+import { type UserPreferences, type UserMovieFeedback, type UserProfile, type UserProfilePreview, type UserRecommendationsFeedback } from "@/utils/types";
 import { Calendar, Clock, Film, Star, ThumbsDown, ThumbsUp, User, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -24,12 +25,14 @@ export default function ProfilePage() {
     const { getUserRecommendationsFeedback } = useRecommendation();
     const { getMovieByTitle, getGenresById } = useTMDB();
     const { getUserById, getUserFollowers, getUserFollowing } = useUser();
+    const { getUserPreferences } = usePreferences();
     const { showError } = useToast();
     const { userData } = useAuth();
     const location = useLocation();
     const { userId } = location.state || {};
     const navigate = useNavigate();
 
+    const [preferences, setPreferences] = useState<UserPreferences>();
     const [recentMovies, setRecentMovies] = useState<any[]>([]);
     const [recentRecommendations, setRecentRecommendations] = useState<any[]>([]);
     const [userInfo, setUserInfo] = useState<UserProfile | null>(null);
@@ -56,6 +59,9 @@ export default function ProfilePage() {
 
                 const userResponse = await getUserById(userId);
                 setUserInfo(userResponse.data);
+
+                const preferencesResponse = await getUserPreferences(userId);
+                setPreferences(preferencesResponse.data);
 
                 const feedback = await getUserFeedback(userId);
                 const moviePromises = feedback.data.map(async (item: UserMovieFeedback) => {
@@ -250,15 +256,15 @@ export default function ProfilePage() {
                     </Card>
 
                     <Card className="cinema-card border-primary/20">
-                        <CardHeader className="pb-3">
+                        <CardHeader>
                             <CardTitle className="flex items-center gap-2 text-sm">
                                 <Badge className="w-4 h-4 text-primary" />
                                 Gêneros Favoritos
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="flex flex-wrap gap-1">
-                                {stats.favoriteGenres.slice(0, 2).map((genre, index) => (
+                            <div className="flex flex-wrap gap-1.5">
+                                {preferences?.favoriteGenres.map((genre, index) => (
                                     <Badge key={index} variant="secondary" className="text-xs">
                                         {genre}
                                     </Badge>

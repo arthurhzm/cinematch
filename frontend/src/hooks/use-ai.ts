@@ -23,7 +23,7 @@ const useAI = () => {
     const { getMovieByTitle } = useTMDB();
     const { getUserPreferences } = usePreferences();
 
-    const CACHE_DURATION = 60 * 60 * 1000; // 1 hora
+    const CACHE_DURATION = 10 * 60 * 1000; // 10 minutos
     const CACHE_KEY = 'cinematch_recommendations_cache';
 
     const getCache = (): RecommendationCache => {
@@ -298,15 +298,38 @@ const useAI = () => {
 
     const searchMovie = async (query: string) => {
         const prompt = `
-            Estamos em um sistema de recomendação de filmes e você é um cinéfilo especialista em recomendar filmes personalizados. Sua tarefa é encontrar filmes que correspondam à seguinte descrição:
-            ${query}
-            Esta foi a pesquisa feita pelo usuário, então você deve retornar uma lista de filmes que correspondam ou se aproximem a essa pesquisa.
-            Responda apenas com um JSON válido contendo uma lista de filmes, cada filme deve ter os seguintes campos:
-            - title: Título do filme
-            - year: Ano de lançamento
-            - genres: Lista de gêneros do filme
-            - overview: Sinopse do filme
-            - streaming_services: Lista de serviços de streaming onde está disponível no Brasil (caso seja do cinema, retorne ["Cinema"])
+            [SISTEMA] - 
+            Estamos em um sistema de recomendação de filmes e o usuário está fazendo uma PESQUISA ESPECÍFICA de filmes.
+            Esta é uma funcionalidade de busca onde o usuário pode:
+            1. Procurar por um filme específico pelo nome (ex: "Titanic", "Matrix")
+            2. Procurar por filmes através de descrição/contexto (ex: "filme sobre robôs", "romance dos anos 90")
+            3. Encontrar filmes que não lembra o nome exato
+            4. Buscar filmes para avaliar ou adicionar à sua lista
+
+            A pesquisa do usuário foi: "${query}"
+
+            IMPORTANTE: Esta é uma PESQUISA, não uma recomendação personalizada. 
+            - Se o usuário digitou um nome específico, priorize filmes com esse título exato ou muito similar
+            - Se o usuário digitou uma descrição/contexto, encontre filmes que correspondam a essa descrição
+            - Retorne filmes relevantes à busca, independente dos gostos pessoais do usuário
+            - Ordene por relevância à pesquisa (filmes mais próximos ao termo buscado primeiro)
+
+            Retorno EXIGIDO:
+            formato JSON com:
+            - title
+            - year
+            - genres
+            - overview
+            - streaming_services (lista de serviços de streaming onde está disponível no Brasil. Ex: ["Netflix", "Prime Video", "Star+"], caso não saiba, retorne array vazio [])
+            
+            Regras:
+            - Foque na relevância com o termo pesquisado
+            - Inclua filmes populares e menos conhecidos que correspondam à busca
+            - Para buscas por nome: priorize correspondência exata, depois similar
+            - Para buscas contextuais: encontre filmes que correspondam ao tema/descrição
+            - Valores em português do Brasil (exceto as chaves JSON)
+            - Retorne apenas o JSON válido, sem markdown ou formatação adicional
+            [/SISTEMA]
         `;
 
         const response = await ai.models.generateContent({

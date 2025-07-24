@@ -1,5 +1,4 @@
 import AppLayout from "@/components/app-layout";
-import InputSearch from "@/components/input-search";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import MovieDetailedInfo from "@/components/ui/movie-detailed-info";
@@ -52,7 +51,14 @@ export default function SearchPage() {
         } finally {
             setIsLoading(false);
         }
-    }
+    };
+
+    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            handleSearch();
+        }
+    };
 
     const renderLoadingSkeletons = () => {
         return (
@@ -122,30 +128,49 @@ export default function SearchPage() {
 
     return (
         <AppLayout>
-            <InputSearch
-                label="Procurar..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.currentTarget.value)}
-                onClick={handleSearch}
-                disabled={isLoading}
-            />
-            <div className="w-full mt-2 flex gap-2 justify-center">
-                <Button
-                    className={searchType === "movies" ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}
-                    variant={"outline"}
-                    onClick={() => handleSearchTypeChange("movies")}
-                    disabled={isLoading}
-                >
-                    <Clapperboard size={20} className="mr-1" /> Filmes
-                </Button>
-                <Button
-                    className={searchType === "people" ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}
-                    variant={"outline"}
-                    onClick={() => handleSearchTypeChange("people")}
-                    disabled={isLoading}
-                >
-                    <User size={20} className="mr-1" /> Pessoas
-                </Button>
+            <div className="space-y-4">
+                {/* Search Input */}
+                <div className="relative">
+                    <input
+                        type="text"
+                        placeholder="Buscar filmes ou pessoas..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onKeyPress={handleKeyPress}
+                        disabled={isLoading}
+                        className="w-full pl-4 pr-20 py-4 bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 transition-all duration-200 text-base"
+                    />
+                    <Button
+                        onClick={handleSearch}
+                        disabled={isLoading || searchQuery.length < 3}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 h-12 w-12 rounded-lg bg-primary hover:bg-primary/90 disabled:opacity-50"
+                        size="icon"
+                    >
+                        <Search className="w-5 h-5 text-primary-foreground" />
+                    </Button>
+                </div>
+
+                {/* Search Type Buttons */}
+                <div className="flex gap-3 justify-center">
+                    <Button
+                        className={`flex-1 h-12 ${searchType === "movies" ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}
+                        variant="outline"
+                        onClick={() => handleSearchTypeChange("movies")}
+                        disabled={isLoading}
+                    >
+                        <Clapperboard size={20} className="mr-2" />
+                        Filmes
+                    </Button>
+                    <Button
+                        className={`flex-1 h-12 ${searchType === "people" ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}
+                        variant="outline"
+                        onClick={() => handleSearchTypeChange("people")}
+                        disabled={isLoading}
+                    >
+                        <User size={20} className="mr-2" />
+                        Pessoas
+                    </Button>
+                </div>
             </div>
 
             {/* Loading State */}
@@ -164,11 +189,21 @@ export default function SearchPage() {
                                     <div className="cinema-card p-4 hover:border-primary/40 transition-all cursor-pointer">
                                         <div className="flex gap-4">
                                             <div className="flex-shrink-0">
-                                                <img
-                                                    src={result.poster_url || "/placeholder-poster.png"}
-                                                    alt={`Poster de ${result.title}`}
-                                                    className="w-24 h-36 object-cover rounded-md"
-                                                />
+                                                {!!result.poster_url ? (
+                                                    <img
+                                                        src={result.poster_url || "/placeholder-poster.png"}
+                                                        alt={`Poster de ${result.title}`}
+                                                        className="w-24 h-36 object-cover rounded-md"
+                                                    />
+                                                ) : (
+                                                    <div className="w-24 h-36 bg-gradient-to-b from-gray-800 to-gray-900 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer flex flex-col items-center justify-center text-gray-300 border border-gray-700">
+                                                        <Film size={48} className="mb-4 text-gray-400" />
+                                                        <div className="text-center px-4">
+                                                            <p className="text-sm font-medium text-gray-300 mb-1">{result.title}</p>
+                                                            <p className="text-xs text-gray-500">({result.year})</p>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <h3 className="font-bold text-lg text-foreground mb-1">
