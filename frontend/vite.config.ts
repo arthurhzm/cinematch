@@ -10,74 +10,52 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts-cache',
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 ano
-              }
-            }
-          }
-        ]
+      devOptions: {
+        enabled: true
       },
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
+      
       manifest: {
-        name: 'CineMatch - Recomendações de Filmes com IA',
+        name: 'CineMatch',
         short_name: 'CineMatch',
-        description: 'Sistema de recomendação de filmes com IA e conexões sociais',
-        theme_color: '#d4af37',
-        background_color: '#0a0a0a',
-        display: 'standalone',
-        orientation: 'portrait-primary',
-        scope: '/',
-        start_url: '/',
-        id: '/',
-        lang: 'pt-BR',
-        categories: ['entertainment', 'social', 'lifestyle'],
+        description: 'CineMatch é um aplicativo de recomendação de filmes que utiliza inteligência artificial para sugerir filmes com base em suas preferências.',
+        theme_color: '#1a202c',
         icons: [
           {
-            src: '/assets/icon-64x64.png',
+            src: 'icon-64x64.png',
             sizes: '64x64',
             type: 'image/png'
           },
           {
-            src: '/assets/icon-128x128.png',
-            sizes: '128x128',
+            src: 'icon-128x128.png',
+            sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: '/assets/icon-256x256.png',
+            src: 'icon-256x256.png',
             sizes: '256x256',
-            type: 'image/png',
-            purpose: 'any maskable'
+            type: 'image/png'
           },
           {
-            src: '/assets/icon-512x512.png',
+            src: 'icon-512x512.png',
             sizes: '512x512',
-            type: 'image/png',
-            purpose: 'any maskable'
+            type: 'image/png'
+          },
+          {
+            src: 'icon-1024x1024.png',
+            sizes: '1024x1024',
+            type: 'image/png'
           }
-        ]
-      },
-      devOptions: {
-        enabled: true,
-        type: 'module'
+        ],
+        display: 'fullscreen',
+        orientation: 'portrait-primary'
       }
-    })
+    }),
   ],
-  server: {
-    host: '0.0.0.0',
-    port: 5173,
-  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
+
 })
