@@ -50,19 +50,25 @@ export default defineConfig({
             }
           },
           {
-            urlPattern: /^https:\/\/192\.168\.0\.165:8081\/.*/i,
+            // API calls - NetworkFirst para sempre tentar buscar dados frescos
+            urlPattern: /^https:\/\/568ecc5cd2c4\.ngrok-free\.app\/(?!auth).*/i,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'api-cache',
               networkTimeoutSeconds: 3,
               expiration: {
                 maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24
+                maxAgeSeconds: 60 * 60 * 2
               },
               cacheableResponse: {
                 statuses: [0, 200]
               }
             }
+          },
+          {
+            // Auth endpoints - NUNCA cachear
+            urlPattern: /^https:\/\/568ecc5cd2c4\.ngrok-free\.app\/auth.*/i,
+            handler: 'NetworkOnly'
           }
         ]
       },

@@ -62,6 +62,12 @@ const useUser = () => {
         const res = await api.post("/login", { email, password });
         setToken(res.data.token);
         setUserData(res.data.user);
+        
+        // Salvar refresh token se vier na resposta
+        if (res.data.refreshToken) {
+            localStorage.setItem("refresh_token", res.data.refreshToken);
+        }
+        
         return res;
     }
 
@@ -69,6 +75,12 @@ const useUser = () => {
         const res = await api.post("/refresh-token");
         setToken(res.data.token);
         setUserData(res.data.user);
+        
+        // Atualizar refresh token se vier um novo
+        if (res.data.refreshToken) {
+            localStorage.setItem("refresh_token", res.data.refreshToken);
+        }
+        
         return res;
     }
 
@@ -76,6 +88,7 @@ const useUser = () => {
         await api.post("/logout");
         setToken(null);
         setUserData(null);
+        localStorage.removeItem("refresh_token");
     }
 
     const generateRecoveryCode = async (email: string) => {

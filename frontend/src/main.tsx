@@ -22,12 +22,14 @@ createRoot(document.getElementById('root')!).render(
     <ToastProvider>
       <BrowserRouter>
         <Routes>
-          <Route path={ROUTES.register} element={<RegisterPage />} />
+          {/* Rotas públicas */}
           <Route element={<AppRoute isPrivate={false} />} >
             <Route path={ROUTES.login} element={<LoginPage />} />
+            <Route path={ROUTES.register} element={<RegisterPage />} />
             <Route path={ROUTES.forgotPassword} element={<ForgotPasswordPage />} />
-
           </Route>
+          
+          {/* Rotas protegidas */}
           <Route element={<AppRoute isPrivate={true} />} >
             <Route path={ROUTES.home} element={<HomePage />} />
             <Route path={ROUTES.addPreferences} element={<AddPreferencesPage />} />
@@ -38,6 +40,9 @@ createRoot(document.getElementById('root')!).render(
             <Route path={ROUTES.chat} element={<ChatPage />} />
             <Route path={ROUTES.recommendations} element={<RecommendationsPage />} />
             <Route path={ROUTES.settings} element={<SettingsPage />} />
+            
+            {/* Redirect root to home */}
+            <Route index element={<HomePage />} />
           </Route>
         </Routes>
       </BrowserRouter>

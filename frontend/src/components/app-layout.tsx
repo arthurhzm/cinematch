@@ -19,8 +19,20 @@ interface AppLayoutProps {
 export default function AppLayout({ children, title }: AppLayoutProps) {
 
   const { logoutUser } = useUser();
-  const { userData } = useAuth();
+  const { userData, logout } = useAuth();
   const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
+      logout();
+    } catch (error) {
+      // Se falhar, limpar localmente mesmo assim
+      logout();
+    } finally {
+      navigate('/login');
+    }
+  };
 
   return (
     <div className="min-h-screen cinema-gradient">
@@ -70,7 +82,7 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
                 <DropdownMenuItem onClick={() => navigate(ROUTES.settings)}>
                   <Settings /> Configurações
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={logoutUser}>
+                <DropdownMenuItem onClick={handleLogout}>
                   <DoorOpen /> Sair
                 </DropdownMenuItem>
               </DropdownMenuContent>
