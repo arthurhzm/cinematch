@@ -366,7 +366,7 @@ const useAI = () => {
         `;
 
         const response = await ai.models.generateContent({
-            model: AI_MODELS.GEMINI_2_5_FLASH_LITE,
+            model: AI_MODELS.GEMINI_2_5_FLASH,
             contents: prompt
         });
 

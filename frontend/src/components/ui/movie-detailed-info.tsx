@@ -171,6 +171,7 @@ export default function MovieDetailedInfo({ movie, open, onClose, userId }: Movi
 
                             {!showFeedbackSection && !showRecommendationFeedback && (
                                 <>
+                                    <p className="text-xl font-semibold text-center mb-4">Você já assistiu {movie.title}?</p>
                                     <div className="w-full flex gap-3 justify-center">
                                         <button
                                             className="w-full flex justify-center items-center gap-2 max-w-32 py-3 px-6 bg-green-600/20 hover:bg-green-600/30 border border-green-600/40 text-green-400 rounded-lg transition-colors duration-200 font-medium"
