@@ -119,9 +119,9 @@ const useAI = () => {
         const recommendationsFeedback = (await getUserRecommendationsFeedback(userData?.id)).data as UserRecommendationsFeedback[];
 
         let message = `
-            Você é um cinéfilo especialista em recomendar filmes personalizados. 
+            Você é um cinéfilo especialista em recomendar filmes personalizados com base em análise profunda de padrões e preferências.
       
-            Contexto do usuário:
+            PERFIL DO USUÁRIO:
             - Gêneros preferidos: ${preferences.favoriteGenres}
             - Diretores favoritos: ${preferences.favoriteDirectors}
             - Atores favoritos: ${preferences.favoriteActors}
@@ -131,23 +131,56 @@ const useAI = () => {
         `
 
         if (watchedMovies.length > 0) {
+            const highRatedMovies = watchedMovies.filter(movie => movie.rating >= 4);
+            const lowRatedMovies = watchedMovies.filter(movie => movie.rating <= 3);
+
             message += `
-            - Filmes assistidos: ${watchedMovies.map((movie: UserMovieFeedback) => movie.movieTitle).join(", ")}
-            - Avaliações sobre filmes assistidos: ${watchedMovies.map((movie: UserMovieFeedback) => {
-                return movie.review ? `${movie.movieTitle} - ${movie.rating} estrelas - "${movie.review}"` : `${movie.movieTitle} - ${movie.rating} estrelas`;
-            }).join(", ")}
+            HISTÓRICO DE FILMES ASSISTIDOS (use como base para suas recomendações):
+            - Filmes já assistidos: ${watchedMovies.map((movie: UserMovieFeedback) => movie.movieTitle).join(", ")}
+            - Filmes bem avaliados (4-5 estrelas): ${highRatedMovies.map((movie: UserMovieFeedback) => {
+                return movie.review ? `${movie.movieTitle} (${movie.rating}★) - "${movie.review}"` : `${movie.movieTitle} (${movie.rating}★)`;
+            }).join(", ") || "Nenhum"}
+            - Filmes mal avaliados (1-3 estrelas): ${lowRatedMovies.map((movie: UserMovieFeedback) => {
+                return movie.review ? `${movie.movieTitle} (${movie.rating}★) - "${movie.review}"` : `${movie.movieTitle} (${movie.rating}★)`;
+            }).join(", ") || "Nenhum"}
+            
+            ANÁLISE INTELIGENTE: Use os filmes bem avaliados para identificar padrões (diretores, atores, temas, estilos) que o usuário gosta. 
+            Evite recomendar filmes similares aos mal avaliados ou que tenham características rejeitadas pelo usuário.
             `
         }
 
         if (recommendationsFeedback.length > 0) {
+            const likedRecommendations = recommendationsFeedback.filter(rec => rec.feedback === 'like');
+            const dislikedRecommendations = recommendationsFeedback.filter(rec => rec.feedback === 'dislike');
+            const superlikedRecommendations = recommendationsFeedback.filter(rec => rec.feedback === 'superlike');
+
             message += `
-            Este usuário já recebeu recomendações suas de filmes, aqui estão os detalhes:
-            - Recomendações anteriores: ${recommendationsFeedback.map((rec: UserRecommendationsFeedback) => rec.movieTitle).join(", ")}
-            - Avaliações sobre recomendações: ${recommendationsFeedback.map((rec: UserRecommendationsFeedback) => {
-                return `${rec.movieTitle} - ${rec.feedback} ${rec.detailedFeedback ? `Feedback detalhado: "${rec.detailedFeedback}"` : ''}`;
-            }).join(", ")}
+            HISTÓRICO DE RECOMENDAÇÕES ANTERIORES:
+            - Recomendações aceitas: ${likedRecommendations.map((rec: UserRecommendationsFeedback) => {
+                return `${rec.movieTitle}${rec.detailedFeedback ? ` - "${rec.detailedFeedback}"` : ''}`;
+            }).join(", ") || "Nenhuma"}
+            - Recomendações rejeitadas: ${dislikedRecommendations.map((rec: UserRecommendationsFeedback) => {
+                return `${rec.movieTitle}${rec.detailedFeedback ? ` - "${rec.detailedFeedback}"` : ''}`;
+            }).join(", ") || "Nenhuma"}
+            - Recomendações super curtidas: ${superlikedRecommendations.map((rec: UserRecommendationsFeedback) => {
+                return `${rec.movieTitle}${rec.detailedFeedback ? ` - "${rec.detailedFeedback}"` : ''}`;
+            }).join(", ") || "Nenhuma"}
+            
+            IMPORTANTE: NUNCA recomende novamente os filmes: ${recommendationsFeedback.map((rec: UserRecommendationsFeedback) => rec.movieTitle).join(", ")}
+            Use as recomendações aceitas para entender melhor o que funciona e ajuste seu algoritmo baseado nos feedbacks.
             `
         }
+
+        message += `
+            INSTRUÇÕES DE RECOMENDAÇÃO INTELIGENTE:
+            1. Analise os padrões dos filmes bem avaliados para encontrar características em comum
+            2. Identifique elementos específicos que o usuário aprecia (cinematografia, narrativa, temas)
+            3. Use as preferências declaradas E o histórico real para recomendações mais precisas
+            4. Evite repetir erros de recomendações anteriores rejeitadas
+            5. Considere a evolução do gosto do usuário ao longo do tempo
+            6. Recomende filmes que expandam horizontes sem fugir muito do perfil identificado
+            7. NUNCA repita filmes já recomendados anteriormente
+        `;
 
         return message.trim();
     }
@@ -365,6 +398,13 @@ const useAI = () => {
                 Se adapte ao vocabulário do usuário 
                 Caso o usuário peça por filmes que estão fora de seus gostos, seja flexível e se ajuste para fazer as recomendações com base nisso e, se possível, correlacionar os gostos do usuário com a requisição
                 Se o usuário ficar falando toda hora sobre coisas que não são filmes, ignore e não responda, pode mandar ele tomar no cu.
+
+                Algumas regras adicionais:
+                - Ao invés de usar marcações markdown nas suas mensagens, utilize HTML simples para formatação
+                - Use tags <p> para parágrafos, <strong> para negrito, <em> para itálico
+                - Use <ul> e <li> para listas, <br> para quebras
+                - Estamos em um sistema react, então quando for recomendar um filme para o usuário, utilize o componente <a href="/search?query=FILME">FILME</a> para que o usuário possa clicar e ver mais detalhes
+                - Nunca use caracteres especiais ou Unicode, apenas HTML simples
             [/SISTEMA]
         `
 

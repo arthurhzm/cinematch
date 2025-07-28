@@ -25,11 +25,14 @@ export default function SearchPage() {
     const [hasSearched, setHasSearched] = useState(false);
 
     const handleSearchTypeChange = (type: "movies" | "people") => {
-        setSearchType(type);
-        setSearchResults([]);
-        setSelectedMovie(null);
-        setSearchQuery("");
-        setHasSearched(false);
+        // Só limpar se realmente mudou o tipo
+        if (type !== searchType) {
+            setSearchType(type);
+            setSearchResults([]);
+            setSelectedMovie(null);
+            setSearchQuery("");
+            setHasSearched(false);
+        }
     }
 
     const handleSearch = async () => {
