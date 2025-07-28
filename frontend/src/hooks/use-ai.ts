@@ -78,6 +78,9 @@ const useAI = () => {
         const cache = getCache();
         const cleanedCache = cleanExpiredCache(cache);
 
+        // Salva o cache limpo imediatamente para garantir que o localStorage não mantenha expirados
+        setCache(cleanedCache);
+
         if (useCache) {
             if (cleanedCache[cacheKey]) {
                 console.log('Usando recomendações do cache');
