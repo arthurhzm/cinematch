@@ -158,3 +158,46 @@
   );
   border-right: 2px solid #d4af37;
 }
+
+/* Animações especiais para a roleta */
+@keyframes spin-roulette {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes bounce-celebration {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-20px); }
+  60% { transform: translateY(-10px); }
+}
+
+.roulette-spinning {
+  animation: spin-roulette 3s cubic-bezier(0.23, 1, 0.320, 1) forwards;
+}
+
+.celebration-bounce {
+  animation: bounce-celebration 1s ease-in-out;
+}
+
+/* Gradiente dinâmico para os gêneros */
+.genre-gradient {
+  background: conic-gradient(
+    from 0deg,
+    #ff6b6b 0deg 72deg,
+    #4ecdc4 72deg 144deg,
+    #45b7d1 144deg 216deg,
+    #96ceb4 216deg 288deg,
+    #feca57 288deg 360deg
+  );
+}
+
+/* Efeito de glow para o botão */
+.glow-button {
+  box-shadow: 0 0 20px rgba(255, 206, 84, 0.3);
+  transition: all 0.3s ease;
+}
+
+.glow-button:hover {
+  box-shadow: 0 0 30px rgba(255, 206, 84, 0.5);
+  transform: translateY(-2px);
+}

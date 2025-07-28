@@ -449,6 +449,7 @@ const useAI = () => {
     }
 
     return {
+        ai,
         generateMovieRecommendations,
         searchMovie,
         sendIndividualMessage

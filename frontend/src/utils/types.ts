@@ -36,6 +36,8 @@ export type AIRecommendations = {
     why_recommend?: string;
     poster_url: string | null;
     streaming_services: string[];
+    confidence_score?: number;
+    perfect_match_reasons?: string[];
 }
 
 export type UserProfilePreview = {
