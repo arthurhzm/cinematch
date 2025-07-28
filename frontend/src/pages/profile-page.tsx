@@ -180,7 +180,7 @@ export default function ProfilePage() {
     return (
         <AppLayout>
             {isLoading ? (
-                <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6">
+                <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6 overflow-x-hidden w-full max-w-full">
                     <div className="relative">
                         <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-200 border-t-primary"></div>
                         <div className="absolute inset-0 rounded-full h-16 w-16 border-4 border-transparent border-r-primary/50 animate-pulse"></div>
@@ -206,7 +206,7 @@ export default function ProfilePage() {
                     </div>
                 </div>
             ) : (
-                <div className="space-y-6">
+                <div className="space-y-6 overflow-x-hidden w-full max-w-full">
                     {/* Profile Header */}
                     <Card className="cinema-card border-primary/20">
                         <CardContent className="p-6">
@@ -344,7 +344,7 @@ export default function ProfilePage() {
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+                                <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide min-w-0 w-full max-w-full">
                                     {recentMovies.slice(0, 10).map((movie, index) => (
                                         <div key={`${movie.title}-${index}`} className="flex-none">
                                             <MoviePoster movie={movie} userId={userId} />
@@ -388,7 +388,7 @@ export default function ProfilePage() {
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+                                <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide min-w-0 w-full max-w-full">
                                     {recentRecommendations.slice(0, 10).map((movie, index) => (
                                         <div key={`${movie.title}-${index}`} className="flex-none relative">
                                             <MoviePoster movie={movie} userId={userId} />

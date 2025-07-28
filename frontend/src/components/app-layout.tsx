@@ -44,7 +44,7 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
   // Loading state enquanto userData não está disponível
   if (!userData) {
     return (
-      <div className="min-h-screen cinema-gradient flex items-center justify-center">
+      <div className="min-h-screen cinema-gradient flex items-center justify-center overflow-x-hidden">
         <div className="flex flex-col items-center space-y-6">
           {/* Logo animado */}
           <div className="relative">
@@ -78,7 +78,7 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen cinema-gradient flex">
+    <div className="min-h-screen cinema-gradient flex overflow-x-hidden">
       {/* Sidebar Desktop - hidden on mobile */}
       <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:h-screen lg:fixed lg:top-0 lg:left-0 cinema-card border-r border-primary/20 backdrop-blur-lg overflow-hidden">
         <div className="flex flex-col h-full">

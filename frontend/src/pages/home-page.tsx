@@ -79,7 +79,7 @@ export default function HomePage() {
     if (loading) {
         return (
             <AppLayout>
-                <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6">
+                <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-6 overflow-x-hidden w-full max-w-full">
                     <div className="relative">
                         <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-200 border-t-primary"></div>
                         <div className="absolute inset-0 rounded-full h-16 w-16 border-4 border-transparent border-r-primary/50 animate-pulse"></div>
@@ -104,14 +104,14 @@ export default function HomePage() {
 
     return (
         <AppLayout>
-            <div>
+            <div className="overflow-x-hidden w-full max-w-full">
                 <Title>{getTimeOfTheDay()}, {userData?.username}! </Title>
             </div>
             <section>
                 {recommendations.length > 0 && (
                     <div className="mt-6">
                         <p className="text-muted-foreground">Filmes recomendados com base nos seus gostos</p>
-                        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+                        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide min-w-0 w-full max-w-full">
                             {recommendations.map((movie) => (<MoviePoster movie={movie} key={movie.title} />))}
                         </div>
                     </div>
@@ -121,7 +121,7 @@ export default function HomePage() {
                 {specialRecommendations.length > 0 && (
                     <div className="mt-6">
                         <p className="text-muted-foreground">Recomendações especiais para hoje</p>
-                        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+                        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide min-w-0 w-full max-w-full">
                             {specialRecommendations.map((movie) => (<MoviePoster movie={movie} key={movie.title} />))}
                         </div>
                     </div>
@@ -131,7 +131,7 @@ export default function HomePage() {
                 {friendsFeedback.length > 0 && (
                     <div className="mt-6">
                         <p className="text-muted-foreground">Seus amigos estão assistindo</p>
-                        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+                        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide min-w-0 w-full max-w-full">
                             {friendsFeedback.slice(0, 10).map((movie, index) => (
                                 <div key={`${movie.title}-${index}`} className="flex-none relative">
                                     <MoviePoster movie={movie} userId={movie.userId} />
