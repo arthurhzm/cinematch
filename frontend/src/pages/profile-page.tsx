@@ -20,6 +20,8 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 export default function ProfilePage() {
+    console.log('aloo');
+    
     const { username } = useParams();
     const { getUserFeedback } = useFeedback();
     const { getUserRecommendationsFeedback } = useRecommendation();
@@ -30,6 +32,8 @@ export default function ProfilePage() {
     const { userData } = useAuth();
     const location = useLocation();
     const { userId } = location.state || {};
+    console.log(location.state);
+    
     const navigate = useNavigate();
 
     const [preferences, setPreferences] = useState<UserPreferences>();
@@ -50,6 +54,8 @@ export default function ProfilePage() {
     const isOwnProfile = userData?.username === username;
 
     useEffect(() => {
+        console.log(userId);
+        
         if (!userId) return;
 
         const fetchData = async () => {
