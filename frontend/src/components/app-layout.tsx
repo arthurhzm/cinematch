@@ -115,7 +115,7 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
             <Search className="w-5 h-5" />
             <span className="text-xs">Buscar</span>
           </Button>
-          <Button variant="ghost" size="icon" className="flex flex-col gap-1 h-auto py-2" onClick={() => navigate(ROUTES.recommendations)}>
+          <Button variant="ghost" size="icon" className="flex flex-col gap-1 h-auto py-2" onClick={() => navigate(ROUTES.discovery)}>
             <Lightbulb className="w-5 h-5" />
             <span className="text-xs">Descobrir</span>
           </Button>
