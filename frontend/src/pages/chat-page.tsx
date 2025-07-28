@@ -122,9 +122,16 @@ export default function ChatPage() {
                     }
                 `}>
                     <CardContent className="px-3 py-2">
-                        <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                            {message.text}
-                        </p>
+                        {message.sender === "ai" ? (
+                            <div 
+                                className="text-sm leading-relaxed [&>p]:mb-2 [&>ul]:mb-2 [&>ul]:ml-4 [&>li]:mb-1 [&>strong]:font-semibold [&>em]:italic [&>a]:text-primary [&>a]:underline [&>a]:hover:text-primary/80 [&>a]:transition-colors"
+                                dangerouslySetInnerHTML={{ __html: message.text }}
+                            />
+                        ) : (
+                            <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                                {message.text}
+                            </p>
+                        )}
                     </CardContent>
                 </Card>
                 <div className={`text-xs text-muted-foreground mt-1 px-1 ${message.sender === "user" ? "text-right" : "text-left"

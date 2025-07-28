@@ -403,7 +403,7 @@ const useAI = () => {
                 - Ao invés de usar marcações markdown nas suas mensagens, utilize HTML simples para formatação
                 - Use tags <p> para parágrafos, <strong> para negrito, <em> para itálico
                 - Use <ul> e <li> para listas, <br> para quebras
-                - Estamos em um sistema react, então quando for recomendar um filme para o usuário, utilize o componente <a href="/search?query=FILME">FILME</a> para que o usuário possa clicar e ver mais detalhes
+                - Estamos em um sistema react, então quando for recomendar um filme para o usuário, utilize o componente <a href="/search?query=FILME" className="text-primary">FILME</a> para que o usuário possa clicar e ver mais detalhes
                 - Nunca use caracteres especiais ou Unicode, apenas HTML simples
             [/SISTEMA]
         `

@@ -10,7 +10,7 @@ import useUser from "@/hooks/use-user";
 import type { AIRecommendations, UserProfilePreview } from "@/utils/types";
 import type { AxiosResponse } from "axios";
 import { Clapperboard, Film, Search, User, UserIcon } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function SearchPage() {
     const { showError } = useToast();
@@ -24,19 +24,21 @@ export default function SearchPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [hasSearched, setHasSearched] = useState(false);
 
-    const handleSearchTypeChange = (type: "movies" | "people") => {
-        // Só limpar se realmente mudou o tipo
-        if (type !== searchType) {
-            setSearchType(type);
-            setSearchResults([]);
-            setSelectedMovie(null);
-            setSearchQuery("");
-            setHasSearched(false);
-        }
-    }
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const query = urlParams.get('query');
 
-    const handleSearch = async () => {
-        if (searchQuery.trim() === "" || searchQuery.length < 3) {
+        if (query && query.trim() !== '') {
+            setSearchQuery(query);
+            setSearchType("movies");
+            performSearch(query);
+        }
+    }, []);
+
+    const performSearch = async (queryToSearch?: string) => {
+        const searchTerm = queryToSearch || searchQuery;
+
+        if (searchTerm.trim() === "" || searchTerm.length < 3) {
             showError(`Informe pelo menos 3 caracteres para pesquisar.`);
             return;
         }
@@ -47,12 +49,27 @@ export default function SearchPage() {
 
         try {
             const results = searchType === "movies"
-                ? await searchMovie(searchQuery)
-                : await getUsersByUsername(searchQuery);
+                ? await searchMovie(searchTerm)
+                : await getUsersByUsername(searchTerm);
 
             setSearchResults(searchType === "movies" ? results : (results as AxiosResponse).data || results);
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const handleSearch = async () => {
+        await performSearch();
+    };
+
+    const handleSearchTypeChange = (type: "movies" | "people") => {
+        // Só limpar se realmente mudou o tipo
+        if (type !== searchType) {
+            setSearchType(type);
+            setSearchResults([]);
+            setSelectedMovie(null);
+            setSearchQuery("");
+            setHasSearched(false);
         }
     };
 
