@@ -17,6 +17,7 @@ import RecommendationsPage from './pages/recommendations-page.tsx'
 import SettingsPage from './pages/settings-page.tsx'
 import ForgotPasswordPage from './pages/forgot-password-page.tsx'
 import DiscoveryPage from './pages/discovery-page.tsx'
+import RoulettePage from './pages/roulette-page.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <AuthProvider>
@@ -41,6 +42,7 @@ createRoot(document.getElementById('root')!).render(
             <Route path={ROUTES.chat} element={<ChatPage />} />
             <Route path={ROUTES.discovery} element={<DiscoveryPage />} />
             <Route path={ROUTES.recommendations} element={<RecommendationsPage />} />
+            <Route path={ROUTES.roulette} element={<RoulettePage />} />
             <Route path={ROUTES.settings} element={<SettingsPage />} />
             
             {/* Redirect root to home */}

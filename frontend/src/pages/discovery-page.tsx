@@ -1,6 +1,7 @@
 import AppLayout from "@/components/app-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { ROUTES } from "@/utils/routes";
 import {
     Brain,
     Coffee,
@@ -221,7 +222,7 @@ export default function DiscoveryPage() {
                             <Button
                                 variant="outline"
                                 className="bg-yellow-500/20 hover:bg-yellow-500/30 border-yellow-500/40 text-yellow-400 font-semibold transition-all duration-300 w-full md:w-auto"
-                                onClick={() => navigate('/search?query=filme aleatório surpresa')}
+                                onClick={() => navigate(ROUTES.roulette)}
                             >
                                 🎲 GIRAR!
                             </Button>

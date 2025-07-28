@@ -10,6 +10,7 @@ export const ROUTES = {
     following: (username: string) => `/${username}/following`,
     discovery: '/discovery',
     recommendations: '/recommendations',
+    roulette: '/roulette',
     settings: '/settings',
     forgotPassword: '/forgot-password',
 }
