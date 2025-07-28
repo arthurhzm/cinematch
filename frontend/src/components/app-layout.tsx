@@ -44,7 +44,7 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
   // Loading state enquanto userData não está disponível
   if (!userData) {
     return (
-      <div className="min-h-screen cinema-gradient flex items-center justify-center overflow-x-hidden">
+      <div className="min-h-screen cinema-gradient flex items-center justify-center">
         <div className="flex flex-col items-center space-y-6">
           {/* Logo animado */}
           <div className="relative">
@@ -78,7 +78,7 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen cinema-gradient flex overflow-x-hidden">
+    <div className="min-h-screen cinema-gradient md:flex">
       {/* Sidebar Desktop - hidden on mobile */}
       <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:h-screen lg:fixed lg:top-0 lg:left-0 cinema-card border-r border-primary/20 backdrop-blur-lg overflow-hidden">
         <div className="flex flex-col h-full">
@@ -185,28 +185,28 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-h-screen lg:ml-64">
-        {/* Header - mobile only */}
-        <header className="sticky top-0 z-50 cinema-card border-b border-primary/20 backdrop-blur-lg lg:hidden overflow-hidden">
-          <div className="w-full px-4 h-16 flex items-center justify-between min-w-0">
-            {/* Logo - mobile */}
-            <div className="flex items-center gap-2 cursor-pointer flex-shrink-0 min-w-0" onClick={() => navigate(ROUTES.home)}>
-              <div className="p-2 rounded-full bg-primary/20 flex-shrink-0">
+        {/* Header - simplified for desktop */}
+        <header className="sticky top-0 z-50 cinema-card border-b border-primary/20 backdrop-blur-lg lg:hidden">
+          <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+            {/* Logo - mobile only */}
+            <div className="flex items-center gap-2" onClick={() => navigate(ROUTES.home)}>
+              <div className="p-2 rounded-full bg-primary/20">
                 <Film className="w-6 h-6 text-primary" />
               </div>
-              <span className="text-xl font-bold text-primary truncate">CineMatch</span>
+              <span className="text-xl font-bold text-primary">CineMatch</span>
             </div>
 
-            {/* Actions - mobile */}
-            <div className="flex items-center gap-2 flex-shrink-0 ml-2">
-              <Button variant="ghost" size="icon" className="text-foreground hover:text-primary flex-shrink-0" onClick={() => navigate(ROUTES.chat)}>
-                <MessageSquare className="w-6 h-6" />
+            {/* User menu - mobile */}
+            <div className="flex items-center">
+              <Button variant="ghost" className="text-foreground hover:text-primary p-3" onClick={() => navigate(ROUTES.chat)}>
+                <MessageSquare className="w-8 h-8" />
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="text-foreground hover:text-primary flex-shrink-0">
+                  <Button variant="ghost" size="icon" className="text-foreground hover:text-primary">
                     <Avatar className="w-8 h-8 border-2 border-primary/30">
                       <AvatarImage src={userData.profilePicture || ""} />
-                      <AvatarFallback className="bg-primary/20 text-primary font-semibold">
+                      <AvatarFallback className="bg-primary/20 text-primary text-xl font-semibold">
                         {getInitials(userData.username)}
                       </AvatarFallback>
                     </Avatar>
@@ -214,16 +214,13 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => navigate(ROUTES.addPreferences)}>
-                    <Heart className="w-4 h-4 mr-2" />
-                    Minhas Preferências
+                    <Heart />Minhas Preferências
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate(ROUTES.settings)}>
-                    <Settings className="w-4 h-4 mr-2" />
-                    Configurações
+                    <Settings /> Configurações
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleLogout}>
-                    <DoorOpen className="w-4 h-4 mr-2" />
-                    Sair
+                    <DoorOpen /> Sair
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
