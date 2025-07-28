@@ -9,7 +9,10 @@ import {
     Heart,
     Moon,
     Shuffle,
+    Star,
     Target,
+    ThumbsDown,
+    ThumbsUp,
     Timer,
     Users,
     Wand2
@@ -56,7 +59,7 @@ export default function DiscoveryPage() {
             emoji: '☕',
             description: 'Pra fazer outras coisas',
             color: 'bg-orange-500/20 hover:bg-orange-500/30 border-orange-500/40 text-orange-400',
-            action: () => navigate('/search?query=filmes leves background')
+            action: () => navigate('/search?query=filmes leves para deixar de fundo')
         },
         {
             icon: Moon,
@@ -65,7 +68,7 @@ export default function DiscoveryPage() {
             emoji: '😴',
             description: 'Antes de dormir',
             color: 'bg-indigo-500/20 hover:bg-indigo-500/30 border-indigo-500/40 text-indigo-400',
-            action: () => navigate('/search?query=filmes calmos relaxantes')
+            action: () => navigate('/search?query=filmes calmos relaxantes para antes de dormir')
         },
         {
             icon: Users,
@@ -74,7 +77,7 @@ export default function DiscoveryPage() {
             emoji: '🍿',
             description: 'Diversão garantida',
             color: 'bg-green-500/20 hover:bg-green-500/30 border-green-500/40 text-green-400',
-            action: () => navigate('/search?query=filmes para assistir em grupo')
+            action: () => navigate('/search?query=filmes para assistir em grupo ou com amigos')
         }
     ];
 
@@ -186,7 +189,7 @@ export default function DiscoveryPage() {
                                         key={index}
                                         variant="outline"
                                         className={`h-20 flex flex-col items-center justify-center gap-1 transition-all duration-300 ${mood.color}`}
-                                        onClick={() => navigate(`/search?query=filmes para quando estou ${mood.label.toLowerCase()} - ${mood.description.toLowerCase()}`)}
+                                        onClick={() => navigate(`/search?query=filmes para quando estou no mood "${mood.label.toLowerCase()} - ${mood.description.toLowerCase()}"`)}
                                     >
                                         <span className="text-xl">{mood.emoji}</span>
                                         <div className="text-center">
@@ -262,10 +265,19 @@ export default function DiscoveryPage() {
                                 <strong>Quanto mais você avaliar filmes, mais certeiras serão as recomendações!</strong><br />
                                 <span className="text-sm">A IA aprende com cada like, dislike e superlike 🤖✨</span>
                             </p>
-                            <div className="flex items-center justify-center gap-4 pt-2">
-                                <span className="text-xs px-3 py-1 bg-green-500/20 text-green-400 rounded-full">👍 Curti</span>
-                                <span className="text-xs px-3 py-1 bg-red-500/20 text-red-400 rounded-full">👎 Não curti</span>
-                                <span className="text-xs px-3 py-1 bg-purple-500/20 text-purple-400 rounded-full">⭐ Amei</span>
+                            <div className="flex items-center justify-center gap-3 pt-3">
+                                <div className="flex items-center gap-1 text-xs px-3 py-2 bg-green-500/20 text-green-400 rounded-full border border-green-500/30 hover:bg-green-500/30 transition-all">
+                                    <ThumbsUp className="w-3 h-3" />
+                                    <span className="font-medium">Curti</span>
+                                </div>
+                                <div className="flex items-center gap-1 text-xs px-3 py-2 bg-purple-500/20 text-purple-400 rounded-full border border-purple-500/30 hover:bg-purple-500/30 transition-all">
+                                    <Star className="w-3 h-3" />
+                                    <span className="font-medium">Amei</span>
+                                </div>
+                                <div className="flex items-center gap-1 text-xs px-3 py-2 bg-red-500/20 text-red-400 rounded-full border border-red-500/30 hover:bg-red-500/30 transition-all">
+                                    <ThumbsDown className="w-3 h-3" />
+                                    <span className="font-medium">Não curti</span>
+                                </div>
                             </div>
                         </div>
                     </CardContent>
