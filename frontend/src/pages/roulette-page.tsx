@@ -231,7 +231,7 @@ export default function RoulettePage() {
             }
 
             // Fase 3: Geração da recomendação (60-90%)
-            setLoadingMessage('🤖 Gemini AI gerando recomendação perfeita...');
+            setLoadingMessage('🤖 Gerando recomendação perfeita...');
             setLoadingProgress(60);
 
             const superPrompt = await generateSuperPrompt();
@@ -293,6 +293,7 @@ export default function RoulettePage() {
 
             setSelectedMovie(recommendation);
             showSuccess("🎯 Filme perfeito encontrado!");
+            setShowFeedbackSection(true);
 
         } catch (error) {
             showError("Erro ao sortear filme. Tente novamente!");
@@ -360,7 +361,7 @@ export default function RoulettePage() {
                     <CardContent className="p-6 text-center">
                         <div className="space-y-3">
                             <h1 className="text-2xl font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
-                                🎰 Roleta Mágica
+                                Roleta Mágica
                             </h1>
                             <p className="text-muted-foreground">
                                 <strong>Algoritmo super inteligente</strong> que analisa todos os seus dados<br />
@@ -371,12 +372,13 @@ export default function RoulettePage() {
                 </Card>
 
                 {/* Stats do usuário */}
+                <p className="text-muted-foreground">Um pouco sobre você:</p>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     <Card className="cinema-card border-primary/20">
                         <CardContent className="p-4 text-center">
                             <Film className="w-6 h-6 text-primary mx-auto mb-2" />
                             <div className="text-lg font-bold text-primary">{userStats.totalMovies}</div>
-                            <div className="text-xs text-muted-foreground">Filmes</div>
+                            <div className="text-xs text-muted-foreground">Filmes avaliados</div>
                         </CardContent>
                     </Card>
 
@@ -392,7 +394,7 @@ export default function RoulettePage() {
                         <CardContent className="p-4 text-center">
                             <Zap className="w-6 h-6 text-green-400 mx-auto mb-2" />
                             <div className="text-lg font-bold text-green-400">{userStats.favoriteGenres.length}</div>
-                            <div className="text-xs text-muted-foreground">Gêneros</div>
+                            <div className="text-xs text-muted-foreground">Gêneros preferidos</div>
                         </CardContent>
                     </Card>
 
@@ -400,7 +402,7 @@ export default function RoulettePage() {
                         <CardContent className="p-4 text-center">
                             <Clock className="w-6 h-6 text-blue-400 mx-auto mb-2" />
                             <div className="text-lg font-bold text-blue-400">{userStats.preferences?.maxDuration || 0}</div>
-                            <div className="text-xs text-muted-foreground">Max Min</div>
+                            <div className="text-xs text-muted-foreground">Max Min Duração</div>
                         </CardContent>
                     </Card>
                 </div>

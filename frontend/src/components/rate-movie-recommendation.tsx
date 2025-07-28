@@ -4,8 +4,11 @@ import { CreateMovieFeedbackDTO } from "@/DTO/CreateMovieFeedbackDTO";
 import { UpdateMovieFeedbackDTO } from "@/DTO/UpdateMovieFeedbackDTO";
 import useFeedback from "@/hooks/use-feedback";
 import type { AIRecommendations, UserMovieFeedback } from "@/utils/types";
-import { Check, Star, X } from "lucide-react";
+import { Check, Star, ThumbsDown, ThumbsUp, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Button } from "./ui/button";
+import { CreateMovieRecommendationFeedbackDTO } from "@/DTO/CreateMovieRecommendationFeedbackDTO";
+import useRecommendation from "@/hooks/use-recommendation";
 
 type RateMovieRecommendationProps = {
     movie: AIRecommendations;
@@ -16,6 +19,7 @@ type RateMovieRecommendationProps = {
 export default function RateMovieRecommendation({ movie, userId, onFeedbackComplete }: RateMovieRecommendationProps) {
     const { userData } = useAuth();
     const { getUserFeedback, submitFeedback, updateFeedback } = useFeedback();
+    const { putRecommendationFeedback } = useRecommendation();
 
     const { showSuccess, showError } = useToast();
 
@@ -74,6 +78,35 @@ export default function RateMovieRecommendation({ movie, userId, onFeedbackCompl
         } finally {
             setLoading(false);
         }
+    }
+
+    const handleRecommendationFeedback = async (feedback: "like" | "dislike" | "superlike") => {
+        if (!userData || !movie) return;
+        setLoading(true);
+        const recommendationFeedback = new CreateMovieRecommendationFeedbackDTO(
+            userData.id,
+            movie.title,
+            feedback
+        );
+        try {
+            await putRecommendationFeedback(recommendationFeedback);
+            showSuccess("Avaliação enviada com sucesso! Suas recomendações serão melhoradas com base no seu feedback.");
+            setShowRecommendationFeedback(false);
+            setShowFeedbackSection(false);
+
+            if(onFeedbackComplete) {
+                onFeedbackComplete({
+                    rating: 0,
+                    review: "", 
+                    movieTitle: movie.title
+                });
+            }
+        } catch (error) {
+            showError("Falha ao enviar feedback.");
+        } finally {
+            setLoading(false);
+        }
+
     }
 
     return (
@@ -155,6 +188,40 @@ export default function RateMovieRecommendation({ movie, userId, onFeedbackCompl
                         </button>)}
                 </div>
             )}
+
+            {showRecommendationFeedback && (
+                <div className="w-full">
+                    <h3 className="text-lg font-semibold text-foreground mb-2">Avalie esta recomendação:</h3>
+                    <div className="w-full flex gap-2">
+                        <div className="w-1/3 text-center">
+                            <Button
+                                onClick={() => handleRecommendationFeedback("like")}
+                                disabled={loading}
+                                className="flex items-center justify-center w-full py-3 px-4 bg-green-600/20 hover:bg-green-600/30 border border-green-600/40 text-green-400 rounded-lg transition-colors duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+                                <ThumbsUp size={20} />
+                            </Button>
+                        </div>
+                        <div className="w-1/3 text-center">
+                            <Button
+                                onClick={() => handleRecommendationFeedback("superlike")}
+                                disabled={loading}
+                                className="flex items-center justify-center w-full py-3 px-4 bg-purple-600/20 hover:bg-purple-600/30 border border-purple-600/40 text-purple-400 rounded-lg transition-colors duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+                                <Star size={20} />
+                            </Button>
+                        </div>
+                        <div className="w-1/3 text-center">
+                            <Button
+                                onClick={() => handleRecommendationFeedback("dislike")}
+                                disabled={loading}
+                                className="flex items-center justify-center w-full py-3 px-4 bg-red-600/20 hover:bg-red-600/30 border border-red-600/40 text-red-400 rounded-lg transition-colors duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+                                <ThumbsDown size={20} />
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+
+            )}
+
         </>
     )
 }
