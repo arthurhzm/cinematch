@@ -5,19 +5,20 @@ import { AuthProvider } from './contexts/AuthContext.tsx'
 import { ToastProvider } from './contexts/ToastContext.tsx'
 import './index.css'
 import AddPreferencesPage from './pages/add-preferences-page.tsx'
+import ChatPage from './pages/chat-page.tsx'
+import DiscoveryPage from './pages/discovery-page.tsx'
+import FollowersPage from './pages/followers-page.tsx'
+import ForgotPasswordPage from './pages/forgot-password-page.tsx'
 import HomePage from './pages/home-page.tsx'
 import LoginPage from './pages/login-page.tsx'
+import MoviePage from './pages/movie-page.tsx'
 import ProfilePage from './pages/profile-page.tsx'
-import RegisterPage from './pages/register-page.tsx'
-import { ROUTES } from './utils/routes.ts'
-import SearchPage from './pages/search-page.tsx'
-import ChatPage from './pages/chat-page.tsx'
-import FollowersPage from './pages/followers-page.tsx'
 import RecommendationsPage from './pages/recommendations-page.tsx'
-import SettingsPage from './pages/settings-page.tsx'
-import ForgotPasswordPage from './pages/forgot-password-page.tsx'
-import DiscoveryPage from './pages/discovery-page.tsx'
+import RegisterPage from './pages/register-page.tsx'
 import RoulettePage from './pages/roulette-page.tsx'
+import SearchPage from './pages/search-page.tsx'
+import SettingsPage from './pages/settings-page.tsx'
+import { ROUTES } from './utils/routes.ts'
 
 createRoot(document.getElementById('root')!).render(
   <AuthProvider>
@@ -44,7 +45,7 @@ createRoot(document.getElementById('root')!).render(
             <Route path={ROUTES.recommendations} element={<RecommendationsPage />} />
             <Route path={ROUTES.roulette} element={<RoulettePage />} />
             <Route path={ROUTES.settings} element={<SettingsPage />} />
-            
+            <Route path={ROUTES.movie(':movieTitle')} element={<MoviePage />} />
             {/* Redirect root to home */}
             <Route index element={<HomePage />} />
           </Route>

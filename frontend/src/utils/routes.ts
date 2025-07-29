@@ -13,4 +13,5 @@ export const ROUTES = {
     roulette: '/roulette',
     settings: '/settings',
     forgotPassword: '/forgot-password',
+    movie: (movieTitle: string) => `/movie/${movieTitle}`,
 } as const;

@@ -11,11 +11,13 @@ import type { AIRecommendations, UserProfilePreview } from "@/utils/types";
 import type { AxiosResponse } from "axios";
 import { Clapperboard, Film, Search, User, UserIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function SearchPage() {
     const { showError } = useToast();
     const { searchMovie } = useAI();
     const { getUsersByUsername } = useUser();
+    const navigate = useNavigate();
 
     const [searchQuery, setSearchQuery] = useState("");
     const [searchType, setSearchType] = useState<"movies" | "people">("movies");
@@ -205,7 +207,7 @@ export default function SearchPage() {
                     <ul className="space-y-2">
                         {searchType === "movies" ? (
                             (searchResults as AIRecommendations[]).map((result, index) => (
-                                <li key={index} className="mb-4" onClick={() => setSelectedMovie(result)}>
+                                <li key={index} className="mb-4" onClick={() => navigate(`/movie/${result.title}`)}>
                                     <div className="cinema-card p-4 hover:border-primary/40 transition-all cursor-pointer">
                                         <div className="flex gap-4">
                                             <div className="flex-shrink-0">
