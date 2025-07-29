@@ -1,14 +1,14 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/contexts/ToastContext";
 import { CreateMovieFeedbackDTO } from "@/DTO/CreateMovieFeedbackDTO";
+import { CreateMovieRecommendationFeedbackDTO } from "@/DTO/CreateMovieRecommendationFeedbackDTO";
 import { UpdateMovieFeedbackDTO } from "@/DTO/UpdateMovieFeedbackDTO";
 import useFeedback from "@/hooks/use-feedback";
+import useRecommendation from "@/hooks/use-recommendation";
 import type { AIRecommendations, UserMovieFeedback } from "@/utils/types";
-import { Check, Star, ThumbsDown, ThumbsUp, X } from "lucide-react";
+import { Check, CloudUpload, Star, ThumbsDown, ThumbsUp, Undo, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
-import { CreateMovieRecommendationFeedbackDTO } from "@/DTO/CreateMovieRecommendationFeedbackDTO";
-import useRecommendation from "@/hooks/use-recommendation";
 
 type RateMovieRecommendationProps = {
     movie: AIRecommendations;
@@ -64,13 +64,14 @@ export default function RateMovieRecommendation({ movie, userId, onFeedbackCompl
                     movieTitle: movie.title
                 });
 
+                showSuccess("Avaliação enviada com sucesso!");
+
             } else {
                 const newFeedback = new CreateMovieFeedbackDTO(movie.title, rating, review);
                 const response = await submitFeedback(userData.id, newFeedback);
                 setFeedback(response.data);
             }
 
-            showSuccess("Avaliação enviada com sucesso!");
         } catch (error) {
             showError(!!feedback ? "Falha ao atualizar avaliação." : "Falha ao enviar avaliação.");
         } finally {
@@ -205,14 +206,14 @@ export default function RateMovieRecommendation({ movie, userId, onFeedbackCompl
                                     onClick={handleReviewSubmit}
                                     disabled={loading}
                                 >
-                                    {loading ? "Enviando..." : "Enviar Avaliação"}
+                                    <CloudUpload /> {loading ? "Enviando..." : "Enviar Avaliação"}
                                 </Button>
                                 <Button
                                     className="ml-2 flex-1 px-6 py-2 rounded-lg hover:bg-destructive/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
                                     variant={"destructive"}
                                     onClick={handleCancelFeedback}
                                 >
-                                    Cancelar
+                                    <Undo />  Desfazer
                                 </Button>
                             </div>
                         )}
