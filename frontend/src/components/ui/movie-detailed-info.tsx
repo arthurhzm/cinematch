@@ -34,7 +34,7 @@ export default function MovieDetailedInfo({ movie, open, onClose, userId }: Movi
                     />
 
                     {/* Dialog */}
-                    <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto cinema-card">
+                    <div className="relative w-2xl max-w-2xl max-h-[90vh] overflow-y-auto cinema-card">
                         {/* ...existing code... */}
                         <div className="relative">
                             {movie.poster_url && (
@@ -83,7 +83,11 @@ export default function MovieDetailedInfo({ movie, open, onClose, userId }: Movi
                             )}
 
                             {/* Ratings */}
-                            <RateMovieRecommendation movie={movie} userId={userId} />
+                            <RateMovieRecommendation
+                                movie={movie}
+                                userId={userId}
+                                onFeedbackComplete={() => onClose()}
+                            />
 
                             {/* Overview */}
                             {movie.overview && (

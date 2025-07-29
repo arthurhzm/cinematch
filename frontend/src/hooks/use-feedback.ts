@@ -23,7 +23,12 @@ const useFeedback = () => {
         return response;
     };
 
-    return { getUserFeedback, submitFeedback, updateFeedback };
+    const deleteFeedback = async (feedbackId: number) => {
+        const response = await api.delete(`/feedback/${feedbackId}`);
+        return response;
+    };
+
+    return { getUserFeedback, submitFeedback, updateFeedback, deleteFeedback };
 };
 
 export default useFeedback;

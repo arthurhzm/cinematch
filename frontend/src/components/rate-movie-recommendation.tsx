@@ -13,16 +13,15 @@ import useRecommendation from "@/hooks/use-recommendation";
 type RateMovieRecommendationProps = {
     movie: AIRecommendations;
     userId?: number;
-    onFeedbackComplete?: (feedback: { rating: number; review: string; movieTitle: string }) => void;
+    onFeedbackComplete: (feedback: { rating: number; review: string; movieTitle: string }) => void;
 }
 
 export default function RateMovieRecommendation({ movie, userId, onFeedbackComplete }: RateMovieRecommendationProps) {
     const { userData } = useAuth();
-    const { getUserFeedback, submitFeedback, updateFeedback } = useFeedback();
+    const { getUserFeedback, submitFeedback, updateFeedback, deleteFeedback } = useFeedback();
     const { putRecommendationFeedback } = useRecommendation();
 
     const { showSuccess, showError } = useToast();
-
 
     const [showFeedbackSection, setShowFeedbackSection] = useState(false);
     const [showRecommendationFeedback, setShowRecommendationFeedback] = useState(false);
@@ -58,21 +57,20 @@ export default function RateMovieRecommendation({ movie, userId, onFeedbackCompl
             if (!!feedback) {
                 const updatedFeedback = new UpdateMovieFeedbackDTO(rating, review);
                 await updateFeedback(feedback.id, updatedFeedback);
-                showSuccess("Avaliação atualizada com sucesso!");
-            } else {
-                const newFeedback = new CreateMovieFeedbackDTO(movie.title, rating, review);
-                await submitFeedback(userData.id, newFeedback);
-                showSuccess("Avaliação enviada com sucesso!");
-            }
 
-            // Chama a callback com os dados do feedback quando concluído com sucesso
-            if (onFeedbackComplete) {
                 onFeedbackComplete({
                     rating,
                     review,
                     movieTitle: movie.title
                 });
+
+            } else {
+                const newFeedback = new CreateMovieFeedbackDTO(movie.title, rating, review);
+                const response = await submitFeedback(userData.id, newFeedback);
+                setFeedback(response.data);
             }
+
+            showSuccess("Avaliação enviada com sucesso!");
         } catch (error) {
             showError(!!feedback ? "Falha ao atualizar avaliação." : "Falha ao enviar avaliação.");
         } finally {
@@ -94,10 +92,10 @@ export default function RateMovieRecommendation({ movie, userId, onFeedbackCompl
             setShowRecommendationFeedback(false);
             setShowFeedbackSection(false);
 
-            if(onFeedbackComplete) {
+            if (onFeedbackComplete) {
                 onFeedbackComplete({
                     rating: 0,
-                    review: "", 
+                    review: "",
                     movieTitle: movie.title
                 });
             }
@@ -105,6 +103,23 @@ export default function RateMovieRecommendation({ movie, userId, onFeedbackCompl
             showError("Falha ao enviar feedback.");
         } finally {
             setLoading(false);
+        }
+
+    }
+
+    const handleCancelFeedback = async () => {
+        if (!feedback) return;
+        setShowFeedbackSection(false);
+        setShowRecommendationFeedback(false);
+
+        try {
+            await deleteFeedback(feedback.id);
+            setFeedback(null);
+            setRating(0);
+            setReview("");
+        } catch (error) {
+            showError("Erro ao cancelar feedback.");
+            console.error(error);
         }
 
     }
@@ -118,9 +133,12 @@ export default function RateMovieRecommendation({ movie, userId, onFeedbackCompl
                     <div className="w-full flex gap-3 justify-center">
                         <button
                             className="w-full flex justify-center items-center gap-2 max-w-32 py-3 px-6 bg-green-600/20 hover:bg-green-600/30 border border-green-600/40 text-green-400 rounded-lg transition-colors duration-200 font-medium"
-                            onClick={() => setShowFeedbackSection(true)}
+                            onClick={() => {
+                                handleReviewSubmit();
+                                setShowFeedbackSection(true)
+                            }}
                         >
-                            <Check />
+                            <Check /> Sim
                         </button>
                         <button
                             className="w-full flex justify-center items-center gap-2 max-w-32 py-3 px-6 bg-red-600/20 hover:bg-red-600/30 border border-red-600/40 text-red-400 rounded-lg transition-colors duration-200 font-medium"
@@ -134,59 +152,72 @@ export default function RateMovieRecommendation({ movie, userId, onFeedbackCompl
 
             {/* Seção de feedback detalhado de filme JÁ ASSISTIDO */}
             {showFeedbackSection && (
-                <div className="flex flex-col items-center gap-4">
-                    {/* Star Rating */}
-                    <div className="flex gap-1">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                            <button
-                                key={star}
-                                className="text-gray-400 hover:text-yellow-400 transition-colors relative"
-                                onClick={() => {
-                                    if (rating === star) {
-                                        setRating(star - 0.5);
-                                    } else {
-                                        setRating(star);
-                                    }
-                                }}
-                                disabled={(!!userId && (userId !== userData?.id))}
+                <>
+                    <p className="text-lg font-semibold text-foreground mb-2">Como você avaliaria {movie.title}?</p>
+                    <div className="flex flex-col items-center gap-4">
+                        {/* Star Rating */}
+                        <div className="flex gap-1">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                                <button
+                                    key={star}
+                                    className="text-gray-400 hover:text-yellow-400 transition-colors relative"
+                                    onClick={() => {
+                                        if (rating === star) {
+                                            setRating(star - 0.5);
+                                        } else {
+                                            setRating(star);
+                                        }
+                                    }}
+                                    disabled={(!!userId && (userId !== userData?.id))}
 
-                            >
-                                <Star
-                                    size={48}
-                                    className={rating >= star ? "text-yellow-400" : rating >= star - 0.5 ? "text-yellow-400" : "text-gray-400"}
-                                    fill={rating >= star ? "currentColor" : "none"}
-                                />
-                                {rating >= star - 0.5 && rating < star && (
+                                >
                                     <Star
                                         size={48}
-                                        className="text-yellow-400 absolute top-0 left-0"
-                                        fill="currentColor"
-                                        style={{ clipPath: "inset(0 50% 0 0)" }}
+                                        className={rating >= star ? "text-yellow-400" : rating >= star - 0.5 ? "text-yellow-400" : "text-gray-400"}
+                                        fill={rating >= star ? "currentColor" : "none"}
                                     />
-                                )}
-                            </button>
-                        ))}
+                                    {rating >= star - 0.5 && rating < star && (
+                                        <Star
+                                            size={48}
+                                            className="text-yellow-400 absolute top-0 left-0"
+                                            fill="currentColor"
+                                            style={{ clipPath: "inset(0 50% 0 0)" }}
+                                        />
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Review Textarea */}
+                        <textarea
+                            placeholder="Escreva sua opinião sobre o filme... (opcional)"
+                            className="w-full h-24 p-3 bg-secondary border border-border rounded-lg text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-primary"
+                            value={review}
+                            onChange={(e) => setReview(e.currentTarget.value)}
+                            disabled={(!!userId && (userId !== userData?.id))}
+                        />
+
+                        {/* Submit Button */}
+                        {((!!userId && (userId == userData?.id)) || !userId) && (
+                            <div className="flex w-full">
+                                <Button
+                                    className="flex-1 px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+                                    onClick={handleReviewSubmit}
+                                    disabled={loading}
+                                >
+                                    {loading ? "Enviando..." : "Enviar Avaliação"}
+                                </Button>
+                                <Button
+                                    className="ml-2 flex-1 px-6 py-2 rounded-lg hover:bg-destructive/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+                                    variant={"destructive"}
+                                    onClick={handleCancelFeedback}
+                                >
+                                    Cancelar
+                                </Button>
+                            </div>
+                        )}
                     </div>
-
-                    {/* Review Textarea */}
-                    <textarea
-                        placeholder="Escreva sua opinião sobre o filme... (opcional)"
-                        className="w-full h-24 p-3 bg-secondary border border-border rounded-lg text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-primary"
-                        value={review}
-                        onChange={(e) => setReview(e.currentTarget.value)}
-                        disabled={(!!userId && (userId !== userData?.id))}
-                    />
-
-                    {/* Submit Button */}
-                    {((!!userId && (userId == userData?.id)) || !userId) && (
-                        <button
-                            className="w-full px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
-                            onClick={handleReviewSubmit}
-                            disabled={loading}
-                        >
-                            {loading ? "Enviando..." : "Enviar Avaliação"}
-                        </button>)}
-                </div>
+                </>
             )}
 
             {showRecommendationFeedback && (
