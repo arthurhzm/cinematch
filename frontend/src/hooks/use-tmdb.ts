@@ -31,7 +31,15 @@ const useTMDB = () => {
         }));
     }
 
-    return { getMovieByTitle, getGenresById };
+    const getMovieDetails = async (movieId: number) => {
+        const response = await fetch(
+            `${baseUrl}/movie/${movieId}?append_to_response=credits,videos,images,recommendations,similar`,
+            options
+        );
+        return await response.json();
+    }
+
+    return { getMovieByTitle, getGenresById, getMovieDetails };
 }
 
 export default useTMDB;

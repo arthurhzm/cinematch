@@ -207,14 +207,14 @@ export default function SearchPage() {
                     <ul className="space-y-2">
                         {searchType === "movies" ? (
                             (searchResults as AIRecommendations[]).map((result, index) => (
-                                <li key={index} className="mb-4" onClick={() => navigate(`/movie/${result.title}`)}>
+                                <li key={index} className="mb-4" onClick={() => navigate(`/movie/${result.original_title}`)}>
                                     <div className="cinema-card p-4 hover:border-primary/40 transition-all cursor-pointer">
                                         <div className="flex gap-4">
                                             <div className="flex-shrink-0">
                                                 {!!result.poster_url ? (
                                                     <img
                                                         src={result.poster_url || "/placeholder-poster.png"}
-                                                        alt={`Poster de ${result.title}`}
+                                                        alt={`Poster de ${result.original_title}`}
                                                         className="w-24 h-36 object-cover rounded-md"
                                                     />
                                                 ) : (
@@ -229,7 +229,7 @@ export default function SearchPage() {
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <h3 className="font-bold text-lg text-foreground mb-1">
-                                                    {result.title} ({result.year})
+                                                    {result.original_title} ({result.year})
                                                 </h3>
                                                 <div className="flex flex-wrap gap-1">
                                                     {result.genres?.map((genre, genreIndex) => (

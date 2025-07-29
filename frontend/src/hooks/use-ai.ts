@@ -228,7 +228,7 @@ const useAI = () => {
 
     const recommendationPromptSpecial = () => {
         const now = new Date();
-        const month = now.getMonth() + 1; // Meses são 0-indexados
+        const month = now.getMonth() + 1;
         const day = now.getDate();
 
         let specialPrompt = `
@@ -244,7 +244,6 @@ const useAI = () => {
             [/SISTEMA ESPECIAL]
         `;
 
-        // Datas comemorativas específicas
         if ((month === 12 && day >= 15) || (month === 1 && day <= 7)) {
             specialPrompt += `
                 Período: Natal e Ano Novo
@@ -292,7 +291,6 @@ const useAI = () => {
                 filmes sobre preservação ambiental, conexão com a natureza,
                 e obras que valorizem povos originários.`;
         }
-        // Eventos baseados em tendências gerais por estação/época
         else if (month >= 6 && month <= 8) {
             specialPrompt += `
                 Período: Inverno (Hemisfério Sul)
@@ -413,7 +411,6 @@ const useAI = () => {
 
         console.log(prompt);
 
-
         const response = await ai.models.generateContent({
             model: AI_MODELS.GEMINI_2_5_FLASH_LITE,
             contents: prompt,
@@ -429,7 +426,6 @@ const useAI = () => {
     const generateRecommendationsResponse = async (json: string) => {
         let jsonText = json.replace(/^```json\s*/, '').replace(/\s*```$/, '');
         const recommendations: AIRecommendations[] = JSON.parse(jsonText);
-
         return await Promise.all(
             recommendations.map(async (movie) => {
                 try {
@@ -438,10 +434,10 @@ const useAI = () => {
                         const posterPath = searchResponse.results[0].poster_path;
                         return {
                             ...movie,
+                            original_title: searchResponse.results[0].original_title || movie.title,
                             poster_url: posterPath ? `https://image.tmdb.org/t/p/w500${posterPath}` : null
                         };
                     }
-
                     return { ...movie, poster_url: null };
                 } catch (error) {
                     console.error(`Error fetching poster for ${movie.title}:`, error);
