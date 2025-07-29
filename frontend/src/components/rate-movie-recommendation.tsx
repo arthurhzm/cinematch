@@ -120,7 +120,7 @@ export default function RateMovieRecommendation({ movie, userId, onFeedbackCompl
                             className="w-full flex justify-center items-center gap-2 max-w-32 py-3 px-6 bg-green-600/20 hover:bg-green-600/30 border border-green-600/40 text-green-400 rounded-lg transition-colors duration-200 font-medium"
                             onClick={() => setShowFeedbackSection(true)}
                         >
-                            <Check /> Sim
+                            <Check />
                         </button>
                         <button
                             className="w-full flex justify-center items-center gap-2 max-w-32 py-3 px-6 bg-red-600/20 hover:bg-red-600/30 border border-red-600/40 text-red-400 rounded-lg transition-colors duration-200 font-medium"
