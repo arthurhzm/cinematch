@@ -13,8 +13,8 @@ export default function MoviePage() {
     const params = useParams();
     const movieTitle = params.movieTitle;
     const { getMovieByTitle, getMovieDetails } = useTMDB();
-    const {getUserFeedback, updateFeedback, submitFeedback} = useFeedback();
-    const {userData} = useAuth();
+    const { getUserFeedback, updateFeedback, submitFeedback } = useFeedback();
+    const { userData } = useAuth();
     const navigate = useNavigate();
 
     const [movieDetails, setMovieDetails] = useState<TMDBMovieDetails>();
@@ -29,12 +29,16 @@ export default function MoviePage() {
             const movies = await getMovieByTitle(movieTitle.split(" ")[0]);
             const movie = movies.results.find((movie: TMDBMovie) => movie.original_title.toLowerCase() === movieTitle.toLowerCase());
             if (!movie) return;
-            const details = await getMovieDetails(movie.id);
+            const details: TMDBMovieDetails = await getMovieDetails(movie.id);
             const backdropUrl = details.backdrop_path ? `https://image.tmdb.org/t/p/original${details.backdrop_path}` : null;
             const posterUrl = details.poster_path ? `https://image.tmdb.org/t/p/w500${details.poster_path}` : null;
             setMovieDetails({ ...details, backdropUrl, posterUrl });
+            const feedback: UserMovieFeedback = (await getUserFeedback(userData.id, details.title)).data[0] || null;
+            console.log(feedback);
 
-            setFeedback((await getUserFeedback(userData.id, movieTitle)).data);
+            setFeedback(feedback);
+            setIsWatched(!!feedback);
+            setUserRating(feedback?.rating || 0);
 
         };
         fetchData();
@@ -62,23 +66,6 @@ export default function MoviePage() {
         const hours = Math.floor(minutes / 60);
         const mins = minutes % 60;
         return `${hours}h ${mins}min`;
-    };
-
-    const StarRating = ({ rating, size = "w-5 h-5", interactive = false, onRate }: { rating: number, size?: string, interactive?: boolean, onRate?: (rating: number) => void }) => {
-        return (
-            <div className="flex items-center gap-1">
-                {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                        key={star}
-                        onClick={() => interactive && onRate && onRate(star)}
-                        className={`${interactive ? 'hover:scale-110 transition-transform' : ''} ${star <= rating ? 'text-yellow-400' : 'text-gray-600'}`}
-                        disabled={!interactive}
-                    >
-                        <Star className={`${size} ${star <= rating ? 'fill-current' : ''}`} />
-                    </button>
-                ))}
-            </div>
-        );
     };
 
     if (!movieDetails || !userData) {
@@ -193,10 +180,20 @@ export default function MoviePage() {
                 {/* Action Buttons */}
                 <div className="sticky top-0 z-20 bg-black/95 backdrop-blur-lg border-b border-gray-800">
                     <div className="px-6 py-4">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4">
+                        <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0">
+                            <div className="flex items-center gap-4 w-full md:w-auto justify-center md:justify-start">
                                 <Button
-                                    onClick={() => {
+                                    onClick={async () => {
+                                        if (!!feedback) {
+                                            await updateFeedback(feedback.id, { rating: userRating, review: '' });
+                                        } else {
+                                            const response = await submitFeedback(userData.id, {
+                                                movieTitle: movieDetails.title,
+                                                rating: userRating,
+                                                review: ''
+                                            });
+                                            setFeedback(response.data);
+                                        }
                                         setIsWatched(!isWatched)
                                     }}
                                     className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all ${isWatched
@@ -206,18 +203,48 @@ export default function MoviePage() {
                                 >
                                     <Eye className="w-4 h-4" />
                                     <span className="text-sm font-medium">
-                                        {isWatched ? 'Assistido' : 'Marcar como visto'}
+                                        {isWatched ? 'Assistiu' : 'Marcar como visto'}
                                     </span>
                                 </Button>
                             </div>
 
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-3 w-full md:w-auto justify-center md:justify-end">
                                 <span className="text-sm text-gray-400">Sua avaliação:</span>
-                                <StarRating
-                                    rating={userRating}
-                                    interactive={true}
-                                    onRate={setUserRating}
-                                />
+                                <div className="flex items-center gap-2">
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                        <button
+                                            key={star}
+                                            className="relative text-gray-400 hover:text-yellow-400 transition-colors"
+                                            onClick={async () => {
+                                                let newRating = userRating === star ? star - 0.5 : star;
+                                                setUserRating(newRating);
+                                                if (!!feedback) {
+                                                    await updateFeedback(feedback.id, { rating: newRating, review: '' });
+                                                } else {
+                                                    const response = await submitFeedback(userData.id, {
+                                                        movieTitle: movieDetails.title,
+                                                        rating: newRating,
+                                                        review: ''
+                                                    });
+                                                    setFeedback(response.data);
+                                                }
+                                            }}
+                                        >
+                                            <Star
+                                                className={`w-6 h-6 ${userRating >= star ? "text-yellow-400" : userRating >= star - 0.5 ? "text-yellow-400" : "text-gray-400"}`}
+                                                fill={userRating >= star ? "currentColor" : "none"}
+                                            />
+                                            {userRating >= star - 0.5 && userRating < star && (
+                                                <Star
+                                                    className="w-6 h-6 text-yellow-400 absolute top-0 left-0"
+                                                    fill="currentColor"
+                                                    style={{ clipPath: "inset(0 50% 0 0)" }}
+                                                />
+                                            )}
+                                        </button>
+                                    ))}
+                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -276,7 +303,7 @@ export default function MoviePage() {
                                 <div className="text-2xl font-bold text-blue-400">
                                     {movieDetails.vote_count.toLocaleString()}
                                 </div>
-                                <div className="text-sm text-gray-400">Avaliações</div>
+                                <div className="text-sm text-gray-400">Avaliações (TMBD)</div>
                             </div>
 
                             <div className="bg-gray-900/50 rounded-xl p-6 border border-gray-800 text-center">
@@ -284,8 +311,10 @@ export default function MoviePage() {
                                 <div className="text-2xl font-bold text-purple-400">
                                     {movieDetails.vote_average.toFixed(1)}
                                 </div>
-                                <div className="text-sm text-gray-400">Nota Média</div>
+                                <div className="text-sm text-gray-400">Nota Média (TMDB)</div>
                             </div>
+
+
                         </div>
                     </section>
 
@@ -351,7 +380,7 @@ export default function MoviePage() {
 
                     {/* Social Actions */}
                     <section>
-                        <div className="bg-gradient-to-r from-purple-900/50 to-blue-900/50 rounded-2xl p-6 border border-purple-800/30">
+                        <div className="bg-gradient-to-r from-blue-900/50 to-blue-900/40 rounded-2xl p-6 border border-blue-800/30">
                             <h3 className="text-xl font-bold mb-4 text-center">Compartilhe sua opinião</h3>
                             <div className="flex items-center justify-center gap-4">
                                 <button className="flex items-center gap-2 bg-gray-900/70 hover:bg-gray-800 px-4 py-2 rounded-lg transition-colors">

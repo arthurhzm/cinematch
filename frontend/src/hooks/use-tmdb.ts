@@ -18,7 +18,10 @@ const useTMDB = () => {
     }
 
     const getMovieByTitle = async (title: string) => {
-        const response = await fetch(`${baseUrl}/search/movie?query=${title}`, options);
+        const response = await fetch(
+            `${baseUrl}/search/movie?query=${encodeURIComponent(title)}&language=pt-BR`,
+            options
+        );
         return await response.json() as TMDBGetMovieResponse;
     }
 
@@ -33,7 +36,7 @@ const useTMDB = () => {
 
     const getMovieDetails = async (movieId: number) => {
         const response = await fetch(
-            `${baseUrl}/movie/${movieId}?append_to_response=credits,videos,images,recommendations,similar`,
+            `${baseUrl}/movie/${movieId}?append_to_response=credits,videos,images,recommendations,similar&language=pt-BR`,
             options
         );
         return await response.json();

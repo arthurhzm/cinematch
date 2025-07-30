@@ -7,6 +7,7 @@ import UserPreview from "@/components/ui/user-profile-preview";
 import { useToast } from "@/contexts/ToastContext";
 import useAI from "@/hooks/use-ai";
 import useUser from "@/hooks/use-user";
+import { ROUTES } from "@/utils/routes";
 import type { AIRecommendations, UserProfilePreview } from "@/utils/types";
 import type { AxiosResponse } from "axios";
 import { Clapperboard, Film, Search, User, UserIcon } from "lucide-react";
@@ -207,7 +208,7 @@ export default function SearchPage() {
                     <ul className="space-y-2">
                         {searchType === "movies" ? (
                             (searchResults as AIRecommendations[]).map((result, index) => (
-                                <li key={index} className="mb-4" onClick={() => navigate(`/movie/${result.original_title}`)}>
+                                <li key={index} className="mb-4" onClick={() => navigate(ROUTES.movie(result.original_title!))}>
                                     <div className="cinema-card p-4 hover:border-primary/40 transition-all cursor-pointer">
                                         <div className="flex gap-4">
                                             <div className="flex-shrink-0">
@@ -229,7 +230,9 @@ export default function SearchPage() {
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <h3 className="font-bold text-lg text-foreground mb-1">
-                                                    {result.original_title} ({result.year})
+                                                    {result.title} ({result.year})
+                                                    <br />
+                                                    <small className="text-muted-foreground">{result.original_title}</small>
                                                 </h3>
                                                 <div className="flex flex-wrap gap-1">
                                                     {result.genres?.map((genre, genreIndex) => (
