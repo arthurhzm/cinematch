@@ -1,10 +1,13 @@
 import AppLayout from "@/components/app-layout";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import useFeedback from "@/hooks/use-feedback";
 import useTMDB from "@/hooks/use-tmdb";
-import { type TMDBMovie, type TMDBMovieDetails, type UserMovieFeedback } from "@/utils/types";
-import { ArrowLeft, Calendar, Clock, DollarSign, Eye, Film, MessageCircle, Play, Star, ThumbsUp, Users } from "lucide-react";
+import { getInitials } from "@/lib/utils";
+import { ROUTES } from "@/utils/routes";
+import { type MovieUsersFeedback, type TMDBMovie, type TMDBMovieDetails, type UserMovieFeedback } from "@/utils/types";
+import { ArrowLeft, Calendar, Clock, DollarSign, Eye, Film, MessageCircle, Play, Star, ThumbsUp, User, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -13,7 +16,7 @@ export default function MoviePage() {
     const params = useParams();
     const movieTitle = params.movieTitle;
     const { getMovieByTitle, getMovieDetails } = useTMDB();
-    const { getUserFeedback, updateFeedback, submitFeedback } = useFeedback();
+    const { getUserFeedback, updateFeedback, submitFeedback, getMovieUsersFeedback } = useFeedback();
     const { userData } = useAuth();
     const navigate = useNavigate();
 
@@ -22,6 +25,9 @@ export default function MoviePage() {
     const [userRating, setUserRating] = useState(0);
     const [showFullOverview, setShowFullOverview] = useState(false);
     const [feedback, setFeedback] = useState<UserMovieFeedback | null>(null);
+    const [usersFeedback, setUsersFeedback] = useState<MovieUsersFeedback[]>([]);
+    const [review, setReview] = useState("");
+    const [showFullReviews, setShowFullReviews] = useState(false);
 
     useEffect(() => {
         if (!movieTitle || !userData) return;
@@ -34,12 +40,14 @@ export default function MoviePage() {
             const posterUrl = details.poster_path ? `https://image.tmdb.org/t/p/w500${details.poster_path}` : null;
             setMovieDetails({ ...details, backdropUrl, posterUrl });
             const feedback: UserMovieFeedback = (await getUserFeedback(userData.id, details.title)).data[0] || null;
-            console.log(feedback);
 
             setFeedback(feedback);
             setIsWatched(!!feedback);
             setUserRating(feedback?.rating || 0);
+            setReview(feedback?.review || "");
 
+            const usersFeedback: MovieUsersFeedback[] = (await getMovieUsersFeedback(details.title)).data || [];
+            setUsersFeedback(usersFeedback);
         };
         fetchData();
     }, [movieTitle])
@@ -67,6 +75,51 @@ export default function MoviePage() {
         const mins = minutes % 60;
         return `${hours}h ${mins}min`;
     };
+
+    const StarRating = ({ userId, disabled }: { userId: number, disabled?: boolean }) => {
+        if (!movieDetails) return null;
+
+        return (
+            <>
+                {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                        disabled={disabled}
+                        key={star}
+                        className="relative text-gray-400 hover:text-yellow-400 transition-colors"
+                        onClick={async () => {
+                            let newRating = userRating === star ? star - 0.5 : star;
+                            setUserRating(newRating);
+                            if (!!feedback) {
+                                await updateFeedback(feedback.id, { ...feedback, rating: newRating });
+                                setFeedback({ ...feedback, review: '' });
+                                setUsersFeedback(usersFeedback.map((r) => r.id === feedback.id ? { ...r, rating: newRating } : r));
+                            } else {
+                                const response = await submitFeedback(userId, {
+                                    movieTitle: movieDetails.title,
+                                    rating: newRating,
+                                    review: ''
+                                });
+                                setFeedback(response.data);
+                                setUsersFeedback([...usersFeedback, response.data]);
+                            }
+                        }}
+                    >
+                        <Star
+                            className={`w-6 h-6 ${userRating >= star ? "text-yellow-400" : userRating >= star - 0.5 ? "text-yellow-400" : "text-gray-400"}`}
+                            fill={userRating >= star ? "currentColor" : "none"}
+                        />
+                        {userRating >= star - 0.5 && userRating < star && (
+                            <Star
+                                className="w-6 h-6 text-yellow-400 absolute top-0 left-0"
+                                fill="currentColor"
+                                style={{ clipPath: "inset(0 50% 0 0)" }}
+                            />
+                        )}
+                    </button>
+                ))}
+            </>
+        )
+    }
 
     if (!movieDetails || !userData) {
         return (
@@ -185,7 +238,9 @@ export default function MoviePage() {
                                 <Button
                                     onClick={async () => {
                                         if (!!feedback) {
-                                            await updateFeedback(feedback.id, { rating: userRating, review: '' });
+                                            await updateFeedback(feedback.id, { ...feedback, rating: userRating });
+                                            setFeedback({ ...feedback, review: '' });
+                                            setUsersFeedback(usersFeedback.map((r) => r.id === feedback.id ? { ...r, rating: userRating } : r));
                                         } else {
                                             const response = await submitFeedback(userData.id, {
                                                 movieTitle: movieDetails.title,
@@ -193,6 +248,7 @@ export default function MoviePage() {
                                                 review: ''
                                             });
                                             setFeedback(response.data);
+                                            setUsersFeedback([...usersFeedback, response.data]);
                                         }
                                         setIsWatched(!isWatched)
                                     }}
@@ -211,38 +267,7 @@ export default function MoviePage() {
                             <div className="flex items-center gap-3 w-full md:w-auto justify-center md:justify-end">
                                 <span className="text-sm text-gray-400">Sua avaliação:</span>
                                 <div className="flex items-center gap-2">
-                                    {[1, 2, 3, 4, 5].map((star) => (
-                                        <button
-                                            key={star}
-                                            className="relative text-gray-400 hover:text-yellow-400 transition-colors"
-                                            onClick={async () => {
-                                                let newRating = userRating === star ? star - 0.5 : star;
-                                                setUserRating(newRating);
-                                                if (!!feedback) {
-                                                    await updateFeedback(feedback.id, { rating: newRating, review: '' });
-                                                } else {
-                                                    const response = await submitFeedback(userData.id, {
-                                                        movieTitle: movieDetails.title,
-                                                        rating: newRating,
-                                                        review: ''
-                                                    });
-                                                    setFeedback(response.data);
-                                                }
-                                            }}
-                                        >
-                                            <Star
-                                                className={`w-6 h-6 ${userRating >= star ? "text-yellow-400" : userRating >= star - 0.5 ? "text-yellow-400" : "text-gray-400"}`}
-                                                fill={userRating >= star ? "currentColor" : "none"}
-                                            />
-                                            {userRating >= star - 0.5 && userRating < star && (
-                                                <Star
-                                                    className="w-6 h-6 text-yellow-400 absolute top-0 left-0"
-                                                    fill="currentColor"
-                                                    style={{ clipPath: "inset(0 50% 0 0)" }}
-                                                />
-                                            )}
-                                        </button>
-                                    ))}
+                                    <StarRating userId={userData.id} />
                                 </div>
 
                             </div>
@@ -378,24 +403,164 @@ export default function MoviePage() {
                         </div>
                     </section>
 
-                    {/* Social Actions */}
                     <section>
-                        <div className="bg-gradient-to-r from-blue-900/50 to-blue-900/40 rounded-2xl p-6 border border-blue-800/30">
+                        <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
+                            <div className="w-1 h-8 bg-gradient-to-b from-pink-500 to-purple-500 rounded-full"></div>
+                            Avaliações da Comunidade
+                            <span className="text-lg text-gray-400 font-normal">({usersFeedback.length})</span>
+                        </h2>
+
+                        {/* Write Review Section */}
+                        <div className="bg-gradient-to-r from-blue-900/50 to-purple-900/50 rounded-2xl p-6 border border-blue-800/30 mb-8">
                             <h3 className="text-xl font-bold mb-4 text-center">Compartilhe sua opinião</h3>
-                            <div className="flex items-center justify-center gap-4">
-                                <button className="flex items-center gap-2 bg-gray-900/70 hover:bg-gray-800 px-4 py-2 rounded-lg transition-colors">
-                                    <ThumbsUp className="w-4 h-4" />
-                                    <span>Curtir</span>
-                                </button>
-                                <button className="flex items-center gap-2 bg-gray-900/70 hover:bg-gray-800 px-4 py-2 rounded-lg transition-colors">
-                                    <MessageCircle className="w-4 h-4" />
-                                    <span>Comentar</span>
-                                </button>
-                                <button className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg transition-colors">
-                                    <Play className="w-4 h-4" />
-                                    <span>Assistir Trailer</span>
-                                </button>
+                            <div className="flex flex-col items-center gap-4">
+                                <div className="flex items-center gap-3">
+                                    <span className="text-gray-300">Sua avaliação:</span>
+                                    <StarRating userId={userData.id} />
+                                </div>
+
+                                <textarea
+                                    placeholder="Escreva sua crítica aqui... O que você achou do filme?"
+                                    className="w-full h-24 bg-gray-900/70 border border-gray-700 rounded-lg p-4 text-white placeholder-gray-400 resize-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                                    value={review}
+                                    onChange={(e) => setReview(e.currentTarget.value)}
+                                />
+
+                                <div className="flex items-center gap-3">
+                                    <Button
+                                        className="text-white flex items-center gap-2 bg-purple-600 hover:bg-purple-700 px-6 py-2 rounded-lg transition-colors font-medium"
+                                        onClick={async () => {
+                                            if (!!feedback) {
+                                                await updateFeedback(feedback.id, { ...feedback, review: review.trim() });
+                                                setFeedback({ ...feedback, review: review.trim() });
+                                                setUsersFeedback(usersFeedback.map((r) => r.id === feedback.id ? { ...r, review: review.trim() } : r));
+                                            } else {
+                                                const response = await submitFeedback(userData.id, {
+                                                    movieTitle: movieDetails.title,
+                                                    rating: userRating,
+                                                    review: review.trim()
+                                                });
+                                                setFeedback(response.data);
+                                                setUsersFeedback([...usersFeedback, response.data]);
+                                            }
+                                            setReview("")
+
+                                        }}
+                                    >
+                                        <MessageCircle className="w-4 h-4" />
+                                        Publicar Avaliação
+                                    </Button>
+                                    <Button className="text-white flex items-center gap-2 bg-gray-900/70 hover:bg-gray-800 px-4 py-2 rounded-lg transition-colors">
+                                        <Play className="w-4 h-4" />
+                                        Assistir ao trailer
+                                    </Button>
+                                </div>
                             </div>
+                        </div>
+
+                        {/* Reviews List */}
+                        <div className="space-y-6">
+                            {usersFeedback.slice(0, showFullReviews ? usersFeedback.length : 10).map((review) => (
+                                <div key={review.id} className="bg-gray-900/40 backdrop-blur-sm rounded-xl p-6 border border-gray-800/50 hover:border-gray-700/80 transition-all group">
+                                    {/* User Info Header */}
+                                    <div className="flex items-start gap-4 mb-4">
+                                        <div className="relative">
+                                            <Avatar className="w-24 h-24 border-2 border-primary/30" onClick={() => navigate(ROUTES.profile(review.username))}>
+                                                <AvatarImage src={review.profilePicture || ""} />
+                                                <AvatarFallback className="bg-primary/20 text-primary text-xl font-semibold">
+                                                    {review.username ? getInitials(review.username) : <User />}
+                                                </AvatarFallback>
+                                            </Avatar>
+                                        </div>
+
+                                        <div className="flex-1">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <div onClick={() => navigate(ROUTES.profile(review.username))}>
+                                                    <h4 className="text-lg font-semibold text-white group-hover:text-purple-300 transition-colors">
+                                                        {review.username}
+                                                    </h4>
+                                                    <div className="flex items-center gap-3 text-sm text-gray-400">
+                                                        <span>{new Date(review.updatedAt).toLocaleDateString("pt-BR")}</span>
+                                                        <div className="flex items-center gap-1">
+                                                            <StarRating userId={review.userId} disabled={review.userId !== userData.id} />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Review Text */}
+                                            {review.review && review.review.trim() && (
+                                                <div className="mb-4">
+                                                    <p className="text-gray-300 leading-relaxed text-base">
+                                                        {review.review}
+                                                    </p>
+                                                </div>
+                                            )}
+
+                                            {/* Review Actions */}
+                                            <div className="flex items-center gap-4">
+                                                <button className="flex items-center gap-2 text-gray-400 hover:text-green-400 transition-colors group/like">
+                                                    <ThumbsUp className="w-4 h-4 group-hover/like:scale-110 transition-transform" />
+                                                    <span className="text-sm">Útil</span>
+                                                    <span className="text-xs bg-gray-800 px-2 py-1 rounded-full">12</span>
+                                                </button>
+
+                                                <button className="flex items-center gap-2 text-gray-400 hover:text-blue-400 transition-colors group/reply">
+                                                    <MessageCircle className="w-4 h-4 group-hover/reply:scale-110 transition-transform" />
+                                                    <span className="text-sm">Responder</span>
+                                                </button>
+
+                                                <div className="flex-1"></div>
+
+                                                {/* Review Quality Indicator */}
+                                                <div className="flex items-center gap-1">
+                                                    {review.review && review.review.length > 100 && (
+                                                        <span className="text-xs bg-purple-600/20 text-purple-300 px-2 py-1 rounded-full border border-purple-600/30">
+                                                            Crítica Detalhada
+                                                        </span>
+                                                    )}
+                                                    {review.rating === 5 && (
+                                                        <span className="text-xs bg-yellow-600/20 text-yellow-300 px-2 py-1 rounded-full border border-yellow-600/30">
+                                                            ⭐ Obra-prima
+                                                        </span>
+                                                    )}
+                                                    {review.rating === 1 && (
+                                                        <span className="text-xs bg-red-600/20 text-red-300 px-2 py-1 rounded-full border border-red-600/30">
+                                                            👎 Decepção
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+
+                            {/* Load More Reviews */}
+                            {usersFeedback.length > 10 && !showFullReviews && (
+                                <div className="text-center pt-6">
+                                    <button
+                                        onClick={() => setShowFullReviews(true)}
+                                        className="bg-gray-800/60 hover:bg-gray-700/80 border border-gray-700 hover:border-gray-600 px-8 py-3 rounded-lg transition-all font-medium text-gray-300 hover:text-white">
+                                        Ver mais avaliações ({usersFeedback.length - 10} restantes)
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Empty state */}
+                            {usersFeedback.length === 0 && (
+                                <div className="text-center py-12">
+                                    <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <MessageCircle className="w-8 h-8 text-gray-400" />
+                                    </div>
+                                    <h3 className="text-xl font-semibold text-gray-300 mb-2">
+                                        Ainda não há avaliações
+                                    </h3>
+                                    <p className="text-gray-500 mb-6">
+                                        Seja o primeiro a compartilhar sua opinião sobre este filme!
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     </section>
                 </div>

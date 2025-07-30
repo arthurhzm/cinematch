@@ -134,3 +134,14 @@ export type TMDBMovieDetails = {
     backdropUrl?: string | null;
     posterUrl?: string | null;
 }
+
+export type MovieUsersFeedback = {
+    id: number;
+    userId: number;
+    username: string;
+    profilePicture: string | null;
+    rating: number;
+    review: string | null;
+    updatedAt: string;
+
+}

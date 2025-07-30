@@ -28,7 +28,12 @@ const useFeedback = () => {
         return response;
     };
 
-    return { getUserFeedback, submitFeedback, updateFeedback, deleteFeedback };
+    const getMovieUsersFeedback = async (movieTitle: string) => {
+        const response = await api.get(`/movies/${encodeURIComponent(movieTitle)}/feedback`);
+        return response;
+    };
+
+    return { getUserFeedback, submitFeedback, updateFeedback, deleteFeedback, getMovieUsersFeedback };
 };
 
 export default useFeedback;
