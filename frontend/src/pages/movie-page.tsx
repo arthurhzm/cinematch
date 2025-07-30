@@ -92,7 +92,8 @@ export default function MoviePage() {
                             if (!!feedback) {
                                 await updateFeedback(feedback.id, { ...feedback, rating: newRating });
                                 setFeedback({ ...feedback, review: '' });
-                                setUsersFeedback(usersFeedback.map((r) => r.id === feedback.id ? { ...r, rating: newRating } : r));
+                                setUsersFeedback((await getMovieUsersFeedback(movieDetails.title)).data);
+
                             } else {
                                 const response = await submitFeedback(userId, {
                                     movieTitle: movieDetails.title,
@@ -100,7 +101,8 @@ export default function MoviePage() {
                                     review: ''
                                 });
                                 setFeedback(response.data);
-                                setUsersFeedback([...usersFeedback, response.data]);
+                                setUsersFeedback((await getMovieUsersFeedback(movieDetails.title)).data);
+
                             }
                         }}
                     >
@@ -240,7 +242,7 @@ export default function MoviePage() {
                                         if (!!feedback) {
                                             await updateFeedback(feedback.id, { ...feedback, rating: userRating });
                                             setFeedback({ ...feedback, review: '' });
-                                            setUsersFeedback(usersFeedback.map((r) => r.id === feedback.id ? { ...r, rating: userRating } : r));
+                                            setUsersFeedback((await getMovieUsersFeedback(movieDetails.title)).data);
                                         } else {
                                             const response = await submitFeedback(userData.id, {
                                                 movieTitle: movieDetails.title,
@@ -248,7 +250,7 @@ export default function MoviePage() {
                                                 review: ''
                                             });
                                             setFeedback(response.data);
-                                            setUsersFeedback([...usersFeedback, response.data]);
+                                            setUsersFeedback((await getMovieUsersFeedback(movieDetails.title)).data);
                                         }
                                         setIsWatched(!isWatched)
                                     }}
@@ -440,7 +442,8 @@ export default function MoviePage() {
                                             if (!!feedback) {
                                                 await updateFeedback(feedback.id, { ...feedback, review: review.trim() });
                                                 setFeedback({ ...feedback, review: review.trim() });
-                                                setUsersFeedback(usersFeedback.map((r) => r.id === feedback.id ? { ...r, review: review.trim() } : r));
+                                                setUsersFeedback((await getMovieUsersFeedback(movieDetails.title)).data);
+
                                             } else {
                                                 const response = await submitFeedback(userData.id, {
                                                     movieTitle: movieDetails.title,
@@ -448,7 +451,8 @@ export default function MoviePage() {
                                                     review: review.trim()
                                                 });
                                                 setFeedback(response.data);
-                                                setUsersFeedback([...usersFeedback, response.data]);
+                                                setUsersFeedback((await getMovieUsersFeedback(movieDetails.title)).data);
+
                                             }
                                             setReview("")
                                         }}
@@ -469,7 +473,7 @@ export default function MoviePage() {
                             Avaliações da Comunidade
                             <span className="text-lg text-gray-400 font-normal">({usersFeedback.length})</span>
                         </h2>
-                        
+
                         {/* Reviews List */}
                         <div className="space-y-6">
                             {usersFeedback.slice(0, showFullReviews ? usersFeedback.length : 10).map((review) => (
