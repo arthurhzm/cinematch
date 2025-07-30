@@ -29,7 +29,7 @@ export default function LoginPage() {
     const onSubmit = async (data: LoginFormData) => {
         try {
             await authenticateUser(data.email, data.password);
-            navigate("/home");
+            navigate(ROUTES.home);
         } catch (error) {
             showError("Erro ao autenticar usuário, tente novamente.");
         }

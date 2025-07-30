@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/contexts/ToastContext";
 import { CreateUserDTO } from "@/DTO/CreateUserDTO";
 import useUser from "@/hooks/use-user";
+import { ROUTES } from "@/utils/routes";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
@@ -12,7 +13,7 @@ import { z } from "zod";
 
 export default function RegisterPage() {
 
-    const { createUser } = useUser();
+    const { createUser, authenticateUser } = useUser();
     const { showSuccess, showError } = useToast();
     const navigate = useNavigate();
 
@@ -36,8 +37,9 @@ export default function RegisterPage() {
         const userData = new CreateUserDTO(data.username, data.password, data.email);
         try {
             await createUser(userData);
+            await authenticateUser(data.email, data.password);
+            navigate(ROUTES.home);
             showSuccess("Usuário criado com sucesso!");
-            navigate("/login");
         } catch (error) {
             showError("Erro ao criar usuário. Tente novamente mais tarde.");
         }
@@ -75,8 +77,8 @@ export default function RegisterPage() {
                         errors={formState.errors.confirmPassword}
                     />
                 </div>
-                <Button 
-                    className="w-full h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold cinema-glow transition-all duration-300" 
+                <Button
+                    className="w-full h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold cinema-glow transition-all duration-300"
                     type="submit"
                     disabled={formState.isSubmitting}
                 >
@@ -84,8 +86,8 @@ export default function RegisterPage() {
                 </Button>
                 <div className="text-center text-sm text-muted-foreground">
                     Já tem uma conta?{" "}
-                    <Link 
-                        to="/login" 
+                    <Link
+                        to="/login"
                         className="text-primary hover:text-primary/80 font-medium transition-colors"
                     >
                         Fazer login

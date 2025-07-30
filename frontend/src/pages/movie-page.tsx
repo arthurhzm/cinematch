@@ -7,7 +7,7 @@ import useTMDB from "@/hooks/use-tmdb";
 import { getInitials } from "@/lib/utils";
 import { ROUTES } from "@/utils/routes";
 import { type MovieUsersFeedback, type TMDBMovie, type TMDBMovieDetails, type UserMovieFeedback } from "@/utils/types";
-import { ArrowLeft, Calendar, Clock, DollarSign, Eye, Film, MessageCircle, Play, Star, User, Users } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, DollarSign, Eye, Film, MessageCircle, Star, User, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -209,8 +209,8 @@ export default function MoviePage() {
                                     )}
                                     <div className="flex items-center gap-2">
                                         <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                                        <span className="font-semibold">{movieDetails.vote_average.toFixed(1)}</span>
-                                        <span className="text-gray-400">({movieDetails.vote_count.toLocaleString()})</span>
+                                        <span className="font-semibold">{usersFeedback.reduce((acc, curr) => acc + curr.rating, 0) / usersFeedback.length || 0}</span>
+                                        <span className="text-gray-400">({usersFeedback.length})</span>
                                     </div>
                                 </div>
 
