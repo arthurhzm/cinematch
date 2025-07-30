@@ -332,42 +332,51 @@ const useAI = () => {
 
     const searchMovie = async (query: string) => {
         const prompt = `
-            [SISTEMA] - 
-            Estamos em um sistema de recomendação de filmes e o usuário está fazendo uma PESQUISA ESPECÍFICA de filmes.
-            Esta é uma funcionalidade de busca onde o usuário pode:
-            1. Procurar por um filme específico pelo nome (ex: "Titanic", "Matrix")
-            2. Procurar por filmes através de descrição/contexto (ex: "filme sobre robôs", "romance dos anos 90")
-            3. Encontrar filmes que não lembra o nome exato
-            4. Buscar filmes para avaliar ou adicionar à sua lista
+            [SISTEMA]
+            Você está em um sistema de BUSCA INTELIGENTE de filmes. 
+            O usuário está procurando por filmes usando o termo: "${query}"
 
-            A pesquisa do usuário foi: "${query}"
+            INSTRUÇÕES IMPORTANTES:
+            1. Analise cuidadosamente o termo de busca. Se for um nome de filme, priorize títulos exatos ou extremamente similares.
+            2. Se for uma descrição, contexto ou tema, encontre filmes que realmente correspondam ao que foi pedido, usando análise semântica.
+            3. NÃO invente filmes, só retorne títulos reais e relevantes.
+            4. Priorize filmes populares, premiados ou cultuados, mas inclua também opções menos conhecidas que sejam relevantes.
+            5. Ordene os resultados por relevância: títulos exatos primeiro, depois similares, depois por contexto.
+            6. NÃO leve em consideração gostos pessoais do usuário, foque apenas na busca.
 
-            IMPORTANTE: Esta é uma PESQUISA, não uma recomendação personalizada. 
-            - Se o usuário digitou um nome específico, priorize filmes com esse título exato ou muito similar
-            - Se o usuário digitou uma descrição/contexto, encontre filmes que correspondam a essa descrição
-            - Retorne filmes relevantes à busca, independente dos gostos pessoais do usuário
-            - Ordene por relevância à pesquisa (filmes mais próximos ao termo buscado primeiro)
+            FORMATO DE RESPOSTA (OBRIGATÓRIO):
+            Retorne um array JSON válido, sem markdown, sem texto extra, apenas o JSON.
+            Cada filme deve conter:
+            - title (título em português do Brasil, se existir, senão original)
+            - year (ano de lançamento)
+            - genres (array de gêneros em português do Brasil)
+            - overview (sinopse curta e objetiva, em português do Brasil)
+            - streaming_services (array de serviços de streaming onde está disponível no Brasil, ex: ["Netflix", "Prime Video"], se não souber, retorne [])
 
-            Retorno EXIGIDO:
-            formato JSON com:
-            - title
-            - year
-            - genres
-            - overview
-            - streaming_services (lista de serviços de streaming onde está disponível no Brasil. Ex: ["Netflix", "Prime Video", "Star+"], caso não saiba, retorne array vazio [])
-            
-            Regras:
-            - Foque na relevância com o termo pesquisado
-            - Inclua filmes populares e menos conhecidos que correspondam à busca
-            - Para buscas por nome: priorize correspondência exata, depois similar
-            - Para buscas contextuais: encontre filmes que correspondam ao tema/descrição
-            - Valores em português do Brasil (exceto as chaves JSON)
-            - Retorne apenas o JSON válido, sem markdown ou formatação adicional
+            REGRAS ADICIONAIS:
+            - NÃO inclua comentários, explicações ou texto fora do JSON.
+            - NÃO use markdown, apenas JSON puro.
+            - NÃO use caracteres especiais, apenas texto simples.
+            - Certifique-se que o JSON está 100% válido e pronto para ser lido por um sistema automatizado.
+            - Se não encontrar nenhum filme relevante, retorne um array vazio [].
+
+            EXEMPLO DE RESPOSTA:
+            [
+              {
+            "title": "Matrix",
+            "year": 1999,
+            "genres": ["Ficção científica", "Ação"],
+            "overview": "Um hacker descobre a verdade sobre a realidade e luta contra máquinas.",
+            "streaming_services": ["Netflix", "Prime Video"]
+              }
+            ]
+
+            Lembre-se: foque em relevância, precisão e qualidade dos resultados.
             [/SISTEMA]
         `;
 
         const response = await ai.models.generateContent({
-            model: AI_MODELS.GEMINI_2_5_FLASH,
+            model: AI_MODELS.GEMINI_2_5_FLASH_LITE,
             contents: prompt
         });
 
