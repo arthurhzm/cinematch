@@ -91,7 +91,7 @@ export default function MoviePage() {
                             setUserRating(newRating);
                             if (!!feedback) {
                                 await updateFeedback(feedback.id, { ...feedback, rating: newRating });
-                                setFeedback({ ...feedback, review: '' });
+                                setFeedback({ ...feedback, rating: newRating });
                                 setUsersFeedback((await getMovieUsersFeedback(movieDetails.title)).data);
 
                             } else {
@@ -241,7 +241,7 @@ export default function MoviePage() {
                                     onClick={async () => {
                                         if (!!feedback) {
                                             await updateFeedback(feedback.id, { ...feedback, rating: userRating });
-                                            setFeedback({ ...feedback, review: '' });
+                                            setFeedback({ ...feedback, rating: userRating });
                                             setUsersFeedback((await getMovieUsersFeedback(movieDetails.title)).data);
                                         } else {
                                             const response = await submitFeedback(userData.id, {
