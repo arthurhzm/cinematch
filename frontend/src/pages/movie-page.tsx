@@ -7,7 +7,7 @@ import useTMDB from "@/hooks/use-tmdb";
 import { getInitials } from "@/lib/utils";
 import { ROUTES } from "@/utils/routes";
 import { type MovieUsersFeedback, type TMDBMovie, type TMDBMovieDetails, type UserMovieFeedback } from "@/utils/types";
-import { ArrowLeft, Calendar, Clock, DollarSign, Eye, Film, MessageCircle, Play, Star, ThumbsUp, User, Users } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, DollarSign, Eye, Film, MessageCircle, Play, Star, User, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -326,17 +326,17 @@ export default function MoviePage() {
                             <div className="bg-gray-900/50 rounded-xl p-6 border border-gray-800 text-center">
                                 <Users className="w-8 h-8 text-blue-400 mx-auto mb-3" />
                                 <div className="text-2xl font-bold text-blue-400">
-                                    {movieDetails.vote_count.toLocaleString()}
+                                    {usersFeedback.length}
                                 </div>
-                                <div className="text-sm text-gray-400">Avaliações (TMBD)</div>
+                                <div className="text-sm text-gray-400">Avaliações CineMatch</div>
                             </div>
 
                             <div className="bg-gray-900/50 rounded-xl p-6 border border-gray-800 text-center">
                                 <Star className="w-8 h-8 text-purple-400 mx-auto mb-3 fill-current" />
                                 <div className="text-2xl font-bold text-purple-400">
-                                    {movieDetails.vote_average.toFixed(1)}
+                                    {usersFeedback.reduce((acc, feedback) => acc + feedback.rating, 0) / (usersFeedback.length || 1)}
                                 </div>
-                                <div className="text-sm text-gray-400">Nota Média (TMDB)</div>
+                                <div className="text-sm text-gray-400">Nota Média CineMatch</div>
                             </div>
 
 
@@ -349,48 +349,60 @@ export default function MoviePage() {
                             <div className="w-1 h-8 bg-gradient-to-b from-orange-500 to-red-500 rounded-full"></div>
                             Informações Técnicas
                         </h2>
-                        <div className="bg-gray-900/50 rounded-2xl p-6 border border-gray-800 space-y-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <h3 className="text-lg font-semibold mb-3 text-gray-200">Detalhes</h3>
-                                    <div className="space-y-3">
-                                        <div className="flex justify-between">
+                        <div className="bg-gradient-to-br from-gray-900/70 via-gray-900/40 to-gray-900/70 rounded-2xl p-6 md:p-8 border border-gray-800 shadow-lg">
+                            <div className="flex flex-col md:flex-row gap-8 md:gap-12">
+                                {/* Detalhes */}
+                                <div className="flex-1">
+                                    <h3 className="text-lg font-semibold mb-4 text-orange-400 flex items-center gap-2">
+                                        <Film className="w-5 h-5" />
+                                        Detalhes
+                                    </h3>
+                                    <ul className="space-y-4">
+                                        <li className="flex items-center justify-between border-b border-gray-800 pb-2">
                                             <span className="text-gray-400">Data de Lançamento</span>
-                                            <span className="text-white">{formatDate(movieDetails.release_date)}</span>
-                                        </div>
-                                        <div className="flex justify-between">
+                                            <span className="text-white font-medium">{formatDate(movieDetails.release_date)}</span>
+                                        </li>
+                                        <li className="flex items-center justify-between border-b border-gray-800 pb-2">
                                             <span className="text-gray-400">Idioma Original</span>
-                                            <span className="text-white uppercase">{movieDetails.original_language}</span>
-                                        </div>
-                                        <div className="flex justify-between">
+                                            <span className="text-white font-medium uppercase">{movieDetails.original_language}</span>
+                                        </li>
+                                        <li className="flex items-center justify-between">
                                             <span className="text-gray-400">Status</span>
-                                            <span className="text-white">{movieDetails.status}</span>
-                                        </div>
-                                    </div>
+                                            <span className="text-white font-medium">{movieDetails.status}</span>
+                                        </li>
+                                    </ul>
                                 </div>
-
-                                <div>
-                                    <h3 className="text-lg font-semibold mb-3 text-gray-200">Produção</h3>
-                                    <div className="space-y-3">
+                                {/* Produção */}
+                                <div className="flex-1">
+                                    <h3 className="text-lg font-semibold mb-4 text-red-400 flex items-center gap-2">
+                                        <Users className="w-5 h-5" />
+                                        Produção
+                                    </h3>
+                                    <div className="space-y-4">
                                         {movieDetails.production_companies && movieDetails.production_companies.length > 0 && (
                                             <div>
-                                                <span className="text-gray-400 block mb-1">Estúdios</span>
-                                                <div className="space-y-1">
+                                                <span className="text-gray-400 block mb-2">Estúdios</span>
+                                                <div className="flex flex-wrap gap-2">
                                                     {movieDetails.production_companies.slice(0, 3).map((company) => (
-                                                        <div key={company.id} className="text-white text-sm">
+                                                        <span
+                                                            key={company.id}
+                                                            className="bg-orange-900/40 text-orange-200 px-3 py-1 rounded-full text-sm font-medium border border-orange-700/30 shadow-sm"
+                                                        >
                                                             {company.name}
-                                                        </div>
+                                                        </span>
                                                     ))}
                                                 </div>
                                             </div>
                                         )}
-
                                         {movieDetails.production_countries && movieDetails.production_countries.length > 0 && (
                                             <div>
-                                                <span className="text-gray-400 block mb-1">Países</span>
+                                                <span className="text-gray-400 block mb-2">Países</span>
                                                 <div className="flex flex-wrap gap-2">
                                                     {movieDetails.production_countries.map((country) => (
-                                                        <span key={country.iso_3166_1} className="text-white text-sm bg-gray-800 px-2 py-1 rounded">
+                                                        <span
+                                                            key={country.iso_3166_1}
+                                                            className="bg-red-900/40 text-red-200 px-3 py-1 rounded-full text-sm font-medium border border-red-700/30 shadow-sm"
+                                                        >
                                                             {country.name}
                                                         </span>
                                                     ))}
@@ -404,31 +416,26 @@ export default function MoviePage() {
                     </section>
 
                     <section>
-                        <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-                            <div className="w-1 h-8 bg-gradient-to-b from-pink-500 to-purple-500 rounded-full"></div>
-                            Avaliações da Comunidade
-                            <span className="text-lg text-gray-400 font-normal">({usersFeedback.length})</span>
-                        </h2>
 
                         {/* Write Review Section */}
-                        <div className="bg-gradient-to-r from-blue-900/50 to-purple-900/50 rounded-2xl p-6 border border-blue-800/30 mb-8">
-                            <h3 className="text-xl font-bold mb-4 text-center">Compartilhe sua opinião</h3>
+                        <div className="bg-gradient-to-r from-blue-900/50 to-purple-900/50 rounded-2xl p-4 md:p-6 border border-blue-800/30 mb-8">
+                            <h3 className="text-lg md:text-xl font-bold mb-4 text-center">Compartilhe sua opinião</h3>
                             <div className="flex flex-col items-center gap-4">
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-1 md:gap-3 flex-wrap justify-center w-full">
                                     <span className="text-gray-300">Sua avaliação:</span>
                                     <StarRating userId={userData.id} />
                                 </div>
 
                                 <textarea
                                     placeholder="Escreva sua crítica aqui... O que você achou do filme?"
-                                    className="w-full h-24 bg-gray-900/70 border border-gray-700 rounded-lg p-4 text-white placeholder-gray-400 resize-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                                    className="w-full h-24 bg-gray-900/70 border border-gray-700 rounded-lg p-3 md:p-4 text-white placeholder-gray-400 resize-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
                                     value={review}
                                     onChange={(e) => setReview(e.currentTarget.value)}
                                 />
 
-                                <div className="flex items-center gap-3">
+                                <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 w-full md:justify-end">
                                     <Button
-                                        className="text-white flex items-center gap-2 bg-purple-600 hover:bg-purple-700 px-6 py-2 rounded-lg transition-colors font-medium"
+                                        className="w-full md:w-auto text-white flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 px-4 md:px-6 py-2 rounded-lg transition-colors font-medium"
                                         onClick={async () => {
                                             if (!!feedback) {
                                                 await updateFeedback(feedback.id, { ...feedback, review: review.trim() });
@@ -444,92 +451,90 @@ export default function MoviePage() {
                                                 setUsersFeedback([...usersFeedback, response.data]);
                                             }
                                             setReview("")
-
                                         }}
                                     >
                                         <MessageCircle className="w-4 h-4" />
                                         Publicar Avaliação
                                     </Button>
-                                    <Button className="text-white flex items-center gap-2 bg-gray-900/70 hover:bg-gray-800 px-4 py-2 rounded-lg transition-colors">
+                                    {/* <Button className="w-full md:w-auto text-white flex items-center justify-center gap-2 bg-gray-900/70 hover:bg-gray-800 px-4 py-2 rounded-lg transition-colors">
                                         <Play className="w-4 h-4" />
                                         Assistir ao trailer
-                                    </Button>
+                                    </Button> */}
                                 </div>
                             </div>
                         </div>
 
+                        <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
+                            <div className="w-1 h-8 bg-gradient-to-b from-pink-500 to-purple-500 rounded-full"></div>
+                            Avaliações da Comunidade
+                            <span className="text-lg text-gray-400 font-normal">({usersFeedback.length})</span>
+                        </h2>
+                        
                         {/* Reviews List */}
                         <div className="space-y-6">
                             {usersFeedback.slice(0, showFullReviews ? usersFeedback.length : 10).map((review) => (
-                                <div key={review.id} className="bg-gray-900/40 backdrop-blur-sm rounded-xl p-6 border border-gray-800/50 hover:border-gray-700/80 transition-all group">
-                                    {/* User Info Header */}
-                                    <div className="flex items-start gap-4 mb-4">
-                                        <div className="relative">
-                                            <Avatar className="w-24 h-24 border-2 border-primary/30" onClick={() => navigate(ROUTES.profile(review.username))}>
-                                                <AvatarImage src={review.profilePicture || ""} />
-                                                <AvatarFallback className="bg-primary/20 text-primary text-xl font-semibold">
-                                                    {review.username ? getInitials(review.username) : <User />}
-                                                </AvatarFallback>
-                                            </Avatar>
-                                        </div>
-
-                                        <div className="flex-1">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <div onClick={() => navigate(ROUTES.profile(review.username))}>
-                                                    <h4 className="text-lg font-semibold text-white group-hover:text-purple-300 transition-colors">
-                                                        {review.username}
-                                                    </h4>
-                                                    <div className="flex items-center gap-3 text-sm text-gray-400">
-                                                        <span>{new Date(review.updatedAt).toLocaleDateString("pt-BR")}</span>
-                                                        <div className="flex items-center gap-1">
-                                                            <StarRating userId={review.userId} disabled={review.userId !== userData.id} />
-                                                        </div>
-                                                    </div>
+                                <div
+                                    key={review.id}
+                                    className="bg-gray-900/40 backdrop-blur-sm rounded-xl p-4 md:p-6 border border-gray-800/50 hover:border-gray-700/80 transition-all group flex flex-col gap-4"
+                                >
+                                    {/* Avatar & User Info */}
+                                    <div className="flex items-center gap-3 md:gap-4 mb-3 md:mb-0">
+                                        <Avatar
+                                            className="w-14 h-14 md:w-24 md:h-24 border-2 border-primary/30"
+                                            onClick={() => navigate(ROUTES.profile(review.username), { state: { userId: review.userId } })}
+                                        >
+                                            <AvatarImage src={review.profilePicture || ""} />
+                                            <AvatarFallback className="bg-primary/20 text-primary text-lg md:text-xl font-semibold">
+                                                {review.username ? getInitials(review.username) : <User />}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                        <div>
+                                            <h4
+                                                onClick={() => navigate(ROUTES.profile(review.username), { state: { userId: review.userId } })}
+                                                className="cursor-pointer text-base md:text-lg font-semibold text-white group-hover:text-purple-300 transition-colors"
+                                            >
+                                                {review.username}
+                                            </h4>
+                                            <div className="flex items-center gap-2 text-xs md:text-sm text-gray-400">
+                                                <span>{new Date(review.updatedAt).toLocaleDateString("pt-BR")}</span>
+                                                <div className="flex items-center">
+                                                    <StarRating userId={review.userId} disabled={review.userId !== userData.id} />
                                                 </div>
                                             </div>
+                                        </div>
+                                    </div>
 
-                                            {/* Review Text */}
-                                            {review.review && review.review.trim() && (
-                                                <div className="mb-4">
-                                                    <p className="text-gray-300 leading-relaxed text-base">
-                                                        {review.review}
-                                                    </p>
-                                                </div>
-                                            )}
+                                    {/* Review Content */}
+                                    <div className="flex-1 flex flex-col gap-2">
+                                        {review.review && review.review.trim() && (
+                                            <p className="text-gray-300 leading-relaxed text-sm md:text-base mb-2">
+                                                {review.review}
+                                            </p>
+                                        )}
 
-                                            {/* Review Actions */}
-                                            <div className="flex items-center gap-4">
-                                                <button className="flex items-center gap-2 text-gray-400 hover:text-green-400 transition-colors group/like">
-                                                    <ThumbsUp className="w-4 h-4 group-hover/like:scale-110 transition-transform" />
-                                                    <span className="text-sm">Útil</span>
-                                                    <span className="text-xs bg-gray-800 px-2 py-1 rounded-full">12</span>
-                                                </button>
-
-                                                <button className="flex items-center gap-2 text-gray-400 hover:text-blue-400 transition-colors group/reply">
-                                                    <MessageCircle className="w-4 h-4 group-hover/reply:scale-110 transition-transform" />
-                                                    <span className="text-sm">Responder</span>
-                                                </button>
-
-                                                <div className="flex-1"></div>
-
-                                                {/* Review Quality Indicator */}
-                                                <div className="flex items-center gap-1">
-                                                    {review.review && review.review.length > 100 && (
-                                                        <span className="text-xs bg-purple-600/20 text-purple-300 px-2 py-1 rounded-full border border-purple-600/30">
-                                                            Crítica Detalhada
-                                                        </span>
-                                                    )}
-                                                    {review.rating === 5 && (
-                                                        <span className="text-xs bg-yellow-600/20 text-yellow-300 px-2 py-1 rounded-full border border-yellow-600/30">
-                                                            ⭐ Obra-prima
-                                                        </span>
-                                                    )}
-                                                    {review.rating === 1 && (
-                                                        <span className="text-xs bg-red-600/20 text-red-300 px-2 py-1 rounded-full border border-red-600/30">
-                                                            👎 Decepção
-                                                        </span>
-                                                    )}
-                                                </div>
+                                        {/* Actions & Indicators */}
+                                        <div className="flex items-center gap-3 flex-wrap">
+                                            {/* <button className="flex items-center gap-1 text-gray-400 hover:text-green-400 transition-colors group/like text-xs md:text-sm">
+                                                <ThumbsUp className="w-4 h-4 group-hover/like:scale-110 transition-transform" />
+                                                <span>Útil</span>
+                                                <span className="bg-gray-800 px-2 py-1 rounded-full text-xs">12</span>
+                                            </button> */}
+                                            <div className="flex items-center gap-1">
+                                                {review.review && review.review.length > 100 && (
+                                                    <span className="text-xs bg-purple-600/20 text-purple-300 px-2 py-1 rounded-full border border-purple-600/30">
+                                                        Crítica Detalhada
+                                                    </span>
+                                                )}
+                                                {review.rating === 5 && (
+                                                    <span className="text-xs bg-yellow-600/20 text-yellow-300 px-2 py-1 rounded-full border border-yellow-600/30">
+                                                        ⭐ Obra-prima
+                                                    </span>
+                                                )}
+                                                {review.rating === 1 && (
+                                                    <span className="text-xs bg-red-600/20 text-red-300 px-2 py-1 rounded-full border border-red-600/30">
+                                                        👎 Decepção
+                                                    </span>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
