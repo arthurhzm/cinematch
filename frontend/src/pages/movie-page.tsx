@@ -123,6 +123,26 @@ export default function MoviePage() {
         )
     }
 
+    const StarRatingStatic = ({ rating }: { rating: number }) => (
+        <div className="flex items-center gap-1">
+            {[1, 2, 3, 4, 5].map((star) => (
+                <span key={star} className="relative">
+                    <Star
+                        className={`w-6 h-6 ${rating >= star ? "text-yellow-400" : rating >= star - 0.5 ? "text-yellow-400" : "text-gray-400"}`}
+                        fill={rating >= star ? "currentColor" : "none"}
+                    />
+                    {rating >= star - 0.5 && rating < star && (
+                        <Star
+                            className="w-6 h-6 text-yellow-400 absolute top-0 left-0"
+                            fill="currentColor"
+                            style={{ clipPath: "inset(0 50% 0 0)" }}
+                        />
+                    )}
+                </span>
+            ))}
+        </div>
+    );
+
     if (!movieDetails || !userData) {
         return (
             <AppLayout>
@@ -502,7 +522,7 @@ export default function MoviePage() {
                                             <div className="flex items-center gap-2 text-xs md:text-sm text-gray-400">
                                                 <span>{new Date(review.updatedAt).toLocaleDateString("pt-BR")}</span>
                                                 <div className="flex items-center">
-                                                    <StarRating userId={review.userId} disabled={review.userId !== userData.id} />
+                                                    <StarRatingStatic rating={review.rating} />
                                                 </div>
                                             </div>
                                         </div>
