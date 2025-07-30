@@ -32,12 +32,14 @@ export default function MoviePage() {
     useEffect(() => {
         if (!movieTitle || !userData) return;
         const fetchData = async () => {
-            const movies = await getMovieByTitle(movieTitle.split(" ")[0]);
+            const movies = await getMovieByTitle(movieTitle);
             const movie = movies.results.find((movie: TMDBMovie) => movie.original_title.toLowerCase() === movieTitle.toLowerCase());
             if (!movie) return;
             const details: TMDBMovieDetails = await getMovieDetails(movie.id);
             const backdropUrl = details.backdrop_path ? `https://image.tmdb.org/t/p/original${details.backdrop_path}` : null;
             const posterUrl = details.poster_path ? `https://image.tmdb.org/t/p/w500${details.poster_path}` : null;
+            console.log(details);
+            
             setMovieDetails({ ...details, backdropUrl, posterUrl });
             const feedback: UserMovieFeedback = (await getUserFeedback(userData.id, details.title)).data[0] || null;
 
