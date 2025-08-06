@@ -36,6 +36,7 @@ export default function HomePage() {
             setSpecialRecommendations(special);
             setLoading(false);
             getFriendsMoviesFeedback(userData.id).then(async (feedback) => {
+                if(!feedback) return;
                 const moviePromises = feedback.data.map(async (item: FriendsMovieFeedback) => {
                     const movieData = await getMovieByTitle(item.movieTitle);
                     const movie = movieData.results[0];
