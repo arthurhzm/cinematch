@@ -14,15 +14,19 @@ const Typeahead = forwardRef<HTMLInputElement, TypeaheadProps>(
         const [inputValue, setInputValue] = useState('');
         const [filteredResults, setFilteredResults] = useState<any[]>([]);
         const [showResults, setShowResults] = useState(false);
+        const [loading, setLoading] = useState(false);
 
         useEffect(() => {
             if (inputValue.length >= 3) {
+                setLoading(true);
                 const results = search.filter(item =>
                     item.name?.toLowerCase().includes(inputValue.toLowerCase())
                 );
                 setFilteredResults(results);
-                setShowResults(results.length > 0);
+                setShowResults(true);
+                setLoading(false);
             } else {
+                setLoading(false);
                 setFilteredResults([]);
                 setShowResults(false);
             }
@@ -44,25 +48,33 @@ const Typeahead = forwardRef<HTMLInputElement, TypeaheadProps>(
 
                     {showResults && (
                         <ul className="absolute z-50 w-full mt-1 bg-background border border-border rounded-md shadow-lg max-h-60 overflow-auto">
-                            {filteredResults.map((item, index) => (
-                                <li
-                                    key={index}
-                                    className="px-3 py-2 hover:bg-muted cursor-pointer text-foreground"
-                                    onClick={() => {
-                                        if (!selectedItems.includes(item)) {
-                                            onSelectionChange?.([...selectedItems, item]);
-                                        } else {
-                                            onSelectionChange?.(selectedItems.filter(i => i !== item));
-                                        }
-                                        setInputValue('');
-                                        setShowResults(false);
-                                    }}
-                                >
-                                    {item.name}
-                                </li>
-                            ))}
+                            {filteredResults.length === 0 ? (
+                                <li className="px-3 py-2 text-muted-foreground">Nenhum resultado encontrado</li>
+                            ) : (
+                                filteredResults.map((item, index) => (
+                                    <li
+                                        key={index}
+                                        className="px-3 py-2 hover:bg-muted cursor-pointer text-foreground"
+                                        onClick={() => {
+                                            if (!selectedItems.includes(item)) {
+                                                onSelectionChange?.([...selectedItems, item]);
+                                            } else {
+                                                onSelectionChange?.(selectedItems.filter(i => i !== item));
+                                            }
+                                            setInputValue('');
+                                            setShowResults(false);
+                                        }}
+                                    >
+                                        {item.name}
+                                    </li>
+                                ))
+
+                            )}
+
                         </ul>
                     )}
+
+                    {loading && <div className="absolute z-50 w-full mt-1 bg-background border border-border rounded-md shadow-lg max-h-60 overflow-auto">Carregando...</div>}
                 </div>
             </div>
         );

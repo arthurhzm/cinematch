@@ -142,6 +142,12 @@
   backdrop-filter: blur(10px);
 }
 
+.aside-cinema-card {
+  background: linear-gradient(145deg, #1a1a1a, #0f0f0f);
+  border: 0px 0px 0px 1px solid rgba(212, 175, 55, 0.2);
+  backdrop-filter: blur(10px);
+}
+
 .film-strip::before {
   content: '';
   position: absolute;

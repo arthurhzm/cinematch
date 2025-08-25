@@ -1,4 +1,4 @@
-// filepath: c:\www\src\cinematch\frontend\src\hooks\use-auth-check.ts
+
 import { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 

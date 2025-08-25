@@ -80,7 +80,7 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
   return (
     <div className="min-h-screen cinema-gradient md:flex">
       {/* Sidebar Desktop - hidden on mobile */}
-      <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:h-screen lg:fixed lg:top-0 lg:left-0 cinema-card border-r border-primary/20 backdrop-blur-lg overflow-hidden">
+      <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:h-screen lg:fixed lg:top-0 lg:left-0 aside-cinema-card border-r border-primary/20 backdrop-blur-lg overflow-hidden">
         <div className="flex flex-col h-full">
           {/* Logo - fixed at top */}
           <div className="p-6 flex-shrink-0">
@@ -229,7 +229,7 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
         </header>
 
         {/* Desktop Top Bar */}
-        <header className="hidden lg:flex sticky top-0 z-50 cinema-card border-b border-primary/20 backdrop-blur-lg">
+        <header className="hidden lg:flex sticky top-0 z-50 aside-cinema-card border-b border-primary/20 backdrop-blur-lg">
           <div className="flex-1 px-6 h-16 flex items-center">
             {/* Search bar - desktop - full width */}
             <div className="w-full">

@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAuth } from "@/contexts/AuthContext";
 import useAI from "@/hooks/use-ai";
+import { getInitials } from "@/lib/utils";
 import type { Message } from "@/utils/types";
 import { Bot, Film, Send, Sparkles, User } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -13,7 +14,7 @@ import { useEffect, useRef, useState } from "react";
 // Layout específico para chat que quebra o container do AppLayout
 const ChatLayout = ({ children }: { children: React.ReactNode }) => {
     return (
-        <div className="absolute inset-0">
+        <div className="absolute inset-0 md:relative">
             {children}
         </div>
     );
@@ -121,9 +122,9 @@ export default function ChatPage() {
                         : "cinema-card"
                     }
                 `}>
-                    <CardContent className="px-3 py-2">
+                    <CardContent className="px-3 py-0.5">
                         {message.sender === "ai" ? (
-                            <div 
+                            <div
                                 className="text-sm leading-relaxed [&>p]:mb-2 [&>ul]:mb-2 [&>ul]:ml-4 [&>li]:mb-1 [&>strong]:font-semibold [&>em]:italic [&>a]:text-primary [&>a]:underline [&>a]:hover:text-primary/80 [&>a]:transition-colors"
                                 dangerouslySetInnerHTML={{ __html: message.text }}
                             />
@@ -141,10 +142,10 @@ export default function ChatPage() {
             </div>
 
             {message.sender === "user" && (
-                <Avatar className="w-7 h-7 border border-primary/30 flex-shrink-0">
-                    <AvatarImage src={userData?.profilePicture || undefined} />
-                    <AvatarFallback className="bg-secondary">
-                        <User className="w-3 h-3" />
+                <Avatar className="w-7 h-7 border-2 border-primary/30">
+                    <AvatarImage src={userData?.profilePicture || ""} />
+                    <AvatarFallback className="bg-primary/20 text-primary text-md font-semibold">
+                        {userData ? getInitials(userData?.username) : <User />}
                     </AvatarFallback>
                 </Avatar>
             )}
@@ -178,7 +179,7 @@ export default function ChatPage() {
             <ChatLayout>
                 <div className="flex flex-col h-screen">
                     {/* Área de mensagens - ocupa o espaço disponível */}
-                    <div className="flex-1 overflow-hidden pt-16 pb-24 md:pb-4">
+                    <div className="flex-1 overflow-hidden pt-16 pb-24">
                         {messages.length === 0 ? (
                             renderWelcomeScreen()
                         ) : (
@@ -193,7 +194,7 @@ export default function ChatPage() {
                     </div>
 
                     {/* Input fixo - fica acima da navbar */}
-                    <div className="fixed bottom-15 md:bottom-0 left-0 right-0 border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 p-4">
+                    <div className="fixed bottom-15 md:bottom-0 left-0 md:left-63.5 right-0 border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 p-4">
                         <div className="flex w-full items-end gap-2 max-w-screen-xl mx-auto">
                             <div className="flex-1">
                                 <InputText

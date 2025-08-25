@@ -36,6 +36,7 @@ export default function HomePage() {
             setSpecialRecommendations(special);
             setLoading(false);
             getFriendsMoviesFeedback(userData.id).then(async (feedback) => {
+                if (!feedback) return;
                 const moviePromises = feedback.data.map(async (item: FriendsMovieFeedback) => {
                     const movieData = await getMovieByTitle(item.movieTitle);
                     const movie = movieData.results[0];
@@ -112,7 +113,7 @@ export default function HomePage() {
                     <div className="mt-6">
                         <p className="text-muted-foreground">Filmes recomendados com base nos seus gostos</p>
                         <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide min-w-0 w-full max-w-full">
-                            {recommendations.map((movie) => (<MoviePoster movie={movie} key={movie.title} />))}
+                            {recommendations.map((movie, index) => (<MoviePoster movie={movie} key={index} />))}
                         </div>
                     </div>
                 )}
@@ -122,7 +123,7 @@ export default function HomePage() {
                     <div className="mt-6">
                         <p className="text-muted-foreground">Recomendações especiais para hoje</p>
                         <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide min-w-0 w-full max-w-full">
-                            {specialRecommendations.map((movie) => (<MoviePoster movie={movie} key={movie.title} />))}
+                            {specialRecommendations.map((movie, index) => (<MoviePoster movie={movie} key={index} />))}
                         </div>
                     </div>
                 )}
