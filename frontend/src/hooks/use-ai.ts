@@ -6,6 +6,7 @@ import useFeedback from "./use-feedback";
 import usePreferences from "./use-preferences";
 import useRecommendation from "./use-recommendation";
 import useTMDB from "./use-tmdb";
+import { useMemo } from "react";
 interface CacheEntry {
     data: AIRecommendations[];
     timestamp: number;
@@ -73,7 +74,7 @@ const useAI = () => {
         return cleanedCache;
     };
 
-    const generateMovieRecommendations = async (special: boolean = false, useCache: boolean = true): Promise<AIRecommendations[]> => {
+    const generateMovieRecommendations = useMemo(() => async (special: boolean = false, useCache: boolean = true): Promise<AIRecommendations[]> => {
         const cacheKey = await generateCacheKey(special);
         const cache = getCache();
         const cleanedCache = cleanExpiredCache(cache);
@@ -112,7 +113,7 @@ const useAI = () => {
         }
 
         return recommendationsWithPosters;
-    }
+    }, [ai, getUserPreferences, getUserFeedback, getUserRecommendationsFeedback, getMovieByTitle, userData]);
 
     const generateBasePrompt = async () => {
         if (!userData) return ``;

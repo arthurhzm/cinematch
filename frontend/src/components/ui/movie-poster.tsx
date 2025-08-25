@@ -1,10 +1,10 @@
 import type { AIRecommendations } from "@/utils/types";
-import { useState } from "react";
+import { memo, useState } from "react";
 import MovieDetailedInfo from "./movie-detailed-info";
 import { Film } from "lucide-react";
 import { createPortal } from "react-dom";
 
-export default function MoviePoster({ movie, userId }: { movie: AIRecommendations, userId?: number }) {
+const MoviePoster = memo(({ movie, userId }: { movie: AIRecommendations, userId?: number }) => {
 
     const [open, setOpen] = useState(false);
     const [imageError, setImageError] = useState(false);
@@ -51,4 +51,6 @@ export default function MoviePoster({ movie, userId }: { movie: AIRecommendation
             )}
         </>
     );
-}
+});
+
+export default MoviePoster;

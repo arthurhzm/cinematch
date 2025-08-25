@@ -31,6 +31,7 @@ export default function HomePage() {
                 generateMovieRecommendations(false),
                 generateMovieRecommendations(true, false)
             ]);
+
             console.log(recommendations);
             setRecommendations(recommendations);
             setSpecialRecommendations(special);

@@ -4,7 +4,7 @@ import useUser from '@/hooks/use-user';
 import { getInitials } from '@/lib/utils';
 import { ROUTES } from '@/utils/routes';
 import { DoorOpen, Film, Heart, Home, Lightbulb, MessageSquare, Search, Settings, User } from 'lucide-react';
-import type { ReactNode } from 'react';
+import { memo, useCallback, type ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
@@ -16,7 +16,7 @@ interface AppLayoutProps {
   title?: string;
 }
 
-export default function AppLayout({ children, title }: AppLayoutProps) {
+const AppLayout = memo(({ children, title }: AppLayoutProps) => {
 
   const { logoutUser } = useUser();
   const { userData, logout } = useAuth();
@@ -29,19 +29,18 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
     return location.pathname.includes(path);
   };
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     try {
       await logoutUser();
       logout();
     } catch (error) {
-      // Se falhar, limpar localmente mesmo assim
       logout();
     } finally {
       navigate('/login');
     }
-  };
+  }, [logoutUser, logout, navigate]);
 
-  // Loading state enquanto userData não está disponível
+
   if (!userData) {
     return (
       <div className="min-h-screen cinema-gradient flex items-center justify-center">
@@ -289,4 +288,7 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
       <div className="h-20 md:hidden"></div>
     </div>
   );
-}
+});
+
+
+export default AppLayout;
