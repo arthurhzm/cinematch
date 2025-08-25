@@ -1,23 +1,15 @@
+import { Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import PageLoadingSkeleton from './components/page-loading-skeleton.tsx'
 import AppRoute from './components/Route.tsx'
 import { AuthProvider } from './contexts/AuthContext.tsx'
 import { ToastProvider } from './contexts/ToastContext.tsx'
 import './index.css'
-import AddPreferencesPage from './pages/add-preferences-page.tsx'
-import ChatPage from './pages/chat-page.tsx'
-import DiscoveryPage from './pages/discovery-page.tsx'
-import FollowersPage from './pages/followers-page.tsx'
 import ForgotPasswordPage from './pages/forgot-password-page.tsx'
-import HomePage from './pages/home-page.tsx'
 import LoginPage from './pages/login-page.tsx'
-import MoviePage from './pages/movie-page.tsx'
-import ProfilePage from './pages/profile-page.tsx'
-import RecommendationsPage from './pages/recommendations-page.tsx'
 import RegisterPage from './pages/register-page.tsx'
-import RoulettePage from './pages/roulette-page.tsx'
-import SearchPage from './pages/search-page.tsx'
-import SettingsPage from './pages/settings-page.tsx'
+import * as LazyComponents from './utils/lazy-components.ts'
 import { ROUTES } from './utils/routes.ts'
 
 createRoot(document.getElementById('root')!).render(
@@ -31,23 +23,102 @@ createRoot(document.getElementById('root')!).render(
             <Route path={ROUTES.register} element={<RegisterPage />} />
             <Route path={ROUTES.forgotPassword} element={<ForgotPasswordPage />} />
           </Route>
-          
+
           {/* Rotas protegidas */}
           <Route element={<AppRoute isPrivate={true} />} >
-            <Route path={ROUTES.home} element={<HomePage />} />
-            <Route path={ROUTES.addPreferences} element={<AddPreferencesPage />} />
-            <Route path={ROUTES.profile(':username')} element={<ProfilePage />} />
-            <Route path={ROUTES.followers(':username')} element={<FollowersPage />} />
-            <Route path={ROUTES.following(':username')} element={<FollowersPage />} />
-            <Route path={ROUTES.search} element={<SearchPage />} />
-            <Route path={ROUTES.chat} element={<ChatPage />} />
-            <Route path={ROUTES.discovery} element={<DiscoveryPage />} />
-            <Route path={ROUTES.recommendations} element={<RecommendationsPage />} />
-            <Route path={ROUTES.roulette} element={<RoulettePage />} />
-            <Route path={ROUTES.settings} element={<SettingsPage />} />
-            <Route path={ROUTES.movie(':movieTitle')} element={<MoviePage />} />
+
+            <Route path={ROUTES.home} element={
+              <Suspense fallback={<PageLoadingSkeleton />}>
+                <LazyComponents.HomePage />
+              </Suspense>
+            }
+            />
+
+            <Route path={ROUTES.addPreferences} element={
+              <Suspense fallback={<PageLoadingSkeleton />}>
+                <LazyComponents.AddPreferencesPage />
+              </Suspense>
+            }
+            />
+
+            <Route path={ROUTES.profile(':username')} element={
+              <Suspense fallback={<PageLoadingSkeleton />}>
+                <LazyComponents.ProfilePage />
+              </Suspense>
+            }
+            />
+
+            <Route path={ROUTES.followers(':username')} element={
+              <Suspense fallback={<PageLoadingSkeleton />}>
+                <LazyComponents.FollowersPage />
+              </Suspense>
+            }
+            />
+
+            <Route path={ROUTES.following(':username')} element={
+              <Suspense fallback={<PageLoadingSkeleton />}>
+                <LazyComponents.FollowersPage />
+              </Suspense>
+            }
+            />
+
+            <Route path={ROUTES.search} element={
+              <Suspense fallback={<PageLoadingSkeleton />}>
+                <LazyComponents.SearchPage />
+              </Suspense>
+            }
+            />
+
+            <Route path={ROUTES.chat} element={
+              <Suspense fallback={<PageLoadingSkeleton />}>
+                <LazyComponents.ChatPage />
+              </Suspense>
+            }
+            />
+
+            <Route path={ROUTES.discovery} element={
+              <Suspense fallback={<PageLoadingSkeleton />}>
+                <LazyComponents.DiscoveryPage />
+              </Suspense>
+            }
+            />
+
+            <Route path={ROUTES.recommendations} element={
+              <Suspense fallback={<PageLoadingSkeleton />}>
+                <LazyComponents.RecommendationsPage />
+              </Suspense>
+            }
+            />
+
+            <Route path={ROUTES.roulette} element={
+              <Suspense fallback={<PageLoadingSkeleton />}>
+                <LazyComponents.RoulettePage />
+              </Suspense>
+            }
+            />
+
+            <Route path={ROUTES.settings} element={
+              <Suspense fallback={<PageLoadingSkeleton />}>
+                <LazyComponents.SettingsPage />
+              </Suspense>
+            }
+            />
+
+            <Route path={ROUTES.movie(':movieTitle')} element={
+              <Suspense fallback={<PageLoadingSkeleton />}>
+                <LazyComponents.MoviePage />
+              </Suspense>
+            }
+            />
+
             {/* Redirect root to home */}
-            <Route index element={<HomePage />} />
+            <Route index element={
+              <Suspense fallback={<PageLoadingSkeleton />}>
+                <LazyComponents.HomePage />
+              </Suspense>
+            }
+            />
+
           </Route>
         </Routes>
       </BrowserRouter>
