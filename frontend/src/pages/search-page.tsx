@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import UserPreview from "@/components/ui/user-profile-preview";
 import { useToast } from "@/contexts/ToastContext";
 import useAI from "@/hooks/use-ai";
+import useTMDB from "@/hooks/use-tmdb";
 import useUser from "@/hooks/use-user";
 import { ROUTES } from "@/utils/routes";
 import type { AIRecommendations, UserProfilePreview } from "@/utils/types";
@@ -17,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 export default function SearchPage() {
     const { showError } = useToast();
     const { searchMovie } = useAI();
+    const { getMovieByTitle } = useTMDB();
     const { getUsersByUsername } = useUser();
     const navigate = useNavigate();
 
@@ -52,7 +54,22 @@ export default function SearchPage() {
 
         try {
             const results = searchType === "movies"
-                ? await searchMovie(searchTerm)
+                ? [
+                    ...(await getMovieByTitle(searchTerm)).results.map((movie: any) => ({
+                        title: movie.title,
+                        year: movie.release_date ? Number(movie.release_date.slice(0, 4)) : undefined,
+                        genres: movie.genre_ids ? movie.genre_ids.map((id: number) => id.toString()) : [],
+                        overview: movie.overview,
+                        streaming_services: [],
+                        original_title: movie.original_title,
+                        poster_url: movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : undefined,
+                        searched: 'TMDB'
+                    })),
+                    ...(await searchMovie(searchTerm)).map((movie) => ({
+                        ...movie,
+                        searched: 'AI'
+                    }))
+                ]
                 : await getUsersByUsername(searchTerm);
 
             setSearchResults(searchType === "movies" ? results : (results as AxiosResponse).data || results);
@@ -150,7 +167,7 @@ export default function SearchPage() {
     };
 
     return (
-        <AppLayout>
+        <AppLayout showSearchBar={false}>
             <div className="space-y-4">
                 {/* Search Input */}
                 <div className="relative">
@@ -207,49 +224,114 @@ export default function SearchPage() {
                     </h2>
                     <ul className="space-y-2">
                         {searchType === "movies" ? (
-                            (searchResults as AIRecommendations[]).map((result, index) => (
-                                <li key={index} className="mb-4" onClick={() => navigate(ROUTES.movie(result.original_title!))}>
-                                    <div className="cinema-card p-4 hover:border-primary/40 transition-all cursor-pointer">
-                                        <div className="flex gap-4">
-                                            <div className="flex-shrink-0">
-                                                {!!result.poster_url ? (
-                                                    <img
-                                                        src={result.poster_url || "/placeholder-poster.png"}
-                                                        alt={`Poster de ${result.original_title}`}
-                                                        className="w-24 h-36 object-cover rounded-md"
-                                                    />
-                                                ) : (
-                                                    <div className="w-24 h-36 bg-gradient-to-b from-gray-800 to-gray-900 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer flex flex-col items-center justify-center text-gray-300 border border-gray-700">
-                                                        <Film size={48} className="mb-4 text-gray-400" />
-                                                        <div className="text-center px-4">
-                                                            <p className="text-sm font-medium text-gray-300 mb-1">{result.title}</p>
-                                                            <p className="text-xs text-gray-500">({result.year})</p>
+                            <>
+                                {/* Resultados do TMDB */}
+                                {(searchResults as AIRecommendations[])
+                                    .filter(result => result.searched === "TMDB")
+                                    .length > 0 && (
+                                        <>
+                                            {(searchResults as AIRecommendations[])
+                                                .filter(result => result.searched === "TMDB")
+                                                .map((result, index) => (
+                                                    <li key={`tmdb-${index}`} className="mb-4" onClick={() => navigate(ROUTES.movie(result.original_title!))}>
+                                                        <div className="cinema-card p-4 hover:border-primary/40 transition-all cursor-pointer">
+                                                            <div className="flex gap-4">
+                                                                <div className="flex-shrink-0">
+                                                                    {!!result.poster_url ? (
+                                                                        <img
+                                                                            src={result.poster_url || "/placeholder-poster.png"}
+                                                                            alt={`Poster de ${result.original_title}`}
+                                                                            className="w-24 h-36 object-cover rounded-md"
+                                                                        />
+                                                                    ) : (
+                                                                        <div className="w-24 h-36 bg-gradient-to-b from-gray-800 to-gray-900 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer flex flex-col items-center justify-center text-gray-300 border border-gray-700">
+                                                                            <Film size={48} className="mb-4 text-gray-400" />
+                                                                            <div className="text-center px-4">
+                                                                                <p className="text-sm font-medium text-gray-300 mb-1">{result.title}</p>
+                                                                                <p className="text-xs text-gray-500">({result.year})</p>
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                                <div className="flex-1 min-w-0">
+                                                                    <h3 className="font-bold text-lg text-foreground mb-1">
+                                                                        {result.title} ({result.year})
+                                                                        <br />
+                                                                        <small className="text-muted-foreground">{result.original_title}</small>
+                                                                    </h3>
+                                                                    <div className="flex flex-wrap gap-1">
+                                                                        {result.genres?.map((genre, genreIndex) => (
+                                                                            <Badge
+                                                                                key={genreIndex}
+                                                                                variant="secondary"
+                                                                                className="text-xs"
+                                                                            >
+                                                                                {genre}
+                                                                            </Badge>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <h3 className="font-bold text-lg text-foreground mb-1">
-                                                    {result.title} ({result.year})
-                                                    <br />
-                                                    <small className="text-muted-foreground">{result.original_title}</small>
-                                                </h3>
-                                                <div className="flex flex-wrap gap-1">
-                                                    {result.genres?.map((genre, genreIndex) => (
-                                                        <Badge
-                                                            key={genreIndex}
-                                                            variant="secondary"
-                                                            className="text-xs"
-                                                        >
-                                                            {genre}
-                                                        </Badge>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                            ))
+                                                    </li>
+                                                ))}
+                                        </>
+                                    )}
+
+                                {/* Resultados da IA */}
+                                {(searchResults as AIRecommendations[])
+                                    .filter(result => result.searched === "AI")
+                                    .length > 0 && (
+                                        <>
+                                            <h3 className="text-base font-semibold mt-6 mb-2">Relacionados à pesquisa</h3>
+                                            {(searchResults as AIRecommendations[])
+                                                .filter(result => result.searched === "AI")
+                                                .map((result, index) => (
+                                                    <li key={`ai-${index}`} className="mb-4" onClick={() => navigate(ROUTES.movie(result.original_title!))}>
+                                                        <div className="cinema-card p-4 hover:border-primary/40 transition-all cursor-pointer">
+                                                            <div className="flex gap-4">
+                                                                <div className="flex-shrink-0">
+                                                                    {!!result.poster_url ? (
+                                                                        <img
+                                                                            src={result.poster_url || "/placeholder-poster.png"}
+                                                                            alt={`Poster de ${result.original_title}`}
+                                                                            className="w-24 h-36 object-cover rounded-md"
+                                                                        />
+                                                                    ) : (
+                                                                        <div className="w-24 h-36 bg-gradient-to-b from-gray-800 to-gray-900 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer flex flex-col items-center justify-center text-gray-300 border border-gray-700">
+                                                                            <Film size={48} className="mb-4 text-gray-400" />
+                                                                            <div className="text-center px-4">
+                                                                                <p className="text-sm font-medium text-gray-300 mb-1">{result.title}</p>
+                                                                                <p className="text-xs text-gray-500">({result.year})</p>
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                                <div className="flex-1 min-w-0">
+                                                                    <h3 className="font-bold text-lg text-foreground mb-1">
+                                                                        {result.title} ({result.year})
+                                                                        <br />
+                                                                        <small className="text-muted-foreground">{result.original_title}</small>
+                                                                    </h3>
+                                                                    <div className="flex flex-wrap gap-1">
+                                                                        {result.genres?.map((genre, genreIndex) => (
+                                                                            <Badge
+                                                                                key={genreIndex}
+                                                                                variant="secondary"
+                                                                                className="text-xs"
+                                                                            >
+                                                                                {genre}
+                                                                            </Badge>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                ))}
+                                        </>
+                                    )}
+                            </>
                         ) : (
                             <div className="space-y-2">
                                 {(searchResults as UserProfilePreview[]).map((user, index) => (

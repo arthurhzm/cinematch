@@ -14,9 +14,10 @@ import Title from './ui/title';
 interface AppLayoutProps {
   children: ReactNode;
   title?: string;
+  showSearchBar?: boolean
 }
 
-const AppLayout = memo(({ children, title }: AppLayoutProps) => {
+const AppLayout = memo(({ children, title, showSearchBar = true }: AppLayoutProps) => {
 
   const { logoutUser } = useUser();
   const { userData, logout } = useAuth();
@@ -229,22 +230,26 @@ const AppLayout = memo(({ children, title }: AppLayoutProps) => {
 
         {/* Desktop Top Bar */}
         <header className="hidden lg:flex sticky top-0 z-50 aside-cinema-card border-b border-primary/20 backdrop-blur-lg">
+
+
           <div className="flex-1 px-6 h-16 flex items-center">
             {/* Search bar - desktop - full width */}
             <div className="w-full">
-              <div className="relative w-full">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Buscar filmes..."
-                  className="w-full pl-10 pr-4 py-2 bg-input border border-border rounded-md focus:border-primary focus:ring-primary/20 transition-all duration-200"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && e.currentTarget.value.trim()) {
-                      navigate(`${ROUTES.search}?query=${encodeURIComponent(e.currentTarget.value)}`);
-                    }
-                  }}
-                />
-              </div>
+              {showSearchBar && (
+                <div className="relative w-full">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <input
+                    type="text"
+                    placeholder="Buscar filmes..."
+                    className="w-full pl-10 pr-4 py-2 bg-input border border-border rounded-md focus:border-primary focus:ring-primary/20 transition-all duration-200"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                        navigate(`${ROUTES.search}?query=${encodeURIComponent(e.currentTarget.value)}`);
+                      }
+                    }}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </header>

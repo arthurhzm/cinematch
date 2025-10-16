@@ -39,6 +39,7 @@ export type AIRecommendations = {
     streaming_services: string[];
     confidence_score?: number;
     perfect_match_reasons?: string[];
+    searched?: 'TMDB' | 'AI'
 }
 
 export type UserProfilePreview = {
