@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import UserPreview from "@/components/ui/user-profile-preview";
 import { useToast } from "@/contexts/ToastContext";
 import useAI from "@/hooks/use-ai";
+import { useLocalStorage } from "@/hooks/use-localstorage";
 import useTMDB from "@/hooks/use-tmdb";
 import useUser from "@/hooks/use-user";
 import { ROUTES } from "@/utils/routes";
@@ -20,6 +21,7 @@ export default function SearchPage() {
     const { searchMovie } = useAI();
     const { getMovieByTitle } = useTMDB();
     const { getUsersByUsername } = useUser();
+    const { getLocalStorageItem, setLocalStorageItem } = useLocalStorage();
     const navigate = useNavigate();
 
     const [searchQuery, setSearchQuery] = useState("");
@@ -32,9 +34,12 @@ export default function SearchPage() {
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const query = urlParams.get('query');
+        setSearchQuery(query || "");
+        const previousSearchResult = getLocalStorageItem('searchResults');
 
-        if (query && query.trim() !== '') {
-            setSearchQuery(query);
+        if (!!previousSearchResult) {
+            setSearchResults(JSON.parse(previousSearchResult));
+        } else if (query && query.trim() !== '') {
             setSearchType("movies");
             performSearch(query);
         }
@@ -73,6 +78,7 @@ export default function SearchPage() {
                 : await getUsersByUsername(searchTerm);
 
             setSearchResults(searchType === "movies" ? results : (results as AxiosResponse).data || results);
+            setLocalStorageItem('searchResults', results);
         } finally {
             setIsLoading(false);
         }
@@ -233,7 +239,9 @@ export default function SearchPage() {
                                             {(searchResults as AIRecommendations[])
                                                 .filter(result => result.searched === "TMDB")
                                                 .map((result, index) => (
-                                                    <li key={`tmdb-${index}`} className="mb-4" onClick={() => navigate(ROUTES.movie(result.original_title!))}>
+                                                    <li key={`tmdb-${index}`} className="mb-4" onClick={() => navigate(ROUTES.movie(result.original_title!), {
+                                                        state: searchQuery
+                                                    })}>
                                                         <div className="cinema-card p-4 hover:border-primary/40 transition-all cursor-pointer">
                                                             <div className="flex gap-4">
                                                                 <div className="flex-shrink-0">
@@ -287,7 +295,9 @@ export default function SearchPage() {
                                             {(searchResults as AIRecommendations[])
                                                 .filter(result => result.searched === "AI")
                                                 .map((result, index) => (
-                                                    <li key={`ai-${index}`} className="mb-4" onClick={() => navigate(ROUTES.movie(result.original_title!))}>
+                                                    <li key={`ai-${index}`} className="mb-4" onClick={() => navigate(ROUTES.movie(result.original_title!), {
+                                                        state: searchQuery
+                                                    })}>
                                                         <div className="cinema-card p-4 hover:border-primary/40 transition-all cursor-pointer">
                                                             <div className="flex gap-4">
                                                                 <div className="flex-shrink-0">

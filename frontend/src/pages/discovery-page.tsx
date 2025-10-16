@@ -231,7 +231,7 @@ export default function DiscoveryPage() {
                 </Card>
 
                 {/* Trending & Special */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="w-full">
                     {/* Em Alta */}
                     <Card className="cinema-card border-orange-500/40 bg-gradient-to-br from-orange-500/10 to-red-500/10">
                         <CardContent className="p-6 text-center">

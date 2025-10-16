@@ -4,12 +4,13 @@ import useUser from '@/hooks/use-user';
 import { getInitials } from '@/lib/utils';
 import { ROUTES } from '@/utils/routes';
 import { DoorOpen, Film, Heart, Home, Lightbulb, MessageSquare, Search, Settings, User } from 'lucide-react';
-import { memo, useCallback, type ReactNode } from 'react';
+import { memo, useCallback, useEffect, type ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
 import PWAInstallPrompt from './ui/pwa-installer-prompt';
 import Title from './ui/title';
+import { useLocalStorage } from '@/hooks/use-localstorage';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -21,8 +22,20 @@ const AppLayout = memo(({ children, title, showSearchBar = true }: AppLayoutProp
 
   const { logoutUser } = useUser();
   const { userData, logout } = useAuth();
+  const { clearLocalStorageItem } = useLocalStorage();
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    console.log(location.pathname);
+
+    if (
+      !/^\/movie\/[^/]+$/.test(location.pathname) &&
+      location.pathname !== ROUTES.search
+    ) {
+      clearLocalStorageItem('searchResults');
+    }
+  }, []);
 
   const isActive = (path: string) => {
     if (path === ROUTES.home && location.pathname === '/') return true;

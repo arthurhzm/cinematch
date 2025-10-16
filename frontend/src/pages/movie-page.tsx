@@ -9,7 +9,7 @@ import { ROUTES } from "@/utils/routes";
 import { type MovieUsersFeedback, type TMDBMovie, type TMDBMovieDetails, type UserMovieFeedback } from "@/utils/types";
 import { ArrowLeft, Calendar, Clock, DollarSign, Eye, Film, MessageCircle, Star, User, Users } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 export default function MoviePage() {
 
@@ -19,6 +19,9 @@ export default function MoviePage() {
     const { getUserFeedback, updateFeedback, submitFeedback, getMovieUsersFeedback } = useFeedback();
     const { userData } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+    console.log(location.state);
+    
 
     const [movieDetails, setMovieDetails] = useState<TMDBMovieDetails>();
     const [isWatched, setIsWatched] = useState(false);
@@ -39,9 +42,9 @@ export default function MoviePage() {
             const backdropUrl = details.backdrop_path ? `https://image.tmdb.org/t/p/original${details.backdrop_path}` : null;
             const posterUrl = details.poster_path ? `https://image.tmdb.org/t/p/w500${details.poster_path}` : null;
             console.log(details);
-            
+
             setMovieDetails({ ...details, backdropUrl, posterUrl });
-            const feedback: UserMovieFeedback = (await getUserFeedback(userData.id, details.title)).data[0] || null;
+            const feedback: UserMovieFeedback = (await getUserFeedback(userData.id, details.title))?.data[0] || null;
 
             setFeedback(feedback);
             setIsWatched(!!feedback);
@@ -182,7 +185,7 @@ export default function MoviePage() {
                         <Button
                             variant={"default"}
                             className="w-10 h-10 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-black/70 transition-colors text-white"
-                            onClick={() => navigate(`/search?query=${movieTitle}`)}
+                            onClick={() => navigate(`/search?query=${location.state}`)}
                         >
                             <ArrowLeft className="w-6 h-6" />
                         </Button>
