@@ -29,7 +29,7 @@ export default function HomePage() {
         getUserPreferences(userData.id).then(async (_) => {
             const [recommendations, special] = await Promise.all([
                 generateMovieRecommendations(false),
-                generateMovieRecommendations(true, false)
+                generateMovieRecommendations(true)
             ]);
 
             console.log(recommendations);

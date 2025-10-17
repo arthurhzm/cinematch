@@ -2,19 +2,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import { AI_MODELS } from "@/utils/ai-models";
 import type { AIRecommendations, Message, UserMovieFeedback, UserPreferences, UserRecommendationsFeedback } from "@/utils/types";
 import { GoogleGenAI } from "@google/genai";
+import { useMemo } from "react";
 import useFeedback from "./use-feedback";
+import { useLocalStorage } from "./use-localstorage";
 import usePreferences from "./use-preferences";
 import useRecommendation from "./use-recommendation";
 import useTMDB from "./use-tmdb";
-import { useMemo } from "react";
-interface CacheEntry {
-    data: AIRecommendations[];
-    timestamp: number;
-    expiresAt: number;
-}
-interface RecommendationCache {
-    [key: string]: CacheEntry;
-}
 
 const useAI = () => {
     const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
@@ -23,71 +16,22 @@ const useAI = () => {
     const { getUserRecommendationsFeedback } = useRecommendation();
     const { getMovieByTitle } = useTMDB();
     const { getUserPreferences } = usePreferences();
+    const { getLocalStorageItem, setLocalStorageItem, clearLocalStorageItem } = useLocalStorage();
 
     const CACHE_DURATION = 10 * 60 * 1000; // 10 minutos
-    const CACHE_KEY = 'cinematch_recommendations_cache';
 
-    const getCache = (): RecommendationCache => {
-        try {
-            const cached = localStorage.getItem(CACHE_KEY);
-            return cached ? JSON.parse(cached) : {};
-        } catch (error) {
-            console.error('Erro ao ler cache:', error);
-            return {};
-        }
-    };
-
-    const setCache = (cache: RecommendationCache) => {
-        try {
-            localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
-        } catch (error) {
-            console.error('Erro ao salvar cache:', error);
-        }
-    };
-
-    const generateCacheKey = async (special: boolean): Promise<string> => {
-        if (!userData) return '';
-        const preferences = (await getUserPreferences(userData?.id)).data as UserPreferences;
-        const key = {
-            genres: preferences.favoriteGenres?.sort(),
-            directors: preferences.favoriteDirectors?.sort(),
-            actors: preferences.favoriteActors?.sort(),
-            minYear: preferences.minReleaseYear,
-            maxDuration: preferences.maxDuration,
-            adultContent: preferences.acceptAdultContent,
-            special,
-            date: special ? new Date().toDateString() : null // Para recomendações especiais, considerar a data
-        };
-        return btoa(JSON.stringify(key));
-    };
-
-    const cleanExpiredCache = (cache: RecommendationCache): RecommendationCache => {
-        const now = Date.now();
-        const cleanedCache: RecommendationCache = {};
-
-        Object.keys(cache).forEach(key => {
-            if (cache[key].expiresAt > now) {
-                cleanedCache[key] = cache[key];
+    const generateMovieRecommendations = useMemo(() => async (special: boolean = false): Promise<AIRecommendations[]> => {
+        const cacheKey = special ? 'specialMovieRecommendations' : 'movieRecommendations';
+        const cache = getLocalStorageItem(cacheKey);
+        if (cache) {
+            const parsedCache = JSON.parse(cache);
+            if (Date.now() < parsedCache.expiration) {
+                return parsedCache.data;
             }
-        });
-
-        return cleanedCache;
-    };
-
-    const generateMovieRecommendations = useMemo(() => async (special: boolean = false, useCache: boolean = true): Promise<AIRecommendations[]> => {
-        const cacheKey = await generateCacheKey(special);
-        const cache = getCache();
-        const cleanedCache = cleanExpiredCache(cache);
-
-        // Salva o cache limpo imediatamente para garantir que o localStorage não mantenha expirados
-        setCache(cleanedCache);
-
-        if (useCache) {
-            if (cleanedCache[cacheKey]) {
-                console.log('Usando recomendações do cache');
-                return cleanedCache[cacheKey].data;
-            }
+            clearLocalStorageItem(cacheKey);
         }
+
+        console.log('Gerando recomendações via IA');
 
         const response = await ai.models.generateContent({
             model: AI_MODELS.GEMINI_2_5_FLASH_LITE,
@@ -98,19 +42,17 @@ const useAI = () => {
             throw new Error("Failed to generate recommendations");
         }
 
-        let jsonText = response.text;
-        const recommendationsWithPosters = await generateRecommendationsResponse(jsonText);
+        const recommendationsWithPosters = await generateRecommendationsResponse(response.text);
 
-        if (useCache) {
-            const now = Date.now();
-            cleanedCache[cacheKey] = {
-                data: recommendationsWithPosters,
-                timestamp: now,
-                expiresAt: now + CACHE_DURATION
-            };
-
-            setCache(cleanedCache);
-        }
+        setLocalStorageItem(
+            cacheKey,
+            {
+                expiration: special
+                    ? new Date(new Date().setHours(23, 59, 59, 999)).getTime()
+                    : Date.now() + CACHE_DURATION,
+                data: recommendationsWithPosters
+            }
+        );
 
         return recommendationsWithPosters;
     }, [ai, getUserPreferences, getUserFeedback, getUserRecommendationsFeedback, getMovieByTitle, userData]);
@@ -433,7 +375,7 @@ const useAI = () => {
         return response.text;
     }
 
-    const generateRecommendationsResponse = async (json: string) => {
+    const generateRecommendationsResponse = async (json: string): Promise<AIRecommendations[]> => {
         let jsonText = json.replace(/^```json\s*/, '').replace(/\s*```$/, '');
         const recommendations: AIRecommendations[] = JSON.parse(jsonText);
         return await Promise.all(

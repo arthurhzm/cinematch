@@ -1,4 +1,4 @@
-export type LocalStorageKey = 'searchResults' | 'rememberMe'
+export type LocalStorageKey = 'searchResults' | 'rememberMe' | 'movieRecommendations' | 'specialMovieRecommendations'
 
 export const useLocalStorage = () => {
 
@@ -14,10 +14,15 @@ export const useLocalStorage = () => {
         localStorage.removeItem(key);
     }
 
+    const clearAllLocalStorage = () => {
+        localStorage.clear();
+    }
+
 
     return {
         getLocalStorageItem,
         setLocalStorageItem,
-        clearLocalStorageItem
+        clearLocalStorageItem,
+        clearAllLocalStorage
     }
 }

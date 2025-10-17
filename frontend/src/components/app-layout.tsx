@@ -22,7 +22,7 @@ const AppLayout = memo(({ children, title, showSearchBar = true }: AppLayoutProp
 
   const { logoutUser } = useUser();
   const { userData, logout } = useAuth();
-  const { clearLocalStorageItem } = useLocalStorage();
+  const { clearLocalStorageItem, clearAllLocalStorage } = useLocalStorage();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -50,7 +50,8 @@ const AppLayout = memo(({ children, title, showSearchBar = true }: AppLayoutProp
     } catch (error) {
       logout();
     } finally {
-      navigate('/login');
+      clearAllLocalStorage();
+      navigate(ROUTES.login);
     }
   }, [logoutUser, logout, navigate]);
 
