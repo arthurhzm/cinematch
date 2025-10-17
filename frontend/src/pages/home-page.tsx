@@ -1,4 +1,5 @@
 import AppLayout from "@/components/app-layout";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import MoviePoster from "@/components/ui/movie-poster";
 import Title from "@/components/ui/title";
@@ -109,6 +110,14 @@ export default function HomePage() {
             <div className="overflow-x-hidden w-full max-w-full">
                 <Title>{getTimeOfTheDay()}, {userData?.username}! </Title>
             </div>
+            <section>
+                <Alert>
+                    <AlertTitle>Atenção</AlertTitle>
+                    <AlertDescription>
+                        As recomendações com base nos seus gostos são atualizadas a cada 10 minutos. Já as recomendações especiais são renovadas diariamente às 23:59.
+                    </AlertDescription>
+                </Alert>
+            </section>
             <section>
                 {recommendations.length > 0 && (
                     <div className="mt-6">
