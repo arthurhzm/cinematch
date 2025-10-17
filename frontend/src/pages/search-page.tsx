@@ -12,7 +12,7 @@ import useUser from "@/hooks/use-user";
 import { ROUTES } from "@/utils/routes";
 import type { AIRecommendations, UserProfilePreview } from "@/utils/types";
 import type { AxiosResponse } from "axios";
-import { Clapperboard, Film, Search, User, UserIcon } from "lucide-react";
+import { Clapperboard, Film, Search, Sparkles, User, UserIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -196,12 +196,12 @@ export default function SearchPage() {
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         onKeyPress={handleKeyPress}
-                        disabled={isLoading}
+                        disabled={isLoading || isAiLoading}
                         className="w-full pl-4 pr-20 py-4 bg-input border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 transition-all duration-200 text-base"
                     />
                     <Button
                         onClick={handleSearch}
-                        disabled={isLoading || searchQuery.length < 3}
+                        disabled={isLoading || isAiLoading || searchQuery.length < 3}
                         className="absolute right-2 top-1/2 -translate-y-1/2 h-12 w-12 rounded-lg bg-primary hover:bg-primary/90 disabled:opacity-50"
                         size="icon"
                     >
@@ -215,7 +215,7 @@ export default function SearchPage() {
                         className={`flex-1 h-12 ${searchType === "movies" ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}
                         variant="outline"
                         onClick={() => handleSearchTypeChange("movies")}
-                        disabled={isLoading}
+                        disabled={isLoading || isAiLoading}
                     >
                         <Clapperboard size={20} className="mr-2" />
                         Filmes
@@ -224,13 +224,20 @@ export default function SearchPage() {
                         className={`flex-1 h-12 ${searchType === "people" ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}
                         variant="outline"
                         onClick={() => handleSearchTypeChange("people")}
-                        disabled={isLoading}
+                        disabled={isLoading || isAiLoading}
                     >
                         <User size={20} className="mr-2" />
                         Pessoas
                     </Button>
                 </div>
             </div>
+
+            {isLoading || isAiLoading && (
+                <div className="mt-8 flex flex-col items-center justify-center">
+                    <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                    <p className="mt-4 text-muted-foreground">Carregando resultados...</p>
+                </div>
+            )}
 
             {/* Results */}
             {!isLoading && searchResults.length > 0 && (
@@ -304,7 +311,10 @@ export default function SearchPage() {
                                     .filter(result => result.searched === "AI")
                                     .length > 0 && (
                                         <>
-                                            <h3 className="text-base font-semibold mt-6 mb-2">Relacionados à pesquisa</h3>
+                                            <h3 className="flex gap-2 text-base font-semibold mt-6 mb-2">
+                                                <Sparkles className="text-purple-600" />
+                                                Relacionados à pesquisa
+                                            </h3>
                                             {(searchResults as AIRecommendations[])
                                                 .filter(result => result.searched === "AI")
                                                 .map((result, index) => (
@@ -370,7 +380,7 @@ export default function SearchPage() {
             )}
 
             {/* No Results */}
-            {!isLoading && searchResults.length === 0 && renderNoResults()}
+            {!isLoading && !isAiLoading && searchResults.length === 0 && renderNoResults()}
 
             {selectedMovie && (
                 <MovieDetailedInfo
