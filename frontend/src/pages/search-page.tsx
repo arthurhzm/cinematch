@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import MovieDetailedInfo from "@/components/ui/movie-detailed-info";
 import { Skeleton } from "@/components/ui/skeleton";
 import UserPreview from "@/components/ui/user-profile-preview";
+import { DEFAULT_SEARCH_QUERY } from "@/constants/default-search";
 import { useToast } from "@/contexts/ToastContext";
 import useAI from "@/hooks/use-ai";
 import { useLocalStorage } from "@/hooks/use-localstorage";
@@ -35,14 +36,20 @@ export default function SearchPage() {
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const query = urlParams.get('query');
-        setSearchQuery(query || "");
-        const previousSearchResult = getLocalStorageItem('searchResults');
 
-        if (!!previousSearchResult) {
-            setSearchResults(JSON.parse(previousSearchResult));
-        } else if (query && query.trim() !== '') {
+        if (query) {
+            setSearchQuery(query || "");
+            const previousSearchResult = getLocalStorageItem('searchResults');
+
+            if (!!previousSearchResult) {
+                setSearchResults(JSON.parse(previousSearchResult));
+            } else if (query && query.trim() !== '') {
+                setSearchType("movies");
+                performSearch(query);
+            }
+        } else {
             setSearchType("movies");
-            performSearch(query);
+            performSearch(DEFAULT_SEARCH_QUERY);
         }
     }, []);
 
@@ -61,6 +68,7 @@ export default function SearchPage() {
 
         try {
             if (searchType === "movies") {
+
                 const results = (await getMovieByTitle(searchTerm)).results.map((movie: any) => ({
                     title: movie.title,
                     year: movie.release_date ? Number(movie.release_date.slice(0, 4)) : 0,
@@ -72,11 +80,16 @@ export default function SearchPage() {
                     searched: 'TMDB' as const
                 })) as AIRecommendations[];
 
-                setSearchResults(results);
-                setIsLoading(false);
+                if (searchTerm !== DEFAULT_SEARCH_QUERY) {
+                    setSearchResults(results);
+                    setIsLoading(false)
+                }
 
 
                 const aiResults = await searchMovie(searchTerm);
+                console.log(DEFAULT_SEARCH_QUERY);
+                console.log(aiResults);
+
                 const combinedResults = [
                     ...results,
                     ...aiResults.map((movie) => ({
@@ -243,7 +256,7 @@ export default function SearchPage() {
             {!isLoading && searchResults.length > 0 && (
                 <div className="mt-4">
                     <h2 className="text-lg font-semibold mb-2">
-                        Resultados da Pesquisa ({searchResults.length})
+                        Filmes encontrados ({searchResults.length})
                     </h2>
                     <ul className="space-y-2">
                         {searchType === "movies" ? (
@@ -311,10 +324,10 @@ export default function SearchPage() {
                                     .filter(result => result.searched === "AI")
                                     .length > 0 && (
                                         <>
-                                            <h3 className="flex gap-2 text-base font-semibold mt-6 mb-2">
+                                            {searchQuery != "" && <h3 className="flex gap-2 text-base font-semibold mt-6 mb-2">
                                                 <Sparkles className="text-purple-600" />
                                                 Relacionados à pesquisa
-                                            </h3>
+                                            </h3>}
                                             {(searchResults as AIRecommendations[])
                                                 .filter(result => result.searched === "AI")
                                                 .map((result, index) => (

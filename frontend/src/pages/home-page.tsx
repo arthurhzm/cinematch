@@ -89,7 +89,7 @@ export default function HomePage() {
                     </div>
                     <div className="text-center space-y-2">
                         <h3 className="text-2xl font-semibold text-foreground">
-                            Carregando...
+                            Carregando recomendações...
                         </h3>
                         <p className="text-muted-foreground max-w-md">
                             Estamos preparando uma experiência cinematográfica única para você
