@@ -135,7 +135,7 @@ export default function SearchPage() {
     const renderLoadingSkeletons = () => {
         return (
             <div className="mt-4">
-                <h2 className="text-lg font-semibold mb-2">Carregando relacionados...</h2>
+                <h2 className="text-lg font-semibold mb-2">Carregando recomendados...</h2>
                 <div className="space-y-4">
                     {[...Array(3)].map((_, index) => (
                         <div key={index} className="cinema-card p-4">
@@ -228,7 +228,6 @@ export default function SearchPage() {
                         className={`flex-1 h-12 ${searchType === "movies" ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}
                         variant="outline"
                         onClick={() => handleSearchTypeChange("movies")}
-                        disabled={isLoading || isAiLoading}
                     >
                         <Clapperboard size={20} className="mr-2" />
                         Filmes
@@ -237,7 +236,6 @@ export default function SearchPage() {
                         className={`flex-1 h-12 ${searchType === "people" ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}
                         variant="outline"
                         onClick={() => handleSearchTypeChange("people")}
-                        disabled={isLoading || isAiLoading}
                     >
                         <User size={20} className="mr-2" />
                         Pessoas
@@ -251,6 +249,9 @@ export default function SearchPage() {
                     <p className="mt-4 text-muted-foreground">Carregando resultados...</p>
                 </div>
             )}
+
+            {/* AI Loading State */}
+            {isAiLoading && renderLoadingSkeletons()}
 
             {/* Results */}
             {!isLoading && searchResults.length > 0 && (
@@ -316,8 +317,6 @@ export default function SearchPage() {
                                         </>
                                     )}
 
-                                {/* AI Loading State */}
-                                {isAiLoading && renderLoadingSkeletons()}
 
                                 {/* Resultados da IA */}
                                 {(searchResults as AIRecommendations[])
