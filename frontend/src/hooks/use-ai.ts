@@ -20,10 +20,10 @@ const useAI = () => {
 
     const CACHE_DURATION = 10 * 60 * 1000; // 10 minutos
 
-    const generateMovieRecommendations = useMemo(() => async (special: boolean = false): Promise<AIRecommendations[]> => {
+    const generateMovieRecommendations = useMemo(() => async (special: boolean = false, useCache: boolean = true): Promise<AIRecommendations[]> => {
         const cacheKey = special ? 'specialMovieRecommendations' : 'movieRecommendations';
         const cache = getLocalStorageItem(cacheKey);
-        if (cache) {
+        if (cache && useCache) {
             const parsedCache = JSON.parse(cache);
             if (Date.now() < parsedCache.expiration) {
                 return parsedCache.data;
