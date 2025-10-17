@@ -243,18 +243,8 @@ export default function SearchPage() {
                 </div>
             </div>
 
-            {isLoading || isAiLoading && (
-                <div className="mt-8 flex flex-col items-center justify-center">
-                    <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-                    <p className="mt-4 text-muted-foreground">Carregando resultados...</p>
-                </div>
-            )}
-
-            {/* AI Loading State */}
-            {isAiLoading && renderLoadingSkeletons()}
-
             {/* Results */}
-            {!isLoading && searchResults.length > 0 && (
+            {!isLoading && !isAiLoading && searchResults.length > 0 && (
                 <div className="mt-4">
                     <h2 className="text-lg font-semibold mb-2">
                         Filmes encontrados ({searchResults.length})
@@ -390,6 +380,8 @@ export default function SearchPage() {
                     </ul>
                 </div>
             )}
+
+            {isAiLoading && renderLoadingSkeletons()}
 
             {/* No Results */}
             {!isLoading && !isAiLoading && searchResults.length === 0 && renderNoResults()}
