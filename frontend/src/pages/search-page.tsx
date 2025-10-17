@@ -36,8 +36,10 @@ export default function SearchPage() {
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const query = urlParams.get('query');
+        console.log(query);
+        
 
-        if (query) {
+        if (query && query != "null") {
             setSearchQuery(query || "");
             const previousSearchResult = getLocalStorageItem('searchResults');
 
