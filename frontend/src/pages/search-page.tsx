@@ -29,6 +29,7 @@ export default function SearchPage() {
     const [searchResults, setSearchResults] = useState<AIRecommendations[] | UserProfilePreview[]>([]);
     const [selectedMovie, setSelectedMovie] = useState<AIRecommendations | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [isAiLoading, setIsAiLoading] = useState(false);
     const [hasSearched, setHasSearched] = useState(false);
 
     useEffect(() => {
@@ -54,33 +55,45 @@ export default function SearchPage() {
         }
 
         setIsLoading(true);
+        setIsAiLoading(true);
         setSearchResults([]);
         setHasSearched(true);
 
         try {
-            const results = searchType === "movies"
-                ? [
-                    ...(await getMovieByTitle(searchTerm)).results.map((movie: any) => ({
-                        title: movie.title,
-                        year: movie.release_date ? Number(movie.release_date.slice(0, 4)) : undefined,
-                        genres: movie.genre_ids ? movie.genre_ids.map((id: number) => id.toString()) : [],
-                        overview: movie.overview,
-                        streaming_services: [],
-                        original_title: movie.original_title,
-                        poster_url: movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : undefined,
-                        searched: 'TMDB'
-                    })),
-                    ...(await searchMovie(searchTerm)).map((movie) => ({
-                        ...movie,
-                        searched: 'AI'
-                    }))
-                ]
-                : await getUsersByUsername(searchTerm);
+            if (searchType === "movies") {
+                const results = (await getMovieByTitle(searchTerm)).results.map((movie: any) => ({
+                    title: movie.title,
+                    year: movie.release_date ? Number(movie.release_date.slice(0, 4)) : 0,
+                    genres: movie.genre_ids ? movie.genre_ids.map((id: number) => id.toString()) : [],
+                    overview: movie.overview,
+                    streaming_services: [],
+                    original_title: movie.original_title,
+                    poster_url: movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : null,
+                    searched: 'TMDB' as const
+                })) as AIRecommendations[];
 
-            setSearchResults(searchType === "movies" ? results : (results as AxiosResponse).data || results);
-            setLocalStorageItem('searchResults', results);
+                setSearchResults(results);
+                setIsLoading(false);
+
+
+                const aiResults = await searchMovie(searchTerm);
+                const combinedResults = [
+                    ...results,
+                    ...aiResults.map((movie) => ({
+                        ...movie,
+                        searched: 'AI' as const
+                    }))
+                ] as AIRecommendations[];
+                setSearchResults(combinedResults);
+                setLocalStorageItem('searchResults', combinedResults);
+            } else {
+                const users = await getUsersByUsername(searchTerm);
+                setSearchResults((users as AxiosResponse).data);
+                setLocalStorageItem('searchResults', (users as AxiosResponse).data);
+            }
         } finally {
             setIsLoading(false);
+            setIsAiLoading(false);
         }
     };
 
@@ -109,7 +122,7 @@ export default function SearchPage() {
     const renderLoadingSkeletons = () => {
         return (
             <div className="mt-4">
-                <h2 className="text-lg font-semibold mb-2">Carregando resultados...</h2>
+                <h2 className="text-lg font-semibold mb-2">Carregando relacionados...</h2>
                 <div className="space-y-4">
                     {[...Array(3)].map((_, index) => (
                         <div key={index} className="cinema-card p-4">
@@ -134,7 +147,7 @@ export default function SearchPage() {
     };
 
     const renderNoResults = () => {
-        if (!hasSearched || isLoading) return null;
+        if (!hasSearched || isLoading || isAiLoading) return null;
 
         return (
             <div className="mt-8 flex flex-col items-center justify-center text-center space-y-4">
@@ -219,9 +232,6 @@ export default function SearchPage() {
                 </div>
             </div>
 
-            {/* Loading State */}
-            {isLoading && renderLoadingSkeletons()}
-
             {/* Results */}
             {!isLoading && searchResults.length > 0 && (
                 <div className="mt-4">
@@ -285,6 +295,9 @@ export default function SearchPage() {
                                                 ))}
                                         </>
                                     )}
+
+                                {/* AI Loading State */}
+                                {isAiLoading && renderLoadingSkeletons()}
 
                                 {/* Resultados da IA */}
                                 {(searchResults as AIRecommendations[])
