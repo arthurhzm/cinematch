@@ -21,7 +21,7 @@ export default function MoviePage() {
     const navigate = useNavigate();
     const location = useLocation();
     console.log(location.state);
-    
+
 
     const [movieDetails, setMovieDetails] = useState<TMDBMovieDetails>();
     const [isWatched, setIsWatched] = useState(false);
@@ -44,7 +44,10 @@ export default function MoviePage() {
             console.log(details);
 
             setMovieDetails({ ...details, backdropUrl, posterUrl });
-            const feedback: UserMovieFeedback = (await getUserFeedback(userData.id, details.title))?.data[0] || null;
+            const userFeedbackResponse = await getUserFeedback(userData.id, details.title);
+            const feedback: UserMovieFeedback = userFeedbackResponse && Array.isArray(userFeedbackResponse.data) && userFeedbackResponse.data.length > 0
+                ? userFeedbackResponse.data[0]
+                : null;
 
             setFeedback(feedback);
             setIsWatched(!!feedback);
