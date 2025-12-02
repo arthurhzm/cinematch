@@ -26,7 +26,11 @@ const useTMDB = () => {
     }
 
     const getGenresById = async (genreIds: number[]) => {
-        const responses = await Promise.all(genreIds.map(id => fetch(`${baseUrl}/genre/${id}`, options)));
+        const responses = await Promise.all(
+            genreIds.map(id =>
+                fetch(`${baseUrl}/genre/${id}?language=pt-BR`, options)
+            )
+        );
         const data = await Promise.all(responses.map(res => res.json()));
         return data.map((genre: { id: number; name: string }) => ({
             id: genre.id,

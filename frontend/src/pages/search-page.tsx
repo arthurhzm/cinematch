@@ -20,7 +20,7 @@ import { useNavigate } from "react-router-dom";
 export default function SearchPage() {
     const { showError } = useToast();
     const { searchMovie } = useAI();
-    const { getMovieByTitle } = useTMDB();
+    const { getMovieByTitle, getGenresById } = useTMDB();
     const { getUsersByUsername } = useUser();
     const { getLocalStorageItem, setLocalStorageItem } = useLocalStorage();
     const navigate = useNavigate();
@@ -36,15 +36,19 @@ export default function SearchPage() {
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const query = urlParams.get('query');
-        console.log(query);
-        
-
         if (query && query != "null") {
+            console.log('hellou???');
+
             setSearchQuery(query || "");
             const previousSearchResult = getLocalStorageItem('searchResults');
 
             if (!!previousSearchResult) {
-                setSearchResults(JSON.parse(previousSearchResult));
+                if (JSON.parse(previousSearchResult)[0].searchQuery != query) {
+                    performSearch(query);
+                } else {
+                    setSearchResults(JSON.parse(previousSearchResult));
+                }
+
             } else if (query && query.trim() !== '') {
                 setSearchType("movies");
                 performSearch(query);
@@ -71,16 +75,22 @@ export default function SearchPage() {
         try {
             if (searchType === "movies") {
 
-                const results = (await getMovieByTitle(searchTerm)).results.map((movie: any) => ({
-                    title: movie.title,
-                    year: movie.release_date ? Number(movie.release_date.slice(0, 4)) : 0,
-                    genres: movie.genre_ids ? movie.genre_ids.map((id: number) => id.toString()) : [],
-                    overview: movie.overview,
-                    streaming_services: [],
-                    original_title: movie.original_title,
-                    poster_url: movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : null,
-                    searched: 'TMDB' as const
-                })) as AIRecommendations[];
+                const results = await Promise.all(
+                    (await getMovieByTitle(searchTerm)).results.map(async (movie: any) => ({
+                        title: movie.title,
+                        year: movie.release_date ? Number(movie.release_date.slice(0, 4)) : 0,
+                        genres: movie.genre_ids ? await getGenresById(movie.genre_ids).then(genres => genres.map(g => g.name)) : [],
+                        overview: movie.overview,
+                        streaming_services: [],
+                        original_title: movie.original_title,
+                        poster_url: movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : null,
+                        searched: 'TMDB' as const,
+                        searchQuery: searchTerm
+                    }))
+                ) as AIRecommendations[];
+
+                console.log(results);
+
 
                 if (searchTerm !== DEFAULT_SEARCH_QUERY) {
                     setSearchResults(results);
@@ -96,7 +106,8 @@ export default function SearchPage() {
                     ...results,
                     ...aiResults.map((movie) => ({
                         ...movie,
-                        searched: 'AI' as const
+                        searched: 'AI' as const,
+                        searchQuery: searchTerm
                     }))
                 ] as AIRecommendations[];
                 setSearchResults(combinedResults);
@@ -291,15 +302,19 @@ export default function SearchPage() {
                                                                         <small className="text-muted-foreground">{result.original_title}</small>
                                                                     </h3>
                                                                     <div className="flex flex-wrap gap-1">
-                                                                        {result.genres?.map((genre, genreIndex) => (
-                                                                            <Badge
-                                                                                key={genreIndex}
-                                                                                variant="secondary"
-                                                                                className="text-xs"
-                                                                            >
-                                                                                {genre}
-                                                                            </Badge>
-                                                                        ))}
+                                                                        {result.genres?.map((genre, genreIndex) => {
+                                                                            console.log(genre);
+
+                                                                            return (
+                                                                                <Badge
+                                                                                    key={genreIndex}
+                                                                                    variant="secondary"
+                                                                                    className="text-xs"
+                                                                                >
+                                                                                    {genre}
+                                                                                </Badge>
+                                                                            )
+                                                                        })}
                                                                     </div>
                                                                 </div>
                                                             </div>
