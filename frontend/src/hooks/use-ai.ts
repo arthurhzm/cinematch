@@ -34,7 +34,7 @@ const useAI = () => {
         console.log('Gerando recomendações via IA');
 
         const response = await ai.models.generateContent({
-            model: AI_MODELS.GEMINI_2_5_FLASH_LITE,
+            model: AI_MODELS.GEMINI_2_0_FLASH_LITE,
             contents: await recommendationPrompt(10, special),
         });
 
@@ -319,7 +319,7 @@ const useAI = () => {
         `;
 
         const response = await ai.models.generateContent({
-            model: AI_MODELS.GEMINI_2_5_FLASH_LITE,
+            model: AI_MODELS.GEMINI_2_0_FLASH_LITE,
             contents: prompt
         });
 
@@ -364,7 +364,7 @@ const useAI = () => {
         console.log(prompt);
 
         const response = await ai.models.generateContent({
-            model: AI_MODELS.GEMINI_2_5_FLASH_LITE,
+            model: AI_MODELS.GEMINI_2_0_FLASH_LITE,
             contents: prompt,
         });
 
