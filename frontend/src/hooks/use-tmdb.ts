@@ -9,7 +9,10 @@ type TMDBGetMovieResponse = {
 
 const useTMDB = () => {
     const apiKey = import.meta.env.VITE_TMDB_API_KEY;
-    const baseUrl = 'https://api.themoviedb.org/3';
+    // Use proxy local em dev e produção para evitar CORS
+    const baseUrl = import.meta.env.DEV 
+        ? 'https://api.themoviedb.org/3' 
+        : '/api/tmdb';
     const options = {
         headers: {
             Authorization: `Bearer ${apiKey}`,
