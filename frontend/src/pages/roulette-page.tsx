@@ -238,7 +238,7 @@ export default function RoulettePage() {
             setLoadingProgress(70);
 
             const response = await ai.models.generateContent({
-                model: AI_MODELS.GEMINI_3_0_PRO,
+                model: AI_MODELS.GEMINI_2_5_PRO,
                 contents: superPrompt,
             });
 
